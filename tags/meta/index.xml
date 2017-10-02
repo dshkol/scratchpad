@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Meta on Scratchpad</title>
+    <link>http://dshkol.com/tags/meta/</link>
+    <description>Recent content in Meta on Scratchpad</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>Dmitry Shkolnik</copyright>
+    <lastBuildDate>Wed, 30 Aug 2017 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="http://dshkol.com/tags/meta/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Starting a blog</title>
+      <link>http://dshkol.com/2017/08/30/starting-a-blog/</link>
+      <pubDate>Wed, 30 Aug 2017 00:00:00 +0000</pubDate>
+      
+      <guid>http://dshkol.com/2017/08/30/starting-a-blog/</guid>
+      <description>I’m finally getting around to starting a blog/personal site.
+I’ve thought about it for a long time but never set down to actually do it. There are several motivations behind this blog:
+I find more and more that other people’s personal blogs – as well as sites like R-bloggers and R Views – are the best place to learn new methods, learn about new packages, and to be inspired by the work of other people.</description>
+    </item>
+    
+  </channel>
+</rss>
