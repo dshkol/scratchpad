@@ -1,5 +1,5 @@
 baseurl = "http://dshkol.com"
-publishDir = "../scratchpad"
+publishDir = "public"
 title = "Scratchpad"
 theme = "ghostwriter"
 languageCode = "en-us"
