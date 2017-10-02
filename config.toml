@@ -5,7 +5,7 @@ theme = "ghostwriter"
 languageCode = "en-us"
 copyright = "Dmitry Shkolnik"
 disqusShortname = "dshkol"
-googleAnalytics = "XXX"
+googleAnalytics = "UA-107390160-1"
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 
 
@@ -33,7 +33,7 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
     highlightJsLocalUrl = ""
 
 [Permalinks]
-    post = "/:year/:month/:day/:slug/"
+    post = "/:year/:slug/"
 
 [[menu.main]]
     name = "Blog"
