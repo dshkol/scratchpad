@@ -1,4 +1,4 @@
-baseurl = "https://www.dshkol.com"
+baseurl = "https://www.dshkol.com/"
 publishDir = "public"
 title = "Scratchpad"
 theme = "ghostwriter"
