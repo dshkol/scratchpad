@@ -1,7 +1,7 @@
 ---
 title: Language Diversity in Canada
 author: Dmitry Shkolnik
-date: '2017-10-02'
+date: '2017-10-03'
 slug: language-diversity-in-canada
 categories:
   - analysis
@@ -12,6 +12,11 @@ tags:
   - census
   - maps
 ---
+<center>
+![The Confusion of Tongues, Gustav Doré, engraving c.1865-1868](https://upload.wikimedia.org/wikipedia/commons/a/af/Confusion_of_Tongues.png){ height=30% }
+_The Confusion of Tongues, Gustav Doré, engraving c.1865-1868_
+</center>
+
 
 
 ## Language Diversity Index
@@ -34,7 +39,9 @@ $$
 A higher resulting LDI measure indicates greater linguistic diversity. A score of 1 would imply that no two individuals share a language. Greenberg illustrates how to calculate this with a simple example. If in a population $1/8$ speak $M$, $3/8$ speak $N$, and $1/2$ speak $O$, then the diversity index would be calculated as: 
 
 $$
-LDI = 1 - [(\frac{1}{8})^2 + (\frac{3}{8})^2 + (\frac{1}{2})^2] = 1-\frac{26}{64} = \frac{38}{64} \approxeq 0.593
+\begin{split}
+LDI = 1 - \bigg[\big(\frac{1}{8}\big)^2 + \big(\frac{3}{8}\big)^2 + \big(\frac{1}{2}\big)^2\bigg] \\ = 1-\frac{26}{64} = \frac{38}{64} \approx 0.593
+\end{split}
 $$
 
 As an aside, the competition economists in the audience will notice that Greenberg's language diversity index is calculated in the same fashion as the [Herfindahl-Hirschman Index](https://en.wikipedia.org/wiki/Herfindahl_index) for measuring market concentration and competition. The same approach is used in the [Simpson Index](https://en.wikipedia.org/wiki/Diversity_index#Simpson_index) of ecological diversity.
@@ -123,8 +130,7 @@ ldi_calc <- function(df) {
   tidy_langs <- df %>%
   rename(`Language Total` = v_CA16_1355) %>%
   mutate(v_CA16_1364 = v_CA16_1364 + v_CA16_2153 + v_CA16_2150 + v_CA16_2159,
-         v_CA16_1367 = v_CA16_1367 + v_CA16_2156 + v_CA16_2150 + v_CA16_2159,
-         `Language Total` = `Language Total` + 2*(v_CA16_2150 + v_CA16_2159)) %>%
+         v_CA16_1367 = v_CA16_1367 + v_CA16_2156 + v_CA16_2150 + v_CA16_2159) %>%
   select(-v_CA16_2153, -v_CA16_2150, -v_CA16_2159, -v_CA16_2156) %>%
   tidyr::gather(key = language, value = lang_count, v_CA16_1364:v_CA16_1937) %>%
   mutate(ldi_frac = ifelse(lang_count <= `Language Total`, lang_count/`Language Total`, 1)) %>%
@@ -237,7 +243,7 @@ csd_plot
 
 ```
 
-Out of the top 50 largest CSDs in Canada, Richmond, British Columbia ends up scoring the highest on our diversity index. As a Richmond native, this is a somewhat surprising result. While Richmond consistently has one of the lowest English/French speaking shares, the general perception is that Richmond is still linguistically homogenous with most people speaking a handful of non-official languages. 
+Out of the top 50 largest CSDs in Canada, Richmond, British Columbia ends up scoring the highest on our diversity index. As a Richmond native, this is a somewhat surprising result. While Richmond consistently has one of the lowest English/French speaking shares, the general perception is that Richmond is still linguistically homogeneous with most people speaking a handful of non-official languages. 
 
 Brossard and Mont-Royal in Montréal have higher index scores but they do not make the cut for the 50 most populous CSDs. Richmond Hill and Markham stand out in the GTA, while Burnaby and, to a lesser extent, Surrey and Coquitlam score highly in the Lower Mainland. 
 
@@ -329,7 +335,7 @@ ggplot(csd100_ldi, aes(x = ldi, y = log(Population))) +
 
 The `cancensus` package can simultaneously query and retrieve Census geographic data and return spatial data objects of either `sf` or `sp` class. This allows for spatial representation of Census data. In other words: maps on maps on maps. 
 
-Let's take a look at Canada's three largest metropolitan areas. WIth `cancensus` we can query up to the Dissemination Area (DA) level of Census geography which allows for much greater resolution into the spatial distribution of something like language diversity. 
+Let's take a look at Canada's three largest metropolitan areas. With `cancensus` we can query up to the Dissemination Area (DA) level of Census geography which allows for much greater resolution into the spatial distribution of something like language diversity. 
 
 ```{r city_plot_regions, echo=TRUE, message=FALSE, warning=FALSE, fig.width=10,fig.height=10}
 regions_list_van <- list_census_regions(dataset) %>% 
@@ -447,7 +453,7 @@ mo1
 
 #### Vancouver in Detail
 
-Taking a look at Vancouver in more detail we can focus specifically on Vancouver, Burnaby, Richmond, and New Westminster to identify the most linguistically diverse parts of those municipalities. 
+Taking a look at Vancouver in more detail we can focus specifically on Vancouver (including UBC and the University Endowment Lands), Burnaby, Richmond, and New Westminster to identify the most linguistically diverse parts of those municipalities.
 
 ```{r van_detail, echo=FALSE, fig.height=10, fig.width=10, message=FALSE, warning=FALSE}
 
@@ -472,7 +478,7 @@ mv2 <- ggplot(van_ldi2) + geom_sf(aes(fill = ldi), colour = NA) +
   map_theme +
   guides(fill = guide_colourbar(title.position="top")) +
   labs(title = "Language Diversity Index",
-       subtitle = "City of Vancouver DA-level data",
+       subtitle = "City of Vancouver, UBC, UEL DA-level data",
        caption = "Dmitry Shkolnik @dshkol\nCensus 2016 data from Statistics Canada retrieved through cancensus R package\n Linguistic diversity calculated using the method introduced in Greenberg (1958)\nand generated based off Census data for language spoken most commonly at home.")
 
 mv3 <- ggplot(van_ldi3) + geom_sf(aes(fill = ldi), colour = NA) +
@@ -480,7 +486,7 @@ mv3 <- ggplot(van_ldi3) + geom_sf(aes(fill = ldi), colour = NA) +
   map_theme +
   guides(fill = guide_colourbar(title.position="top")) +
   labs(title = "Language Diversity Index",
-       subtitle = "Cities of Vancouver, Burnaby, Richmond, and New Westminster (DA-level data)",
+       subtitle = "Cities of Vancouver (plus UBC and UEL), Burnaby, Richmond, and New Westminster (DA-level data)",
        caption = "Dmitry Shkolnik @dshkol\nCensus 2016 data from Statistics Canada retrieved through cancensus R package\n Linguistic diversity calculated using the method introduced in Greenberg (1958)\nand generated based off Census data for language spoken most commonly at home.")
 
 mv2
@@ -535,6 +541,7 @@ ggplot(mr_cma_detail %>% mutate(`Region Name` = as.factor(gsub(" \\(.\\)","",`Re
   geom_bar(stat = "identity", position = "fill") + coord_flip() + 
   scale_y_continuous("Multiple Responses Breakdown", labels = scales::percent) + 
   scale_x_discrete("") + theme_minimal() + guides(fill=guide_legend(ncol=2)) +
+  scale_fill_viridis_d() +
   theme(legend.title=element_blank()) + theme(legend.position = "bottom") + 
   theme(plot.title=element_text(face="bold", hjust = 0.5)) + theme(plot.subtitle=element_text(hjust = 0.5)) + 
   theme(plot.caption=element_text(size=8, margin=margin(t=10))) + 
@@ -549,6 +556,6 @@ My proposed solution to address the Single Response/Multiple Response issue is t
 * _English and non-official language_ respondents are added to the Single Response _English_ speakers
 * _French and non-official language_ speakers are added to the Single Response _French_ speakers
 * _English and French_ speakers along with _English and French and non-official languages_ speakers are added to both the Single Response _English_ and the Single Response _French_ speakers 
-* The denominator for the diversity index is the sum of Single Response totals and Multiple Responses totals *plus* an additional total to account for double-counting _English + French_ speakers
+* The denominator for the diversity index is the sum of Single Response totals and Multiple Responses totals
 
-Identifying the exact impact on the diversity score will be very challenging so I leave that excercise to anyone who wants to follow up on this analysis. As usual, all the code for this page and the analysis on it as available on [Github](https://github.com/dshkol/scratchpad/blob/mgetaster/content/post/2017-10-02-language-diversity-in-canada.Rmd).
+Identifying the exact impact on the diversity score will be very challenging so I leave that exercise to anyone who wants to follow up on this analysis. As usual, all the code for this page and the analysis on it as available on [Github](https://github.com/dshkol/scratchpad/blob/mgetaster/content/post/2017-10-02-language-diversity-in-canada.Rmd).
