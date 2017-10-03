@@ -558,4 +558,4 @@ My proposed solution to address the Single Response/Multiple Response issue is t
 * _English and French_ speakers along with _English and French and non-official languages_ speakers are added to both the Single Response _English_ and the Single Response _French_ speakers 
 * The denominator for the diversity index is the sum of Single Response totals and Multiple Responses totals
 
-Identifying the exact impact on the diversity score will be very challenging so I leave that exercise to anyone who wants to follow up on this analysis. As usual, all the code for this page and the analysis on it as available on [Github](https://github.com/dshkol/scratchpad/blob/mgetaster/content/post/2017-10-02-language-diversity-in-canada.Rmd).
+Identifying the exact impact on the diversity score will be very challenging so I leave that exercise to anyone who wants to follow up on this analysis. As usual, all the code for this page and the analysis on it as available on [Github](https://github.com/dshkol/scratchpad/blob/master/content/post/2017-10-02-language-diversity-in-canada.Rmd).
