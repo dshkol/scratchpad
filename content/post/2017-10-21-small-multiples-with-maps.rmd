@@ -14,9 +14,9 @@ After seeing the excellent electoral results maps from the [Berliner Morgenpost]
 
 The maps in my post highlighted areas where overall diversity was greatest, but they don't do a good job of providing detail about the heterogeneous makeup of each area, and which languages particularly stand out. Maps which highlight the most first (or second, or third) most prominent language are easy to find but they too fail to show heterogeneity. 
 
-Dot density maps are a frequently approach to show both intensity and distribution on a map. You can check out this *cancensus* [vignette](http://htmlpreview.github.io/?https://github.com/mountainMath/cancensus/blob/master/vignettes/dot_density_example.nb.html) for a simple example using Census languages. 
+Dot density maps are a frequently used approach that shows both intensity and distribution on a map. You can check out this **cancensus** [vignette](http://htmlpreview.github.io/?https://github.com/mountainMath/cancensus/blob/master/vignettes/dot_density_example.nb.html) for a simple example using Census languages.
 
-Dot density maps can start looking a little busy when there's more than a few categories plotted simultaneously. As the number of categories being displayed increases, perceptual distance between colours decreases and there is less and less negative space left over. Smaller categories are visually dominated by categories with larger numbers. Small multiples are an alternative approach that mitigates the effect of overlapping data. They're also pretty easy to put together in R. 
+Dot density maps can start looking a little busy when there's more than a few categories plotted simultaneously. As the number of categories being displayed increases, perceptual distance between colours decreases and there is less and less negative space left over. Smaller categories are visually dominated by categories with larger numbers. Small multiples are an alternative approach that mitigates the effect of overlapping data. There are several ways of creating small multiples in R and this post goes through a couple methods that take advantage of ggplot2 faceting and R's grid approach to graphical objects. 
 
 ## Small multiples
 
@@ -38,7 +38,7 @@ _A more contemporary example from [Domino Data Labs](https://blog.dominodatalab.
 
 ## Getting the data 
 
-For this example, let's take a look at the top-10 languages spoken in the Toronto CMA. Language spoken most often at home and mother language are the two primary Census language variables in the Canadian Census. This post is more of a quick example, but there's a lot more detail about retrieving Census language data with the [cancensus](gh) R package in [this post](https://www.dshkol.com/2017/language-diversity-in-canada/) for those who are interested. 
+For this example, let's take a look at the top-10 languages spoken in the Toronto CMA. Language spoken most often at home and mother language are the two primary Census language variables in the Canadian Census. This post is more of a quick example, but there's a lot more detail about retrieving Census language data with the [cancensus](https://github.com/mountainMath/cancensus) R package in [this post](https://www.dshkol.com/2017/language-diversity-in-canada/) for those who are interested. 
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(warning = FALSE, message = FALSE)
@@ -164,13 +164,14 @@ toronto10_ct <- toronto10_ct %>%
 Next, create a function to create a ggplot map for each entry
 
 ```{r define_small_map_function, message=FALSE, warning=FALSE}
-small_map <- function(i) {
-  to_sub <- toronto10_ct %>% filter(label == language_list[i])
-  map <- ggplot(to_sub) + geom_sf(aes(fill = lang_share_sr^(1/2), colour = lang_share_sr^(1/2))) + 
+small_map <- function(df, i) {
+  sub_df <- df %>% filter(label == language_list[i])
+  
+  map <- ggplot(sub_df) + geom_sf(aes(fill = lang_share_sr^(1/2), colour = lang_share_sr^(1/2))) + 
     map_theme + 
-    scale_fill_gradient(space = "Lab", name=" ", low="#F4F4F4", high=unique(to_sub$colour), guide=FALSE) + labs(title = language_list[i]) +
-    scale_colour_gradient(space = "Lab", name=" ", low="#F4F4F4", high=unique(to_sub$colour), guide=FALSE) + labs(title = language_list[i]) +
-    theme(plot.title = element_text(colour = unique(to_sub$colour)))
+    scale_fill_gradient(space = "Lab", name=" ", low="#F4F4F4", high=unique(sub_df$colour), guide=FALSE) + labs(title = language_list[i]) +
+    scale_colour_gradient(space = "Lab", name=" ", low="#F4F4F4", high=unique(sub_df$colour), guide=FALSE) + labs(title = language_list[i]) +
+    theme(plot.title = element_text(colour = unique(sub_df$colour)))
   return(map)
 }
 ```
@@ -179,10 +180,10 @@ Once the function is defined, we iterate over each of the top languages (excludi
 
 ```{r iterate_small_map, message=FALSE, warning=FALSE, results = "hide"}
 language_list <- unique(toronto10_ct$label)
-plotlist <- list() # create empty list to fill with plots
+plotlist <- list() # initialize an empty list to fill
 
 for(i in 1:length(language_list)) {
-  plotlist[[i]] <- small_map(i)
+  plotlist[[i]] <- small_map(toronto10_ct, i)
 }
 ```
 

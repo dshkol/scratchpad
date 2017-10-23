@@ -13,8 +13,8 @@ description: ''
 <p><strong>TL;DR: Small multiples maps are one of my favourite ways to communicate multiple variables with a quantitative and spatial dimension. This example uses small multiples to show the distribution of the most spoken non-English languages in the Toronto CMA. Scroll to the end to see the results.</strong></p>
 <p>After seeing the excellent electoral results maps from the <a href="https://interaktiv.morgenpost.de/analyse-bundestagswahl-2017/">Berliner Morgenpost</a>, I wanted to experiment with a similar approach for an alternative take on my maps of <a href="https://www.dshkol.com/2017/language-diversity-in-canada/">linguistic diversity in Canadian cities</a>.</p>
 <p>The maps in my post highlighted areas where overall diversity was greatest, but they don’t do a good job of providing detail about the heterogeneous makeup of each area, and which languages particularly stand out. Maps which highlight the most first (or second, or third) most prominent language are easy to find but they too fail to show heterogeneity.</p>
-<p>Dot density maps are a frequently approach to show both intensity and distribution on a map. You can check out this <em>cancensus</em> <a href="http://htmlpreview.github.io/?https://github.com/mountainMath/cancensus/blob/master/vignettes/dot_density_example.nb.html">vignette</a> for a simple example using Census languages.</p>
-<p>Dot density maps can start looking a little busy when there’s more than a few categories plotted simultaneously. As the number of categories being displayed increases, perceptual distance between colours decreases and there is less and less negative space left over. Smaller categories are visually dominated by categories with larger numbers. Small multiples are an alternative approach that mitigates the effect of overlapping data. They’re also pretty easy to put together in R.</p>
+<p>Dot density maps are a frequently used approach that shows both intensity and distribution on a map. You can check out this <strong>cancensus</strong> <a href="http://htmlpreview.github.io/?https://github.com/mountainMath/cancensus/blob/master/vignettes/dot_density_example.nb.html">vignette</a> for a simple example using Census languages.</p>
+<p>Dot density maps can start looking a little busy when there’s more than a few categories plotted simultaneously. As the number of categories being displayed increases, perceptual distance between colours decreases and there is less and less negative space left over. Smaller categories are visually dominated by categories with larger numbers. Small multiples are an alternative approach that mitigates the effect of overlapping data. There are several ways of creating small multiples in R and this post goes through a couple methods that take advantage of ggplot2 faceting and R’s grid approach to graphical objects.</p>
 <div id="small-multiples" class="section level2">
 <h2>Small multiples</h2>
 <p>Tufte introduces small multiples in <em>The Visual Display of Quantitative Information</em> (1983) and in <em>Envisioning Information</em> (1990). He explains that they are:</p>
@@ -31,7 +31,7 @@ description: ''
 </div>
 <div id="getting-the-data" class="section level2">
 <h2>Getting the data</h2>
-<p>For this example, let’s take a look at the top-10 languages spoken in the Toronto CMA. Language spoken most often at home and mother language are the two primary Census language variables in the Canadian Census. This post is more of a quick example, but there’s a lot more detail about retrieving Census language data with the <a href="gh">cancensus</a> R package in <a href="https://www.dshkol.com/2017/language-diversity-in-canada/">this post</a> for those who are interested.</p>
+<p>For this example, let’s take a look at the top-10 languages spoken in the Toronto CMA. Language spoken most often at home and mother language are the two primary Census language variables in the Canadian Census. This post is more of a quick example, but there’s a lot more detail about retrieving Census language data with the <a href="https://github.com/mountainMath/cancensus">cancensus</a> R package in <a href="https://www.dshkol.com/2017/language-diversity-in-canada/">this post</a> for those who are interested.</p>
 <pre class="r"><code># Install package if not already installed
 # devtools::install_github(&quot;mountainmath/cancensus&quot;)
 
@@ -132,21 +132,22 @@ scale_colour_viridis_c(&quot;&quot;, guide = FALSE, option = &quot;magma&quot;)<
                             label == &quot;Tamil&quot; ~ &quot;#ff00db&quot;,
                             label == &quot;Urdu&quot; ~ &quot;#325600&quot;))</code></pre>
 <p>Next, create a function to create a ggplot map for each entry</p>
-<pre class="r"><code>small_map &lt;- function(i) {
-  to_sub &lt;- toronto10_ct %&gt;% filter(label == language_list[i])
-  map &lt;- ggplot(to_sub) + geom_sf(aes(fill = lang_share_sr^(1/2), colour = lang_share_sr^(1/2))) + 
+<pre class="r"><code>small_map &lt;- function(df, i) {
+  sub_df &lt;- df %&gt;% filter(label == language_list[i])
+  
+  map &lt;- ggplot(sub_df) + geom_sf(aes(fill = lang_share_sr^(1/2), colour = lang_share_sr^(1/2))) + 
     map_theme + 
-    scale_fill_gradient(space = &quot;Lab&quot;, name=&quot; &quot;, low=&quot;#F4F4F4&quot;, high=unique(to_sub$colour), guide=FALSE) + labs(title = language_list[i]) +
-    scale_colour_gradient(space = &quot;Lab&quot;, name=&quot; &quot;, low=&quot;#F4F4F4&quot;, high=unique(to_sub$colour), guide=FALSE) + labs(title = language_list[i]) +
-    theme(plot.title = element_text(colour = unique(to_sub$colour)))
+    scale_fill_gradient(space = &quot;Lab&quot;, name=&quot; &quot;, low=&quot;#F4F4F4&quot;, high=unique(sub_df$colour), guide=FALSE) + labs(title = language_list[i]) +
+    scale_colour_gradient(space = &quot;Lab&quot;, name=&quot; &quot;, low=&quot;#F4F4F4&quot;, high=unique(sub_df$colour), guide=FALSE) + labs(title = language_list[i]) +
+    theme(plot.title = element_text(colour = unique(sub_df$colour)))
   return(map)
 }</code></pre>
 <p>Once the function is defined, we iterate over each of the top languages (excluding English) with a <code>for</code> loop and store each resulting ggplot grob in a list.</p>
 <pre class="r"><code>language_list &lt;- unique(toronto10_ct$label)
-plotlist &lt;- list() # create empty list to fill with plots
+plotlist &lt;- list() # initialize an empty list to fill
 
 for(i in 1:length(language_list)) {
-  plotlist[[i]] &lt;- small_map(i)
+  plotlist[[i]] &lt;- small_map(toronto10_ct, i)
 }</code></pre>
 <p>With the objects stored in a list, we use the <code>gridExtra</code> package to arrange the graphical objects to our liking.</p>
 <pre class="r"><code>library(gridExtra)
