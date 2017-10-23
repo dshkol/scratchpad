@@ -8,6 +8,8 @@ tags: [cancensus, census, maps, design]
 description: ''
 ---
 
+**TL;DR: Small multiples maps are one of my favourite ways to communicate multiple variables with a quantitative and spatial dimension. This example uses small multiples to show the distribution of the most spoken non-English languages in the Toronto CMA. Scroll to the end to see the results.** 
+
 After seeing the excellent electoral results maps from the [Berliner Morgenpost](https://interaktiv.morgenpost.de/analyse-bundestagswahl-2017/), I wanted to experiment with a similar approach for an alternative take on my maps of [linguistic diversity in Canadian cities](https://www.dshkol.com/2017/language-diversity-in-canada/). 
 
 The maps in my post highlighted areas where overall diversity was greatest, but they don't do a good job of providing detail about the heterogeneous makeup of each area, and which languages particularly stand out. Maps which highlight the most first (or second, or third) most prominent language are easy to find but they too fail to show heterogeneity. 
@@ -23,6 +25,16 @@ Tufte introduces small multiples in _The Visual Display of Quantitative Informat
 > Illustrations of postage-stamp size are indexed by category or a label, sequenced over time like the frames of a movie, or ordered by a quantitative variable not used in the single image itself.
 
 There's a few advantages to using small multiples but they main one is that they allow you to display lots of variables at the same time, and allows someone looking at that information to perceive the how those variables differ from one another _in the same space_. You can use small multiples for all types of multivariate plots, whether simple scatter and bar plots, or, as in this case, choropleth maps. 
+
+<center>
+![Persons with gainful occupations and attending school, Walker (1874)](https://upload.wikimedia.org/wikipedia/commons/2/2f/Persons_With_Gainful_Occupations_and_Attending_School_in_1870.jpg){ height=30% }
+_An early example of a small multiples plot from 1874_
+</center>
+
+<center>
+![Evolution of Homeownership Rates Across the United States](https://blog.dominodatalab.com/wp-content/uploads/2016/05/home_ownership.png){ height=30% }
+_A more contemporary example from (Domino Data Labs)[https://blog.dominodatalab.com/visualizing-homeownership-in-the-us-using-small-multiples-and-r/]_
+</center>
 
 ## Getting the data 
 
@@ -55,7 +67,7 @@ language_vectors <- language_children %>% pull(vector)
 
 Figuring out the top-10 languages spoken in the Toronto CMA is pretty straight forward from here. 
 
-```{r top_languages, message=FALSE, warning=FALSE}
+```{r top_languages, message=FALSE, warning=FALSE, results = "hide"}
 # Select Region
 regions_list_tor <- list_census_regions(dataset) %>% 
   filter(level=="CMA", name == "Toronto") %>% 
@@ -71,7 +83,9 @@ toronto10 <- toronto10 %>%
   inner_join(list_census_vectors(dataset), by = c("language" = "vector")) %>%
   select(language, label, lang_count) %>%
   arrange(desc(lang_count))
+```
 
+```{r show_top_languages, message=FALSE, warning=FALSE, results = "hide"}
 toronto10
 ```
 

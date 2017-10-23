@@ -10,6 +10,7 @@ description: ''
 
 
 
+<p><strong>TL;DR: Small multiples maps are one of my favourite ways to communicate multiple variables with a quantitative and spatial dimension. This example uses small multiples to show the distribution of the most spoken non-English languages in the Toronto CMA. Scroll to the end to see the results.</strong></p>
 <p>After seeing the excellent electoral results maps from the <a href="https://interaktiv.morgenpost.de/analyse-bundestagswahl-2017/">Berliner Morgenpost</a>, I wanted to experiment with a similar approach for an alternative take on my maps of <a href="https://www.dshkol.com/2017/language-diversity-in-canada/">linguistic diversity in Canadian cities</a>.</p>
 <p>The maps in my post highlighted areas where overall diversity was greatest, but they don’t do a good job of providing detail about the heterogeneous makeup of each area, and which languages particularly stand out. Maps which highlight the most first (or second, or third) most prominent language are easy to find but they too fail to show heterogeneity.</p>
 <p>Dot density maps are a frequently approach to show both intensity and distribution on a map. You can check out this <em>cancensus</em> <a href="http://htmlpreview.github.io/?https://github.com/mountainMath/cancensus/blob/master/vignettes/dot_density_example.nb.html">vignette</a> for a simple example using Census languages.</p>
@@ -21,6 +22,12 @@ description: ''
 <p>Illustrations of postage-stamp size are indexed by category or a label, sequenced over time like the frames of a movie, or ordered by a quantitative variable not used in the single image itself.</p>
 </blockquote>
 <p>There’s a few advantages to using small multiples but they main one is that they allow you to display lots of variables at the same time, and allows someone looking at that information to perceive the how those variables differ from one another <em>in the same space</em>. You can use small multiples for all types of multivariate plots, whether simple scatter and bar plots, or, as in this case, choropleth maps.</p>
+<center>
+<img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Persons_With_Gainful_Occupations_and_Attending_School_in_1870.jpg" alt="Persons with gainful occupations and attending school, Walker (1874)" style="height:30.0%" /> <em>An early example of a small multiples plot from 1874</em>
+</center>
+<center>
+<img src="https://blog.dominodatalab.com/wp-content/uploads/2016/05/home_ownership.png" alt="Evolution of Homeownership Rates Across the United States" style="height:30.0%" /> <em>A more contemporary example from (Domino Data Labs)[<a href="https://blog.dominodatalab.com/visualizing-homeownership-in-the-us-using-small-multiples-and-r/" class="uri">https://blog.dominodatalab.com/visualizing-homeownership-in-the-us-using-small-multiples-and-r/</a>]</em>
+</center>
 </div>
 <div id="getting-the-data" class="section level2">
 <h2>Getting the data</h2>
@@ -56,39 +63,7 @@ toronto10 &lt;- toronto10 %&gt;%
   inner_join(list_census_vectors(dataset), by = c(&quot;language&quot; = &quot;vector&quot;)) %&gt;%
   select(language, label, lang_count) %&gt;%
   arrange(desc(lang_count))</code></pre>
-<pre><code>## 
-Downloading: 3.6 kB     
-Downloading: 3.6 kB     
-Downloading: 3.6 kB     
-Downloading: 3.6 kB     
-Downloading: 7.6 kB     
-Downloading: 7.6 kB     
-Downloading: 12 kB     
-Downloading: 12 kB     
-Downloading: 16 kB     
-Downloading: 16 kB     
-Downloading: 20 kB     
-Downloading: 20 kB     
-Downloading: 20 kB     
-Downloading: 20 kB     
-Downloading: 20 kB     
-Downloading: 20 kB     
-Downloading: 20 kB     
-Downloading: 20 kB</code></pre>
 <pre class="r"><code>toronto10</code></pre>
-<pre><code>## # A tibble: 10 x 3
-##       language                        label lang_count
-##          &lt;chr&gt;                        &lt;chr&gt;      &lt;dbl&gt;
-##  1 v_CA16_1364                      English    3836770
-##  2 v_CA16_2060                    Cantonese     182750
-##  3 v_CA16_2066                     Mandarin     179670
-##  4 v_CA16_1916            Punjabi (Panjabi)     116045
-##  5 v_CA16_1925                         Urdu      78105
-##  6 v_CA16_1757                        Tamil      76095
-##  7 v_CA16_1958                      Spanish      70370
-##  8 v_CA16_1937              Persian (Farsi)      67315
-##  9 v_CA16_1727 Tagalog (Pilipino, Filipino)      63985
-## 10 v_CA16_1814                      Russian      53670</code></pre>
 <p>The linguistic diversity maps looked at languages spoken at the DA level, but that involves plotting a huge number of polygons. The original maps stretched the capabilities of R’s graphical engine, and using that level of detail for small multiples is overkill. As each plot itself is quite small, there should be not much loss of detail by stepping up to a higher Census geographic level like Census tracts.</p>
 <pre class="r"><code>language_vectors &lt;- toronto10 %&gt;% pull(language)
 # I also add the Single Response Total to calculate shares and percentages for each language
