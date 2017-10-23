@@ -198,12 +198,14 @@ Note how the titles are coloured. That type of customization is easier when gene
 So to summarize...
 
 The advantages to using facets for small multiples:
+
 * Easy to implement - far fewer lines of code
 * Option to automatically generate consistent scales
 * Shared ggplot `aes` logic across multiples
 * Quicker to render
 
 And the advantages to using grids for small multiples:
+
 * More customization - flexibility with theme elements and colour palettes
 * More control over placement of objects and non-standard layouts/asymmetric layouts
 * Not limited to ggplot graphical objects - can use any R graphics objects
