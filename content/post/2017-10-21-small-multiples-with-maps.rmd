@@ -27,13 +27,13 @@ Tufte introduces small multiples in _The Visual Display of Quantitative Informat
 There's a few advantages to using small multiples but they main one is that they allow you to display lots of variables at the same time, and allows someone looking at that information to perceive the how those variables differ from one another _in the same space_. You can use small multiples for all types of multivariate plots, whether simple scatter and bar plots, or, as in this case, choropleth maps. 
 
 <center>
-![Persons with gainful occupations and attending school, Walker (1874)](https://upload.wikimedia.org/wikipedia/commons/2/2f/Persons_With_Gainful_Occupations_and_Attending_School_in_1870.jpg){ height=30% }
+![Persons with gainful occupations and attending school, Walker (1874)](https://upload.wikimedia.org/wikipedia/commons/2/2f/Persons_With_Gainful_Occupations_and_Attending_School_in_1870.jpg){ height=400px }
 _An early example of a small multiples plot from 1874_
 </center>
 
 <center>
 ![Evolution of Homeownership Rates Across the United States](https://blog.dominodatalab.com/wp-content/uploads/2016/05/home_ownership.png){ }
-_A more contemporary example from (Domino Data Labs)[https://blog.dominodatalab.com/visualizing-homeownership-in-the-us-using-small-multiples-and-r/]_
+_A more contemporary example from [Domino Data Labs](https://blog.dominodatalab.com/visualizing-homeownership-in-the-us-using-small-multiples-and-r/)_
 </center>
 
 ## Getting the data 
@@ -189,4 +189,17 @@ library(gridExtra)
 do.call("grid.arrange", c(plotlist, ncol=3)) 
 ```
 
-Note how the titles are coloured. That type of customization is easier when generating each map individually. If I was working on a small multiple plot for publication, I would appreciate the additional flexibility and customizability that's offered through this approach, but it's definitely more work to implement. 
+Note how the titles are coloured. That type of customization is easier when generating each map individually. If I was working on a small multiple plot for publication, I would appreciate the additional flexibility and customizability that's offered through this approach, but it's definitely more work to implement.
+
+So to summarize...
+
+The advantages to using facets for small multiples:
+* Easy to implement - far fewer lines of code
+* Option to automatically generate consistent scales
+* Shared ggplot `aes` logic across multiples
+* Quicker to render
+
+And the advantages to using grids for small multiples:
+* More customization - flexibility with theme elements and colour palettes
+* More control over placement of objects and non-standard layouts/asymmetric layouts
+* Not limited to ggplot graphical objects - can use any R graphics objects
