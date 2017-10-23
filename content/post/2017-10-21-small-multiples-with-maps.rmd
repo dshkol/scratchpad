@@ -32,7 +32,7 @@ _An early example of a small multiples plot from 1874_
 </center>
 
 <center>
-![Evolution of Homeownership Rates Across the United States](https://blog.dominodatalab.com/wp-content/uploads/2016/05/home_ownership.png){ height=30% }
+![Evolution of Homeownership Rates Across the United States](https://blog.dominodatalab.com/wp-content/uploads/2016/05/home_ownership.png){ }
 _A more contemporary example from (Domino Data Labs)[https://blog.dominodatalab.com/visualizing-homeownership-in-the-us-using-small-multiples-and-r/]_
 </center>
 
