@@ -99,7 +99,7 @@ blogdown::shortcode("tweet","963536381749284864")
 
 His post includes a striking visual showing the shift in age-specific birth rates for BC between 1989 and 2015. You can really see the year-by-year progression of BC women having more of their children at a later age. 
 
-I really liked what this chart showed and wanted to recreate Nathanael's Great Wait chart using tools more familiar to myself. All the code for processing data and creating charts is at the end of the post, and, as always, the full R Markdown code for this post is on Github. 
+I really liked what this chart showed and wanted to recreate Nathanael's Great Wait chart using tools more familiar to myself. All the code for processing data and creating charts is at the end of the post, and, as always, the full R Markdown code for this post is on [Github](https://github.com/dshkol/scratchpad/blob/master/content/post/2018-02-19-the-great-wait.Rmd). 
 
 ```{r curve1, message=FALSE, warning=FALSE, echo=FALSE}
 # Recreate Nathan's plot for BC total
