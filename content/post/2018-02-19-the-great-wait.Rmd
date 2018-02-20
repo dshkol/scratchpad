@@ -3,6 +3,8 @@ title: The Great Wait
 author: Dmitry Shkolnik
 date: '2018-02-20'
 slug: the-great-wait
+twitterImg: /../../post/2018-02-19-the-great-wait_files/figure-html/curve2-1.png
+description: "A look at age-specific birth rates in BC"
 categories:
   - visualization
   - analysis
