@@ -1,0 +1,198 @@
+---
+title: The Great Wait
+author: Dmitry Shkolnik
+date: '2018-02-20'
+slug: the-great-wait
+categories:
+  - visualization
+  - analysis
+  - census
+  - blog
+tags:
+  - cancensus
+  - r
+---
+
+
+
+<section id="the-great-wait" class="level2">
+<h2>The Great Wait</h2>
+<p>This <a href="https://homefreesociology.wordpress.com">interesting post</a> by <a href="https://twitter.com/LausterNa">Nathanael Lauster</a> caught my eye last week looking at the gradual shift in age-specific birth rates for women in British Columbia over the last few decades. Nathanael is a Professor of Sociology at UBC and you may have heard of his book “The Life and Death of the Single-Family House”.</p>
+{{% tweet "963536381749284864" %}}
+<p>His post includes a striking visual showing the shift in age-specific birth rates for BC between 1989 and 2015. You can really see the year-by-year progression of BC women having more of their children at a later age.</p>
+<p>I really liked what this chart showed and wanted to recreate Nathanael’s Great Wait chart using tools more familiar to myself. All the code for processing data and creating charts is at the end of the post, and, as always, the full R Markdown code for this post is on Github.</p>
+<p><img src="/post/2018-02-19-the-great-wait_files/figure-html/curve1-1.png" width="672" /></p>
+<p>Fertility rates are provided for discrete age-specific cohorts, although ideally we would have fertility rates by year. The discrete cohorts lead to straight lines and angles. We can use X-splines with a shape adjustment parameter to simulate interpolation and produce more aesthetically pleasing curves that better resemble birth rate curves. X-splines are available as geoms in the <code>ggalt</code> package.</p>
+<p><img src="/post/2018-02-19-the-great-wait_files/figure-html/curve2-1.png" width="672" /></p>
+<p>Note, there are far more accurate interpolation approaches specifically for age-specific fertility rates, but they are <a href="http://www.humanfertility.org/Docs/paa/Grigoriev_Jdanov.pdf">far more involved</a>.</p>
+</section>
+<section id="a-rich-dataset" class="level2">
+<h2>A rich dataset</h2>
+<p>The <a href="https://www2.gov.bc.ca/gov/content/data/statistics/people-population-community/population/vital-statistics">underlying dataset</a> is rich, providing age-specific fertility rates for BC Local Health Areas (LHA). Many vital statistics in BC are provided for the five “Health Authority” levels which are then broken down into Health Service Delivery areas. These are further subdivided into Local Health Areas, of which there are 86.</p>
+<p>When we look at all the individual Local Health Areas, we can see that, at least for 2015, there’s actually a fair amount of difference in their profiles.</p>
+<p><img src="/post/2018-02-19-the-great-wait_files/figure-html/curve3-1.png" width="672" /></p>
+</section>
+<section id="causes-and-implications" class="level2">
+<h2>Causes and implications</h2>
+<p>I recommend reading the original post, as Nathanael gets into more detail about some of the causes and implications. I wanted to explore whether some of these differences in birth-ages by area could be associated with differences in demographic characteristics within these areas. Fortunately, BC Local Health Areas can be mapped to Statistics Canada’s Census subdivisions, and Census geography means we can turn to Census data which, as you may have suspected, means <strong>cancensus time</strong>. Using a modified version of the BC Stats <a href="https://t.co/xkUj8qpL7W">region translation table</a>, it’s pretty easy to turn Local Health Areas into a Census region list compatible with a cancensus <code>get_census</code> call. The code at the end of this post shows all the pre-processing steps for anyone interested in that side of things.</p>
+<p>Combining the most recent Census data with the most recent fertility rate data (from 2015), we can see whether, as an example, age-specific birth rates vary with female post-secondary education attainment levels.</p>
+<p><img src="/post/2018-02-19-the-great-wait_files/figure-html/curve4-1.png" width="672" /></p>
+<p>All in all, I selected a few different Census characteristics to look at: education, employment, partnership, housing tenure, shelter costs, and calculated density. This is not meant to be an exhaustive list of potential explanatory variables - many of these will be highly correlated with one another in any case. But this is not an attempt at determining any kind of causal relationship, a problem that is surely well studied already by the experts in this field. Rather, this post is a superficial visual exploration, but it is one that I wanted to share - so let’s take a look.</p>
+<p><img src="/post/2018-02-19-the-great-wait_files/figure-html/remaining_curves-1.png" width="672" /><img src="/post/2018-02-19-the-great-wait_files/figure-html/remaining_curves-2.png" width="672" /><img src="/post/2018-02-19-the-great-wait_files/figure-html/remaining_curves-3.png" width="672" /><img src="/post/2018-02-19-the-great-wait_files/figure-html/remaining_curves-4.png" width="672" /><img src="/post/2018-02-19-the-great-wait_files/figure-html/remaining_curves-5.png" width="672" /></p>
+</section>
+<section id="pre-processing-code" class="level2">
+<h2>Pre-processing code</h2>
+<pre class="r"><code>library(dplyr)
+library(readr)
+library(tidyr)
+
+library(ggplot2)
+library(ggalt)
+
+library(cancensus)
+
+# Download fertility rate data frin vc stats
+bc  &lt;- read_csv(&quot;http://www.bcstats.gov.bc.ca/Files/c2a9caae-628d-4fac-9e7b-20511ca84c2e/AgeSpecificFertilityRatesbyLHA.csv&quot;, skip = 3) %&gt;%
+  filter(!is.na(RegionID))
+
+# Tidy up
+bcl &lt;- bc %&gt;% 
+  tidyr::gather(age, fr,`15-19`:`45-49`)
+
+# Custom LHA &lt;-&gt; CSD lookup table
+lha &lt;- read_csv(&quot;https://gist.githubusercontent.com/dshkol/f3c32e173c54e03bf938b0e1d61a47d3/raw/ba2951c0bf54e80d67f9c31a894aea42af54d4b9/lha_csd.csv&quot;) %&gt;% 
+  mutate(regionID = paste0(&quot;59&quot;,CD,CSD))
+
+# Match LHA to Census CSD
+bc_csd &lt;- list_census_regions(&#39;CA16&#39;) %&gt;%
+  filter(level == &quot;CSD&quot;,
+         region %in% lha$regionID) %&gt;%
+  as_census_region_list()
+
+# Get Census data for these regions
+# # Total pop = v_CA16_1
+# # Total females = v_CA16_3
+# # Females post-secondary = v_CA16_5062
+# # Females married or living common law = v_CA16_456
+# # Shelter costs - spending more than 30% of income on shelter costs = v_CA16_4888
+# # Renters - v_CA16_4839
+# # Females employed in the labour force = v_CA16_5605
+vectors &lt;- c(&quot;v_CA16_1&quot;,&quot;v_CA16_3&quot;,&quot;v_CA16_5062&quot;,&quot;v_CA16_456&quot;,&quot;v_CA16_4888&quot;,
+             &quot;v_CA16_4838&quot;,&quot;v_CA16_5605&quot;)
+
+lha_census &lt;- get_census(&#39;CA16&#39;, level = &quot;CSD&quot;, regions = bc_csd, vectors = vectors)
+
+# Merge with 2015 fertility rates
+
+bcfr &lt;- bcl %&gt;% filter(Year == 2015) %&gt;%
+  mutate(lha_id = sprintf(&quot;%03d&quot;,RegionID)) %&gt;%
+  left_join(lha, by = c(&quot;lha_id&quot;=&quot;LHAnum&quot;)) %&gt;%
+  left_join(lha_census, by = c(&quot;regionID&quot;=&quot;GeoUID&quot;)) %&gt;%
+  group_by(RegionID, RegionName, age, fr) %&gt;%
+  summarise(Population = sum(Population),
+                  Females = sum(`v_CA16_3: Age Stats`),
+                  Females_postsec = sum(`v_CA16_5062: Postsecondary certificate, diploma or degree`),
+                  Females_partnered = sum(`v_CA16_456: Married or living common law`),
+                  Females_employed = sum(`v_CA16_5605: Employed`),
+                  Renters = sum(`v_CA16_4838: Renter`),
+                  High_shelter = sum(`v_CA16_4888: Spending 30% or more of income on shelter costs`),
+            density = sum(Population)/sum(`Area (sq km)`))
+
+bcfr &lt;- bcfr %&gt;%
+  mutate(share_postsec = Females_postsec/Females,
+         share_partnered = Females_partnered/Females,
+         share_employed  = Females_employed/Females,
+         share_renter = Renters/Population,
+         share_highshelter = High_shelter/Population) %&gt;%
+  filter(!is.na(Females))</code></pre>
+</section>
+<section id="chart-code" class="level2">
+<h2>Chart code</h2>
+<pre class="r"><code># Custom theme for these plots
+fr_theme &lt;-   theme(panel.background = element_rect(fill = &quot;grey87&quot;),
+                    plot.background = element_rect(fill = &quot;grey87&quot;),
+                    panel.grid = element_blank(),
+                    legend.background = element_blank(),
+                    legend.position = c(0.8,0.95),
+                    legend.direction = &quot;horizontal&quot;,
+                    legend.key.height = unit(0.5,&quot;line&quot;),
+                    legend.key.width = unit(2,&quot;line&quot;))
+
+# Recreate Nathan&#39;s plot for BC total
+ggplot(bcl %&gt;% filter(RegionID == 0), aes(x = age, y = fr, group = Year)) +
+  geom_line(aes(colour = Year)) +
+  scale_color_viridis_c(&quot;&quot;,option = 3) +
+  fr_theme +
+  labs(y = &quot;Fertility Rate&quot;, x = &quot;&quot;,
+       title = &quot;The Great Wait&quot;, 
+       subtitle = &quot;BC women are waiting longer than ever to have kids&quot;,
+       caption = &quot;Inspired by N. Lauster, homefreesociology.wordpress.com\nBC Stats data&quot;)
+
+# With splines
+ggplot(bcl %&gt;% filter(RegionID == 0), aes(x = age, y = fr, group = Year)) +
+  geom_xspline(aes(colour = Year), spline_shape =-0.3) +
+  scale_color_viridis_c(&quot;&quot;,option = 3) +
+  fr_theme +
+  labs(y = &quot;Fertility Rate&quot;, x = &quot;&quot;,
+       title = &quot;The Great Wait&quot;, 
+       subtitle = &quot;BC women are waiting longer than ever to have kids&quot;,
+       caption = &quot;Inspired by N. Lauster, homefreesociology.wordpress.com\nBC Stats data, interpolated splines&quot;)
+
+# Example with highlighting for post secondary education
+ggplot(bcfr %&gt;% filter(Population &gt; 5000), 
+       aes(x = age, 
+           y = fr,
+           colour = share_postsec,
+           group = RegionName)) + 
+  geom_xspline(spline_shape = -0.4) + 
+  scale_colour_viridis_c(&quot;&quot;,option = 3,
+                         breaks = c(0.3,0.53),
+                         labels = c(&quot;Less educated&quot;,&quot;More educated&quot;)) + 
+  fr_theme +
+  labs(y = &quot;Fertility Rate&quot;, x = &quot;&quot;,
+       title = &quot;Fertility rates vary with education levels&quot;, 
+       subtitle = &quot;2015 age-specific fertity lates by Local Health Area\nColour indicates share of women with post-secondary degrees&quot;,
+       caption = &quot;Local Health Areas with population 5,000 and greater\nStatistics Canada 2016 Census data, BC Stats data, interpolated splines&quot;)</code></pre>
+</section>
+<section id="session-info" class="level2">
+<h2>Session info</h2>
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>## R version 3.4.3 (2017-11-30)
+## Platform: x86_64-apple-darwin15.6.0 (64-bit)
+## Running under: macOS High Sierra 10.13.2
+## 
+## Matrix products: default
+## BLAS: /Library/Frameworks/R.framework/Versions/3.4/Resources/lib/libRblas.0.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/3.4/Resources/lib/libRlapack.dylib
+## 
+## locale:
+## [1] en_CA.UTF-8/en_CA.UTF-8/en_CA.UTF-8/C/en_CA.UTF-8/en_CA.UTF-8
+## 
+## attached base packages:
+## [1] methods   stats     graphics  grDevices utils     datasets  base     
+## 
+## other attached packages:
+## [1] bindrcpp_0.2       cancensus_0.1.7    ggalt_0.4.0       
+## [4] ggplot2_2.2.1.9000 tidyr_0.7.2        readr_1.1.1       
+## [7] dplyr_0.7.4       
+## 
+## loaded via a namespace (and not attached):
+##  [1] Rcpp_0.12.15       RColorBrewer_1.1-2 pillar_1.1.0      
+##  [4] compiler_3.4.3     plyr_1.8.4         bindr_0.1         
+##  [7] tools_3.4.3        extrafont_0.17     digest_0.6.15     
+## [10] viridisLite_0.3.0  jsonlite_1.5       evaluate_0.10.1   
+## [13] tibble_1.4.2       gtable_0.2.0       pkgconfig_2.0.1   
+## [16] rlang_0.1.6.9003   cli_1.0.0          curl_3.1          
+## [19] yaml_2.1.16        blogdown_0.4       Rttf2pt1_1.3.4    
+## [22] httr_1.3.1         withr_2.1.1.9000   stringr_1.2.0     
+## [25] knitr_1.18         hms_0.4.0          maps_3.2.0        
+## [28] tidyselect_0.2.2   rprojroot_1.3-2    grid_3.4.3        
+## [31] glue_1.2.0         R6_2.2.2           rmarkdown_1.8     
+## [34] bookdown_0.5       extrafontdb_1.0    purrr_0.2.4       
+## [37] magrittr_1.5       backports_1.1.2    scales_0.5.0.9000 
+## [40] htmltools_0.3.6    MASS_7.3-47        proj4_1.0-8       
+## [43] assertthat_0.2.0   colorspace_1.3-2   labeling_0.3      
+## [46] utf8_1.1.3         KernSmooth_2.23-15 ash_1.0-15        
+## [49] stringi_1.1.5      lazyeval_0.2.1     munsell_0.4.3     
+## [52] crayon_1.3.4</code></pre>
+</section>

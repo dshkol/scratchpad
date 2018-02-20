@@ -1,0 +1,14 @@
+---
+title: Getting started with Cancensus
+author: Dmitry Shkolnik
+date: '2018-01-03'
+slug: getting-started-with-cancensus
+categories:
+  - census
+  - blog
+  - example
+tags:
+  - cancensus
+  - meta
+---
+
