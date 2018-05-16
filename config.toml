@@ -18,7 +18,7 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 [Params]
     intro = true
     headline = "Scratchpad"
-    description = "An incentive to finish things."
+    description = "blog blog blog"
     github = "https://github.com/dshkol"
     linkedin = "https://linkedin.com/in/dmitryshkolnik/"
     twitter = "https://twitter.com/dshkol"
