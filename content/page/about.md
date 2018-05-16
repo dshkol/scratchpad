@@ -1,6 +1,6 @@
 +++
 title = "About"
-date = 
+date = ""
 author = "Dmitry Shkolnk"
 description = ""
 +++
