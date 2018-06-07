@@ -1,8 +1,6 @@
 +++
 title = "About"
-date = ""
 author = "Dmitry Shkolnk"
-description = ""
 +++
 
 ## Dmitry Shkolnik
