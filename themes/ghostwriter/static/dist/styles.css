@@ -1,6 +1,8 @@
 /*! normalize.css v7.0.0 | MIT License | github.com/necolas/normalize.css */
 @import url('https://fonts.googleapis.com/css?family=Inconsolata');
 @import url('https://fonts.googleapis.com/css?family=Noto+Sans');
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+@import url('https://fonts.googleapis.com/css?family=Space+Mono');
 html { line-height: 1.15; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; }
 body { margin: 0; }
 article, aside, footer, header, nav, section { display: block; }
@@ -65,8 +67,8 @@ template { display: none; }
 .hljs-emphasis { font-style: italic; }
 .hljs-strong { font-weight: bold; }
 html, body { height: 100%; }
-body { background: #fefefe; color: #303030; font-family: "Noto Sans", arial, sans-serif; font-size: 16px; }
-h1, h2, h3, h4, h5, h6 { margin-bottom: 20px; font-family: "Inconsolata"; text-transform: none; }
+body { background: #fefefe; color: #303030; font-family: "Roboto", arial, sans-serif; font-size: 16px; }
+h1, h2, h3, h4, h5, h6 { margin-bottom: 20px; font-family: "Space Mono"; font-weight: bold; text-transform: none; }
 h1 { font-size: 26px; }
 h2 { font-size: 24px; }
 h3 { font-size: 20px; margin-bottom: 20px; }
