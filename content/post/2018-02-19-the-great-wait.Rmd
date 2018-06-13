@@ -13,6 +13,7 @@ categories:
 tags:
   - cancensus
   - r
+subdirectory: post
 ---
 
 ```{r preprocess, message=FALSE, warning=FALSE, include=FALSE}

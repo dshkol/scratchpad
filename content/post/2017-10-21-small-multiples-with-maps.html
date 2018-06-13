@@ -5,7 +5,9 @@ date: '2017-10-23'
 slug: small-multiples-with-maps
 categories: [analysis, census, maps, example]
 tags: [cancensus, census, maps, design]
-description: ''
+draft: no
+subdirectory: post
+description: 'Comparing two different ways of generating small multiples maps in R'
 ---
 
 
@@ -23,10 +25,12 @@ description: ''
 </blockquote>
 <p>There’s a few advantages to using small multiples but they main one is that they allow you to display lots of variables at the same time, and allows someone looking at that information to perceive the how those variables differ from one another <em>in the same space</em>. You can use small multiples for all types of multivariate plots, whether simple scatter and bar plots, or, as in this case, choropleth maps.</p>
 <center>
-<img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Persons_With_Gainful_Occupations_and_Attending_School_in_1870.jpg" alt="Persons with gainful occupations and attending school, Walker (1874)" height="600" /> <em>An early example of a small multiples plot from 1874</em>
+<img src="https://upload.wikimedia.org/wikipedia/commons/2/2f/Persons_With_Gainful_Occupations_and_Attending_School_in_1870.jpg" alt="Persons with gainful occupations and attending school, Walker (1874)" height="600" />
+<em>An early example of a small multiples plot from 1874</em>
 </center>
 <center>
-<img src="https://blog.dominodatalab.com/wp-content/uploads/2016/05/home_ownership.png" alt="Evolution of Homeownership Rates Across the United States" /> <em>A more contemporary example from <a href="https://blog.dominodatalab.com/visualizing-homeownership-in-the-us-using-small-multiples-and-r/">Domino Data Labs</a></em>
+<img src="https://blog.dominodatalab.com/wp-content/uploads/2016/05/home_ownership.png" alt="Evolution of Homeownership Rates Across the United States" />
+<em>A more contemporary example from <a href="https://blog.dominodatalab.com/visualizing-homeownership-in-the-us-using-small-multiples-and-r/">Domino Data Labs</a></em>
 </center>
 </div>
 <div id="getting-the-data" class="section level2">
@@ -34,11 +38,11 @@ description: ''
 <p>For this example, let’s take a look at the top-10 languages spoken in the Toronto CMA. Language spoken most often at home and mother language are the two primary Census language variables in the Canadian Census. This post is more of a quick example, but there’s a lot more detail about retrieving Census language data with the <a href="https://github.com/mountainMath/cancensus">cancensus</a> R package in <a href="https://www.dshkol.com/2017/language-diversity-in-canada/">this post</a> for those who are interested.</p>
 <pre class="r"><code># Install package if not already installed
 # devtools::install_github(&quot;mountainmath/cancensus&quot;)
-
+library(dplyr)
 library(cancensus)
 
-# Set censusmapper API key if necessary - see cancensus github page for info
-# Sys.setenv(CM_API_KEY = &quot;API_KEY&quot;)</code></pre>
+#options(cancensus.api_key = &quot;your_key)
+# options(cancensus.cache_path = &quot;cache_path&quot;)</code></pre>
 <p>And grabbing the language data from the Census…</p>
 <pre class="r"><code>dataset &lt;- &quot;CA16&quot; # Selecting data from the 2016 Census
 
@@ -69,18 +73,18 @@ toronto10 &lt;- toronto10 %&gt;%
   arrange(desc(lang_count))</code></pre>
 <pre class="r"><code>toronto10</code></pre>
 <pre><code>## # A tibble: 10 x 3
-##       language                        label lang_count
-##          &lt;chr&gt;                        &lt;chr&gt;      &lt;dbl&gt;
-##  1 v_CA16_1364                      English    3836770
-##  2 v_CA16_2060                    Cantonese     182750
-##  3 v_CA16_2066                     Mandarin     179670
-##  4 v_CA16_1916            Punjabi (Panjabi)     116045
-##  5 v_CA16_1925                         Urdu      78105
-##  6 v_CA16_1757                        Tamil      76095
-##  7 v_CA16_1958                      Spanish      70370
-##  8 v_CA16_1937              Persian (Farsi)      67315
+##    language    label                        lang_count
+##    &lt;chr&gt;       &lt;chr&gt;                             &lt;dbl&gt;
+##  1 v_CA16_1364 English                         3836770
+##  2 v_CA16_2060 Cantonese                        182750
+##  3 v_CA16_2066 Mandarin                         179670
+##  4 v_CA16_1916 Punjabi (Panjabi)                116045
+##  5 v_CA16_1925 Urdu                              78105
+##  6 v_CA16_1757 Tamil                             76095
+##  7 v_CA16_1958 Spanish                           70370
+##  8 v_CA16_1937 Persian (Farsi)                   67315
 ##  9 v_CA16_1727 Tagalog (Pilipino, Filipino)      63985
-## 10 v_CA16_1814                      Russian      53670</code></pre>
+## 10 v_CA16_1814 Russian                           53670</code></pre>
 <p>The linguistic diversity maps looked at languages spoken at the DA level, but that involves plotting a huge number of polygons. The original maps stretched the capabilities of R’s graphical engine, and using that level of detail for small multiples is overkill. As each plot itself is quite small, there should be not much loss of detail by stepping up to a higher Census geographic level like Census tracts.</p>
 <pre class="r"><code>language_vectors &lt;- toronto10 %&gt;% pull(language)
 # I also add the Single Response Total to calculate shares and percentages for each language
@@ -109,16 +113,19 @@ map_theme &lt;- theme_void() +
   theme(plot.subtitle=element_text(hjust = 0.5)) + 
   theme(plot.caption=element_text(size=8, margin=margin(t=10), hjust = 0.95))
 
-ggplot(toronto10_ct) + geom_sf(aes(fill = lang_share_sr^(1/2), colour = lang_share_sr^(1/2))) + 
-facet_wrap(~label, ncol = 3) + map_theme + scale_fill_viridis_c(&quot;&quot;, guide = FALSE, option = &quot;magma&quot;) + 
-scale_colour_viridis_c(&quot;&quot;, guide = FALSE, option = &quot;magma&quot;)</code></pre>
+ggplot(toronto10_ct) + 
+  geom_sf(aes(fill = lang_share_sr^(1/2), colour = lang_share_sr^(1/2))) + 
+  facet_wrap(~label, ncol = 3) + 
+  map_theme + scale_fill_viridis_c(&quot;&quot;, guide = FALSE, option = &quot;magma&quot;) + 
+  coord_sf(datum = NA) + 
+  scale_colour_viridis_c(&quot;&quot;, guide = FALSE, option = &quot;magma&quot;)</code></pre>
 <p><img src="/post/2017-10-21-small-multiples-with-maps_files/figure-html/plots-1.png" width="672" /></p>
 <p>This map highlights that different languages are not distributed uniformly across the Toronto metropolitan area. Sure, some like Spanish are pretty evenly distributed, but others show a clear concentration in some specific areas.</p>
 <p>Using <code>facet_wrap</code> is convenient not just because it is a concise approach, but because it ensures that your scales and dimensions are consistent across each panel. The downside to using <code>facet_wrap</code> is that it can be pretty difficult to customize individual panels. An alternative approach to small multiples is to create each plot individually (with required customization) and then arrange the plots together using the functions in the <code>grid</code> and <code>gridExtra</code> packages.</p>
 </div>
 <div id="manual-small-multiples-with-grid-layouts" class="section level2">
 <h2>Manual small multiples with grid layouts</h2>
-<p>Graphical objects in R are called <em>grobs</em> and there are both low- and high-level functions for dealing with how these objects are displayed and arranged in graphical output. You can find a (detailed vignette)[<a href="https://cran.r-project.org/web/packages/gridExtra/vignettes/arrangeGrob.html" class="uri">https://cran.r-project.org/web/packages/gridExtra/vignettes/arrangeGrob.html</a>] on arranging grobs included with the <code>gridExtra</code> package.</p>
+<p>Graphical objects in R are called <em>grobs</em> and there are both low- and high-level functions for dealing with how these objects are displayed and arranged in graphical output. You can find a <a href="https://cran.r-project.org/web/packages/gridExtra/vignettes/arrangeGrob.html">detailed vignette</a> on arranging grobs included with the <code>gridExtra</code> package.</p>
 <p>This approach requires a fair bit more manual work. I’ve adapted some of the code from the <a href="https://interaktiv.morgenpost.de/analyse-bundestagswahl-2017/data/btw17_analysis.html">Berliner Morgenpost</a> approach that inspired this post.</p>
 <p>Start by defining colour palettes for each language. I’ve picked these colours at random, but this approach is most useful when colours represent something like political party or affiliation.</p>
 <pre class="r"><code>toronto10_ct &lt;- toronto10_ct %&gt;%
@@ -135,8 +142,9 @@ scale_colour_viridis_c(&quot;&quot;, guide = FALSE, option = &quot;magma&quot;)<
 <pre class="r"><code>small_map &lt;- function(df, i) {
   sub_df &lt;- df %&gt;% filter(label == language_list[i])
   
-  map &lt;- ggplot(sub_df) + geom_sf(aes(fill = lang_share_sr^(1/2), colour = lang_share_sr^(1/2))) + 
-    map_theme + 
+  map &lt;- ggplot(sub_df) + 
+    geom_sf(aes(fill = lang_share_sr^(1/2), colour = lang_share_sr^(1/2))) + 
+    map_theme + coord_sf(datum = NA) +
     scale_fill_gradient(space = &quot;Lab&quot;, name=&quot; &quot;, low=&quot;#F4F4F4&quot;, high=unique(sub_df$colour), guide=FALSE) + labs(title = language_list[i]) +
     scale_colour_gradient(space = &quot;Lab&quot;, name=&quot; &quot;, low=&quot;#F4F4F4&quot;, high=unique(sub_df$colour), guide=FALSE) + labs(title = language_list[i]) +
     theme(plot.title = element_text(colour = unique(sub_df$colour)))

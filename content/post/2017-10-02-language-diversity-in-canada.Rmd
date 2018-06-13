@@ -11,6 +11,9 @@ tags:
   - cancensus
   - census
   - maps
+subdirectory: project
+
+description: 'A look into linguistic diversity patterns in Canadian cities'
 ---
 <center>
 ![The Confusion of Tongues, Gustav Doré, engraving c.1865-1868](https://upload.wikimedia.org/wikipedia/commons/a/af/Confusion_of_Tongues.png){ height=30% }
@@ -74,7 +77,9 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```{r initialize_cancensus, echo=TRUE, message=FALSE, warning=FALSE, results= 'hide'}
 # devtools::install_github("mountainmath/cancensus")
 library(cancensus)
-# Sys.setenv(CM_API_KEY = "API_KEY")
+library(dplyr)
+# options(cancensus.cache_path = '<path to cancensus cache directory>')
+# options(cancensus.api_key = key)
 
 dataset <- "CA16"
 ```
@@ -363,25 +368,41 @@ langs_van <- get_census(dataset, level = "DA",
                         regions = regions_list_van , vectors = language_vectors,
                         geo_format = "sf", labels = "short")
 
-# Run LDI function
-van_ldi <- ldi_calc(langs_van) %>%
-  mutate(`Region Name` = as.factor(gsub(" \\(.*\\)","",`Region Name`)))
+# Run LDI function, but de-spatialize to speed up
+van_langs_ns <- langs_van
+st_geometry(van_langs_ns) <- NULL
+van_ldi <- ldi_calc(van_langs_ns) %>%
+  mutate(`Region Name` = as.factor(gsub(" \\(.*\\)","",`Region Name`))) 
+van_ldi <- inner_join(langs_van, van_ldi)
 ```
 
 
 ```{r city_load2, fig.height=10, fig.width=10, message=FALSE, warning=FALSE, include=FALSE, results='hide'}
-langs_tor <- get_census(dataset, level = "DA", regions = regions_list_tor , vectors = language_vectors, geo_format = "sf", labels = "short")
 langs_mtl <- get_census(dataset, level = "DA", regions = regions_list_mtl , vectors = language_vectors, geo_format = "sf", labels = "short")
 langs_ott <- get_census(dataset, level = "DA", regions = regions_list_ott , vectors = language_vectors, geo_format = "sf", labels = "short")
 
-tor_ldi <- ldi_calc(langs_tor) %>%
-  mutate(`Region Name` = as.factor(gsub(" \\(.*\\)","",`Region Name`)))
+# For toronto, we have to split up into two calls as the original clal sometimes bottlenecks the server, pulling down 1.7 million spatial data fields.
+langs_tor <- get_census(dataset, level = "DA", regions = regions_list_tor , vectors = language_vectors[1:110], geo_format = "sf", labels = "short")
+langs_tor2 <- get_census(dataset, level = "DA", regions = regions_list_tor , vectors = language_vectors[111:219], geo_format = NA, labels = "short")
+langs_tor <- inner_join(langs_tor, langs_tor2)
 
-mtl_ldi <- ldi_calc(langs_mtl) %>%
+langs_tor_ns <- langs_tor
+st_geometry(langs_tor_ns) <- NULL
+tor_ldi <- ldi_calc(langs_tor_ns) %>%
   mutate(`Region Name` = as.factor(gsub(" \\(.*\\)","",`Region Name`)))
+tor_ldi <- inner_join(langs_tor, tor_ldi)
 
-ott_ldi <- ldi_calc(langs_ott) %>%
+langs_mtl_ns <- langs_mtl
+st_geometry(langs_mtl_ns) <- NULL
+mtl_ldi <- ldi_calc(langs_mtl_ns) %>%
   mutate(`Region Name` = as.factor(gsub(" \\(.*\\)","",`Region Name`)))
+mtl_ldi <- inner_join(langs_mtl, mtl_ldi)
+
+langs_ott_ns <- langs_ott
+st_geometry(langs_ott_ns) <- NULL
+ott_ldi <- ldi_calc(langs_ott_ns) %>%
+  mutate(`Region Name` = as.factor(gsub(" \\(.*\\)","",`Region Name`))) 
+ott_ldi <- inner_join(langs_ott, ott_ldi)
 ```
 We can make maps using `ggplot2` which works well with `sf`-class objects _in theory_. The reality is that `sf` is still very much a developing standard for spatial data and the corresponding ggplot `geom_sf` is only available (as of writing) in the [development version](https://github.com/tidyverse/ggplot2) of `ggplot2` which can be downloaded by running `devtools::install_github("tidyverse/ggplot2")`. 
 
@@ -390,10 +411,10 @@ map_theme <- theme_void() +
   theme(plot.title=element_text(face="bold", hjust = 0.5)) + 
   theme(plot.subtitle=element_text(hjust = 0.5)) + 
   theme(plot.caption=element_text(size=8, margin=margin(t=10), hjust = 0.95)) +
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom") 
 
 mv1 <- ggplot(van_ldi) + geom_sf(aes(fill = ldi), colour = NA) + scale_fill_viridis_c("Language Diversity Index",option = "magma") +
-  map_theme +
+  map_theme  +  coord_sf(datum = NA, crs = ) +
   guides(fill = guide_colourbar(title.position="top")) +
   labs(title = "Language Diversity Index",
        subtitle = "Vancouver CMA DA-level data",
@@ -402,7 +423,7 @@ mv1 <- ggplot(van_ldi) + geom_sf(aes(fill = ldi), colour = NA) + scale_fill_viri
 ```{r city_maps_setup, fig.height=10, fig.width=10, message=FALSE, warning=FALSE, include=FALSE}
 mt1 <- ggplot(tor_ldi) + geom_sf(aes(fill = ldi), colour = NA) +
   scale_fill_viridis_c("Language Diversity Index",option = "magma") +
-  map_theme +
+  map_theme + coord_sf(datum = NA) +
   guides(fill = guide_colourbar(title.position="top")) +
   labs(title = "Language Diversity Index",
        subtitle = "Greater Toronto CMA (DA-level data)",
@@ -410,7 +431,7 @@ mt1 <- ggplot(tor_ldi) + geom_sf(aes(fill = ldi), colour = NA) +
 
 mm1 <- ggplot(mtl_ldi) + geom_sf(aes(fill = ldi), colour = NA) + 
   scale_fill_viridis_c("Language Diversity Index",option = "magma") + 
-  map_theme + 
+  map_theme + coord_sf(datum = NA) + 
   guides(fill = guide_colourbar(title.position="top")) + 
   labs(title = "Language Diversity Index",
        subtitle = "Greater Montréal CMA (DA-level data)",
@@ -418,7 +439,7 @@ mm1 <- ggplot(mtl_ldi) + geom_sf(aes(fill = ldi), colour = NA) +
 
 mo1 <- ggplot(ott_ldi) + geom_sf(aes(fill = ldi), colour = NA) + 
   scale_fill_viridis_c("Language Diversity Index",option = "magma") + 
-  map_theme + 
+  map_theme + coord_sf(datum = NA) +
   guides(fill = guide_colourbar(title.position="top")) + 
   labs(title = "Language Diversity Index",
        subtitle = "Ottawa - Gatineau CMA (DA-level data)",
@@ -475,7 +496,7 @@ van_ldi3 <- van_ldi %>%
 
 mv2 <- ggplot(van_ldi2) + geom_sf(aes(fill = ldi), colour = NA) +
   scale_fill_viridis_c("Language Diversity Index",option = "magma") +
-  map_theme +
+  map_theme + coord_sf(datum = NA) +
   guides(fill = guide_colourbar(title.position="top")) +
   labs(title = "Language Diversity Index",
        subtitle = "City of Vancouver, UBC, UEL DA-level data",
@@ -483,7 +504,7 @@ mv2 <- ggplot(van_ldi2) + geom_sf(aes(fill = ldi), colour = NA) +
 
 mv3 <- ggplot(van_ldi3) + geom_sf(aes(fill = ldi), colour = NA) +
   scale_fill_viridis_c("Language Diversity Index",option = "magma") +
-  map_theme +
+  map_theme + coord_sf(datum = NA) +
   guides(fill = guide_colourbar(title.position="top")) +
   labs(title = "Language Diversity Index",
        subtitle = "Cities of Vancouver (plus UBC and UEL), Burnaby, Richmond, and New Westminster (DA-level data)",

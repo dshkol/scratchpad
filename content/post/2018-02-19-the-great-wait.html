@@ -13,11 +13,12 @@ categories:
 tags:
   - cancensus
   - r
+subdirectory: post
 ---
 
 
 
-<section id="the-great-wait" class="level2">
+<div id="the-great-wait" class="section level2">
 <h2>The Great Wait</h2>
 <p>This <a href="https://homefreesociology.wordpress.com">interesting post</a> by <a href="https://twitter.com/LausterNa">Nathanael Lauster</a> caught my eye last week looking at the gradual shift in age-specific birth rates for women in British Columbia over the last few decades. Nathanael is a Professor of Sociology at UBC and you may have heard of his book “The Life and Death of the Single-Family House”.</p>
 {{% tweet "963536381749284864" %}}
@@ -27,22 +28,22 @@ tags:
 <p>Fertility rates are provided for discrete age-specific cohorts, although ideally we would have fertility rates by year. The discrete cohorts lead to straight lines and angles. We can use X-splines with a shape adjustment parameter to simulate interpolation and produce more aesthetically pleasing curves that better resemble birth rate curves. X-splines are available as geoms in the <code>ggalt</code> package.</p>
 <p><img src="/post/2018-02-19-the-great-wait_files/figure-html/curve2-1.png" width="672" /></p>
 <p>Note, there are far more accurate interpolation approaches specifically for age-specific fertility rates, but they are <a href="http://www.humanfertility.org/Docs/paa/Grigoriev_Jdanov.pdf">far more involved</a>.</p>
-</section>
-<section id="a-rich-dataset" class="level2">
+</div>
+<div id="a-rich-dataset" class="section level2">
 <h2>A rich dataset</h2>
 <p>The <a href="https://www2.gov.bc.ca/gov/content/data/statistics/people-population-community/population/vital-statistics">underlying dataset</a> is rich, providing age-specific fertility rates for BC Local Health Areas (LHA). Many vital statistics in BC are provided for the five “Health Authority” levels which are then broken down into Health Service Delivery areas. These are further subdivided into Local Health Areas, of which there are 86.</p>
 <p>When we look at all the individual Local Health Areas, we can see that, at least for 2015, there’s actually a fair amount of difference in their profiles.</p>
 <p><img src="/post/2018-02-19-the-great-wait_files/figure-html/curve3-1.png" width="672" /></p>
-</section>
-<section id="causes-and-implications" class="level2">
+</div>
+<div id="causes-and-implications" class="section level2">
 <h2>Causes and implications</h2>
 <p>I recommend reading the original post, as Nathanael gets into more detail about some of the causes and implications. I wanted to explore whether some of these differences in birth-ages by area could be associated with differences in demographic characteristics within these areas. Fortunately, BC Local Health Areas can be mapped to Statistics Canada’s Census subdivisions, and Census geography means we can turn to Census data which, as you may have suspected, means <strong>cancensus time</strong>. Using a modified version of the BC Stats <a href="https://t.co/xkUj8qpL7W">region translation table</a>, it’s pretty easy to turn Local Health Areas into a Census region list compatible with a cancensus <code>get_census</code> call. The code at the end of this post shows all the pre-processing steps for anyone interested in that side of things.</p>
 <p>Combining the most recent Census data with the most recent fertility rate data (from 2015), we can see whether, as an example, age-specific birth rates vary with female post-secondary education attainment levels.</p>
 <p><img src="/post/2018-02-19-the-great-wait_files/figure-html/curve4-1.png" width="672" /></p>
 <p>All in all, I selected a few different Census characteristics to look at: education, employment, partnership, housing tenure, shelter costs, and calculated density. This is not meant to be an exhaustive list of potential explanatory variables - many of these will be highly correlated with one another in any case. But this is not an attempt at determining any kind of causal relationship, a problem that is surely well studied already by the experts in this field. Rather, this post is a superficial visual exploration, but it is one that I wanted to share - so let’s take a look.</p>
 <p><img src="/post/2018-02-19-the-great-wait_files/figure-html/remaining_curves-1.png" width="672" /><img src="/post/2018-02-19-the-great-wait_files/figure-html/remaining_curves-2.png" width="672" /><img src="/post/2018-02-19-the-great-wait_files/figure-html/remaining_curves-3.png" width="672" /><img src="/post/2018-02-19-the-great-wait_files/figure-html/remaining_curves-4.png" width="672" /><img src="/post/2018-02-19-the-great-wait_files/figure-html/remaining_curves-5.png" width="672" /></p>
-</section>
-<section id="pre-processing-code" class="level2">
+</div>
+<div id="pre-processing-code" class="section level2">
 <h2>Pre-processing code</h2>
 <pre class="r"><code>library(dplyr)
 library(readr)
@@ -107,8 +108,8 @@ bcfr &lt;- bcfr %&gt;%
          share_renter = Renters/Population,
          share_highshelter = High_shelter/Population) %&gt;%
   filter(!is.na(Females))</code></pre>
-</section>
-<section id="chart-code" class="level2">
+</div>
+<div id="chart-code" class="section level2">
 <h2>Chart code</h2>
 <pre class="r"><code># Custom theme for these plots
 fr_theme &lt;-   theme(panel.background = element_rect(fill = &quot;grey87&quot;),
@@ -155,13 +156,13 @@ ggplot(bcfr %&gt;% filter(Population &gt; 5000),
        title = &quot;Fertility rates vary with education levels&quot;, 
        subtitle = &quot;2015 age-specific fertity lates by Local Health Area\nColour indicates share of women with post-secondary degrees&quot;,
        caption = &quot;Local Health Areas with population 5,000 and greater\nStatistics Canada 2016 Census data, BC Stats data, interpolated splines&quot;)</code></pre>
-</section>
-<section id="session-info" class="level2">
+</div>
+<div id="session-info" class="section level2">
 <h2>Session info</h2>
 <pre class="r"><code>sessionInfo()</code></pre>
 <pre><code>## R version 3.4.3 (2017-11-30)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
-## Running under: macOS High Sierra 10.13.2
+## Running under: macOS High Sierra 10.13.4
 ## 
 ## Matrix products: default
 ## BLAS: /Library/Frameworks/R.framework/Versions/3.4/Resources/lib/libRblas.0.dylib
@@ -174,27 +175,27 @@ ggplot(bcfr %&gt;% filter(Population &gt; 5000),
 ## [1] methods   stats     graphics  grDevices utils     datasets  base     
 ## 
 ## other attached packages:
-## [1] bindrcpp_0.2       cancensus_0.1.7    ggalt_0.4.0       
-## [4] ggplot2_2.2.1.9000 tidyr_0.7.2        readr_1.1.1       
-## [7] dplyr_0.7.4       
+## [1] bindrcpp_0.2.2     cancensus_0.1.7    ggalt_0.4.0       
+## [4] ggplot2_2.2.1.9000 tidyr_0.8.0        readr_1.1.1       
+## [7] dplyr_0.7.5       
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_0.12.15       RColorBrewer_1.1-2 pillar_1.1.0      
-##  [4] compiler_3.4.3     plyr_1.8.4         bindr_0.1         
+##  [1] Rcpp_0.12.17       RColorBrewer_1.1-2 pillar_1.2.2      
+##  [4] compiler_3.4.3     plyr_1.8.4         bindr_0.1.1       
 ##  [7] tools_3.4.3        extrafont_0.17     digest_0.6.15     
 ## [10] viridisLite_0.3.0  jsonlite_1.5       evaluate_0.10.1   
 ## [13] tibble_1.4.2       gtable_0.2.0       pkgconfig_2.0.1   
-## [16] rlang_0.1.6.9003   cli_1.0.0          curl_3.1          
-## [19] yaml_2.1.16        blogdown_0.4       Rttf2pt1_1.3.4    
-## [22] httr_1.3.1         withr_2.1.1.9000   stringr_1.2.0     
-## [25] knitr_1.18         hms_0.4.0          maps_3.2.0        
-## [28] tidyselect_0.2.2   rprojroot_1.3-2    grid_3.4.3        
-## [31] glue_1.2.0         R6_2.2.2           rmarkdown_1.8     
-## [34] bookdown_0.5       extrafontdb_1.0    purrr_0.2.4       
-## [37] magrittr_1.5       backports_1.1.2    scales_0.5.0.9000 
-## [40] htmltools_0.3.6    MASS_7.3-47        proj4_1.0-8       
-## [43] assertthat_0.2.0   colorspace_1.3-2   labeling_0.3      
-## [46] utf8_1.1.3         KernSmooth_2.23-15 ash_1.0-15        
-## [49] stringi_1.1.5      lazyeval_0.2.1     munsell_0.4.3     
-## [52] crayon_1.3.4</code></pre>
-</section>
+## [16] rlang_0.2.0.9001   cli_1.0.0          curl_3.2          
+## [19] yaml_2.1.19        blogdown_0.6.6     xfun_0.1          
+## [22] Rttf2pt1_1.3.4     httr_1.3.1         withr_2.1.2       
+## [25] stringr_1.3.0      knitr_1.20         maps_3.2.0        
+## [28] hms_0.4.0          rprojroot_1.3-2    grid_3.4.3        
+## [31] tidyselect_0.2.4   glue_1.2.0         R6_2.2.2          
+## [34] rmarkdown_1.9      bookdown_0.7       extrafontdb_1.0   
+## [37] purrr_0.2.4        magrittr_1.5       MASS_7.3-47       
+## [40] backports_1.1.2    scales_0.5.0.9000  htmltools_0.3.6   
+## [43] proj4_1.0-8        assertthat_0.2.0   colorspace_1.3-2  
+## [46] labeling_0.3       utf8_1.1.3         ash_1.0-15        
+## [49] KernSmooth_2.23-15 stringi_1.1.7      lazyeval_0.2.1    
+## [52] munsell_0.4.3      crayon_1.3.4</code></pre>
+</div>

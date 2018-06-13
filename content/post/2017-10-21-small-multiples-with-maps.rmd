@@ -5,7 +5,9 @@ date: '2017-10-23'
 slug: small-multiples-with-maps
 categories: [analysis, census, maps, example]
 tags: [cancensus, census, maps, design]
-description: ''
+draft: no
+subdirectory: post
+description: 'Comparing two different ways of generating small multiples maps in R'
 ---
 
 **TL;DR: Small multiples maps are one of my favourite ways to communicate multiple variables with a quantitative and spatial dimension. This example uses small multiples to show the distribution of the most spoken non-English languages in the Toronto CMA. Scroll to the end to see the results.** 
@@ -46,11 +48,11 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```{r initialize_cancensus, echo=TRUE, message=FALSE, warning=FALSE, results= 'hide'}
 # Install package if not already installed
 # devtools::install_github("mountainmath/cancensus")
-
+library(dplyr)
 library(cancensus)
 
-# Set censusmapper API key if necessary - see cancensus github page for info
-# Sys.setenv(CM_API_KEY = "API_KEY")
+#options(cancensus.api_key = "your_key)
+# options(cancensus.cache_path = "cache_path")
 ```
 
 And grabbing the language data from the Census...
@@ -131,9 +133,12 @@ map_theme <- theme_void() +
   theme(plot.subtitle=element_text(hjust = 0.5)) + 
   theme(plot.caption=element_text(size=8, margin=margin(t=10), hjust = 0.95))
 
-ggplot(toronto10_ct) + geom_sf(aes(fill = lang_share_sr^(1/2), colour = lang_share_sr^(1/2))) + 
-facet_wrap(~label, ncol = 3) + map_theme + scale_fill_viridis_c("", guide = FALSE, option = "magma") + 
-scale_colour_viridis_c("", guide = FALSE, option = "magma")
+ggplot(toronto10_ct) + 
+  geom_sf(aes(fill = lang_share_sr^(1/2), colour = lang_share_sr^(1/2))) + 
+  facet_wrap(~label, ncol = 3) + 
+  map_theme + scale_fill_viridis_c("", guide = FALSE, option = "magma") + 
+  coord_sf(datum = NA) + 
+  scale_colour_viridis_c("", guide = FALSE, option = "magma")
 ```
 
 This map highlights that different languages are not distributed uniformly across the Toronto metropolitan area. Sure, some like Spanish are pretty evenly distributed, but others show a clear concentration in some specific areas. 
@@ -142,7 +147,7 @@ Using `facet_wrap` is convenient not just because it is a concise approach, but 
 
 ## Manual small multiples with grid layouts
 
-Graphical objects in R are called _grobs_ and there are both low- and high-level functions for dealing with how these objects are displayed and arranged in graphical output. You can find a (detailed vignette)[https://cran.r-project.org/web/packages/gridExtra/vignettes/arrangeGrob.html] on arranging grobs included with the `gridExtra` package. 
+Graphical objects in R are called _grobs_ and there are both low- and high-level functions for dealing with how these objects are displayed and arranged in graphical output. You can find a [detailed vignette](https://cran.r-project.org/web/packages/gridExtra/vignettes/arrangeGrob.html) on arranging grobs included with the `gridExtra` package. 
 
 This approach requires a fair bit more manual work. I've adapted some of the code from the [Berliner Morgenpost](https://interaktiv.morgenpost.de/analyse-bundestagswahl-2017/data/btw17_analysis.html) approach that inspired this post. 
 
@@ -167,8 +172,9 @@ Next, create a function to create a ggplot map for each entry
 small_map <- function(df, i) {
   sub_df <- df %>% filter(label == language_list[i])
   
-  map <- ggplot(sub_df) + geom_sf(aes(fill = lang_share_sr^(1/2), colour = lang_share_sr^(1/2))) + 
-    map_theme + 
+  map <- ggplot(sub_df) + 
+    geom_sf(aes(fill = lang_share_sr^(1/2), colour = lang_share_sr^(1/2))) + 
+    map_theme + coord_sf(datum = NA) +
     scale_fill_gradient(space = "Lab", name=" ", low="#F4F4F4", high=unique(sub_df$colour), guide=FALSE) + labs(title = language_list[i]) +
     scale_colour_gradient(space = "Lab", name=" ", low="#F4F4F4", high=unique(sub_df$colour), guide=FALSE) + labs(title = language_list[i]) +
     theme(plot.title = element_text(colour = unique(sub_df$colour)))

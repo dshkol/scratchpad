@@ -3,6 +3,7 @@ title: Starting a blog
 author: Dmitry Shkolnik
 date: '2017-08-30'
 slug: starting-a-blog
+subdirectory: post
 categories:
   - blog
 tags:

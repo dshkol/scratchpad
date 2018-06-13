@@ -11,12 +11,16 @@ tags:
   - cancensus
   - census
   - maps
+subdirectory: project
+
+description: 'A look into linguistic diversity patterns in Canadian cities'
 ---
 
 
 
 <center>
-<img src="https://upload.wikimedia.org/wikipedia/commons/a/af/Confusion_of_Tongues.png" alt="The Confusion of Tongues, Gustav Doré, engraving c.1865-1868" style="height:30.0%" /> <em>The Confusion of Tongues, Gustav Doré, engraving c.1865-1868</em>
+<img src="https://upload.wikimedia.org/wikipedia/commons/a/af/Confusion_of_Tongues.png" alt="The Confusion of Tongues, Gustav Doré, engraving c.1865-1868" style="height:30.0%" />
+<em>The Confusion of Tongues, Gustav Doré, engraving c.1865-1868</em>
 </center>
 <div id="language-diversity-index" class="section level2">
 <h2>Language Diversity Index</h2>
@@ -29,7 +33,8 @@ tags:
 <p>Greenberg’s Language Diversity Index (LDI) can be calculated with simple formula where:</p>
 <p><span class="math display">\[ 
 LDI = 1 - \Sigma (P_i)^2
-\]</span> A higher resulting LDI measure indicates greater linguistic diversity. A score of 1 would imply that no two individuals share a language. Greenberg illustrates how to calculate this with a simple example. If in a population <span class="math inline">\(1/8\)</span> speak <span class="math inline">\(M\)</span>, <span class="math inline">\(3/8\)</span> speak <span class="math inline">\(N\)</span>, and <span class="math inline">\(1/2\)</span> speak <span class="math inline">\(O\)</span>, then the diversity index would be calculated as:</p>
+\]</span>
+A higher resulting LDI measure indicates greater linguistic diversity. A score of 1 would imply that no two individuals share a language. Greenberg illustrates how to calculate this with a simple example. If in a population <span class="math inline">\(1/8\)</span> speak <span class="math inline">\(M\)</span>, <span class="math inline">\(3/8\)</span> speak <span class="math inline">\(N\)</span>, and <span class="math inline">\(1/2\)</span> speak <span class="math inline">\(O\)</span>, then the diversity index would be calculated as:</p>
 <p><span class="math display">\[
 \begin{split}
 LDI = 1 - \bigg[\big(\frac{1}{8}\big)^2 + \big(\frac{3}{8}\big)^2 + \big(\frac{1}{2}\big)^2\bigg] \\ = 1-\frac{26}{64} = \frac{38}{64} \approx 0.593
@@ -54,7 +59,9 @@ LDI = 1 - \bigg[\big(\frac{1}{8}\big)^2 + \big(\frac{3}{8}\big)^2 + \big(\frac{1
 <h4>Getting the Data</h4>
 <pre class="r"><code># devtools::install_github(&quot;mountainmath/cancensus&quot;)
 library(cancensus)
-# Sys.setenv(CM_API_KEY = &quot;API_KEY&quot;)
+library(dplyr)
+# options(cancensus.cache_path = &#39;&lt;path to cancensus cache directory&gt;&#39;)
+# options(cancensus.api_key = key)
 
 dataset &lt;- &quot;CA16&quot;</code></pre>
 <p>By taking advantage of the built-in variable (vector) search and selection tools in <code>cancensus</code>, selecting all language leaves can be done in just a few lines of code.</p>
@@ -182,9 +189,12 @@ langs_van &lt;- get_census(dataset, level = &quot;DA&quot;,
                         regions = regions_list_van , vectors = language_vectors,
                         geo_format = &quot;sf&quot;, labels = &quot;short&quot;)
 
-# Run LDI function
-van_ldi &lt;- ldi_calc(langs_van) %&gt;%
-  mutate(`Region Name` = as.factor(gsub(&quot; \\(.*\\)&quot;,&quot;&quot;,`Region Name`)))</code></pre>
+# Run LDI function, but de-spatialize to speed up
+van_langs_ns &lt;- langs_van
+st_geometry(van_langs_ns) &lt;- NULL
+van_ldi &lt;- ldi_calc(van_langs_ns) %&gt;%
+  mutate(`Region Name` = as.factor(gsub(&quot; \\(.*\\)&quot;,&quot;&quot;,`Region Name`))) 
+van_ldi &lt;- inner_join(langs_van, van_ldi)</code></pre>
 <p>We can make maps using <code>ggplot2</code> which works well with <code>sf</code>-class objects <em>in theory</em>. The reality is that <code>sf</code> is still very much a developing standard for spatial data and the corresponding ggplot <code>geom_sf</code> is only available (as of writing) in the <a href="https://github.com/tidyverse/ggplot2">development version</a> of <code>ggplot2</code> which can be downloaded by running <code>devtools::install_github(&quot;tidyverse/ggplot2&quot;)</code>.</p>
 <div id="greater-vancouver-cma" class="section level4">
 <h4>Greater Vancouver CMA</h4>
@@ -215,7 +225,8 @@ van_ldi &lt;- ldi_calc(langs_van) %&gt;%
 <p><img src="/post/2017-10-02-language-diversity-in-canada_files/figure-html/mr_testing-1.png" width="768" /></p>
 <p>The share of respondents selecting the Multiple Response option differs across the top 10 CMAs with Toronto at one end with 9.5% of respondents and Quebec City at the other end with only 1.4% of respondents falling into the Multiple Response group.</p>
 <p>The objective of this analysis is less on quantifying the exact linguistic diversity of each area but more to see the relative diversity across different areas. In other words - which parts of Canada are the most linguistically diverse. In order to think about how this additional data affects the diversity index, a closer look at how these data points break down is required.</p>
-<p><img src="/post/2017-10-02-language-diversity-in-canada_files/figure-html/mr_testing_detail-1.png" width="960" /> There is a relatively consistent share of English/French and non-official language respondents, so its not clear that including or excluding these respondents would have any effect on the relative diversity in those cities. Similarly, Quebec City has such a small share of respondents falling into this category that it is next to meaningless to worry about it. Where it may pose a challenge is with the relatively large share of English + French respondents in Montréal and Ottawa - Gatineau. Because those two languages are already the dominant languages in both those areas, excluding data for the Multiple Responses set would have the effect of shrinking true denominator for the diversity index and overstating the impact of all other languages, leading to potentially inflated diversity score. Similarly, including Multiple Response data points into the index as distinct linguistic groups would also inflate the diversity score by double counting some English or French speakers as speaking a distinct language from other English or French speakers.</p>
+<p><img src="/post/2017-10-02-language-diversity-in-canada_files/figure-html/mr_testing_detail-1.png" width="960" />
+There is a relatively consistent share of English/French and non-official language respondents, so its not clear that including or excluding these respondents would have any effect on the relative diversity in those cities. Similarly, Quebec City has such a small share of respondents falling into this category that it is next to meaningless to worry about it. Where it may pose a challenge is with the relatively large share of English + French respondents in Montréal and Ottawa - Gatineau. Because those two languages are already the dominant languages in both those areas, excluding data for the Multiple Responses set would have the effect of shrinking true denominator for the diversity index and overstating the impact of all other languages, leading to potentially inflated diversity score. Similarly, including Multiple Response data points into the index as distinct linguistic groups would also inflate the diversity score by double counting some English or French speakers as speaking a distinct language from other English or French speakers.</p>
 <p>My proposed solution to address the Single Response/Multiple Response issue is the following:</p>
 <ul>
 <li><em>English and non-official language</em> respondents are added to the Single Response <em>English</em> speakers</li>

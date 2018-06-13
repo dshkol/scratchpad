@@ -1,0 +1,136 @@
+---
+title: "Airportr: a lightweight package for airport data"
+author: ''
+date: '2018-06-06'
+description: 'Building a package to work with airport data'
+draft: no
+subdirectory: code
+slug: airportr-a-lightweight-package-for-airport-data
+tags:
+- r
+- travel
+- packages
+categories: blog
+---
+
+
+
+<p>As someone whose day job is in the travel and tourism industry, I have to work with airport codes, names, and locations all the time.</p>
+<p><code>airportr</code> is a lightweight package to help deal with a few common airport related tasks. This package bundles open license airport data from OurFlights with several utility functions and does not require any API calls or dependencies beyond <code>dplyr</code>.</p>
+<p><code>airportr</code> is easy to install from Github (or soon CRAN).</p>
+<pre class="r"><code>#install.packages(&quot;devtools&quot;)
+devtools::install_github(&quot;dshkol/airportr&quot;)
+library(airportr)</code></pre>
+<div id="simple-lookup-functions" class="section level3">
+<h3>Simple lookup functions</h3>
+<p>There are four simple lookup functions that work by taking some kind of input such as an airport name, an airport IATA/IACO code, or city name and returns structured and consistent data. This can be as simple as finding out what airport YYJ is:</p>
+<pre class="r"><code>airport_lookup(&quot;YYJ&quot;)</code></pre>
+<pre><code>## [1] &quot;Victoria International Airport&quot;</code></pre>
+<p>Or the geographic coordinates of Lester B. Pearson Airport in Toronto:</p>
+<pre class="r"><code>airport_location(&quot;Lester B. Pearson International Airport&quot;)</code></pre>
+<pre><code>## # A tibble: 1 x 2
+##   Latitude Longitude
+##      &lt;dbl&gt;     &lt;dbl&gt;
+## 1     43.7     -79.6</code></pre>
+<p>Or the full available detailed data for CYEG:</p>
+<pre class="r"><code>dplyr::glimpse(airport_detail(&quot;CYEG&quot;))</code></pre>
+<pre><code>## Observations: 1
+## Variables: 14
+## $ `OpenFlights ID` &lt;int&gt; 49
+## $ Name             &lt;chr&gt; &quot;Edmonton International Airport&quot;
+## $ City             &lt;chr&gt; &quot;Edmonton&quot;
+## $ Country          &lt;chr&gt; &quot;Canada&quot;
+## $ IATA             &lt;chr&gt; &quot;YEG&quot;
+## $ ICAO             &lt;chr&gt; &quot;CYEG&quot;
+## $ Latitude         &lt;dbl&gt; 53.3097
+## $ Longitude        &lt;dbl&gt; -113.58
+## $ Altitude         &lt;int&gt; 2373
+## $ UTC              &lt;dbl&gt; -7
+## $ DST              &lt;chr&gt; &quot;A&quot;
+## $ Timezone         &lt;chr&gt; &quot;America/Edmonton&quot;
+## $ Type             &lt;chr&gt; &quot;airport&quot;
+## $ Source           &lt;chr&gt; &quot;OurAirports&quot;</code></pre>
+<p>The lookup functions are designed to be robust to any of the three standard inputs, whether it is an IATA code, an IACO code, or the full name of an airport, though specific input and output types can be added as function parameters. IATA and IACO codes are more robust and easier to use as names need to match exactly and there may be similar named airports in multiple countries. IACO codes in particular are more complete than IATA codes which do not include all smaller and domestic airports. Lookups by airport name are designed to return potential similarly named matches if there is no exact match, alongside a warning.</p>
+<pre class="r"><code>airport_lookup(&quot;Halifax&quot;, output_type = &quot;IATA&quot;)</code></pre>
+<pre><code>## Warning in airport_lookup(&quot;Halifax&quot;, output_type = &quot;IATA&quot;): No exact
+## matches but some similar names in the database include:</code></pre>
+<pre><code>## Halifax / CFB Shearwater Heliport
+## Halifax / Stanfield International Airport
+## Haifa International Airport
+## Wadi Halfa Airport</code></pre>
+<pre class="r"><code>airport_lookup(&quot;Halifax / Stanfield International Airport&quot;, output_type = &quot;IATA&quot;)</code></pre>
+<pre><code>## [1] &quot;YHZ&quot;</code></pre>
+</div>
+<div id="city-lookups" class="section level3">
+<h3>City lookups</h3>
+<p>Cities will often have multiple airports serving them. This is especially common for larger cities. Typically when working with airport origin/destination data, an analyst might need to identify what cities those airports actually serve. The <code>city_airports()</code> function helps with this.</p>
+<pre class="r"><code>city_airports(&quot;Chicago&quot;)</code></pre>
+<pre><code>## # A tibble: 4 x 14
+##   `OpenFlights ID` Name      City   Country IATA  ICAO  Latitude Longitude
+##              &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;  &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+## 1             3747 Chicago … Chica… United… MDW   KMDW      41.8     -87.8
+## 2             3818 Waukegan… Chica… United… UGN   KUGN      42.4     -87.9
+## 3             3830 Chicago … Chica… United… ORD   KORD      42.0     -87.9
+## 4             8593 Chicago … Chica… United… CGX   KCGX      41.9     -87.6
+## # ... with 6 more variables: Altitude &lt;int&gt;, UTC &lt;dbl&gt;, DST &lt;chr&gt;,
+## #   Timezone &lt;chr&gt;, Type &lt;chr&gt;, Source &lt;chr&gt;</code></pre>
+</div>
+<div id="nearest-airport-lookups" class="section level3">
+<h3>Nearest airport lookups</h3>
+<p>Sometimes a city lookup is insufficient. Baltimore International Airport (BWI) serves Baltimore, but is typically grouped with other DC-area airports like DCA and IAD as a set of airports serving a particular metro area. We can lookup airports that fall within a specified distance of one another using the <code>airports_near()</code> function which takes an airport name or code as an argument alongside a specified distance radius in kilometres.</p>
+<p>For example, to find all airports within 50KM of BWI:</p>
+<pre class="r"><code>airports_near(&quot;BWI&quot;, distance = 50)</code></pre>
+<pre><code>## # A tibble: 8 x 14
+##   `OpenFlights ID` Name       City  Country IATA  ICAO  Latitude Longitude
+##              &lt;int&gt; &lt;chr&gt;      &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+## 1             3489 Tipton Ai… Fort… United… FME   KFME      39.1     -76.8
+## 2             3520 Ronald Re… Wash… United… DCA   KDCA      38.9     -77.0
+## 3             3552 Andrews A… Camp… United… ADW   KADW      38.8     -76.9
+## 4             3772 Phillips … Aber… United… APG   KAPG      39.5     -76.2
+## 5             3849 Baltimore… Balt… United… BWI   KBWI      39.2     -76.7
+## 6             8143 Montgomer… Gait… United… GAI   KGAI      39.2     -77.2
+## 7             8935 Lee Airpo… Anna… United… ANP   KANP      38.9     -76.6
+## 8             9183 Martin St… Balt… United… MTN   KMTN      39.3     -76.4
+## # ... with 6 more variables: Altitude &lt;int&gt;, UTC &lt;dbl&gt;, DST &lt;chr&gt;,
+## #   Timezone &lt;chr&gt;, Type &lt;chr&gt;, Source &lt;chr&gt;</code></pre>
+<p>And sometimes all you have is a pair of coordinates. The <code>airports_around()</code> function takes a pair of lat/lon coordinates in decimal degrees as arguments and returns all airports that fall within a given radius.</p>
+<pre class="r"><code>airports_around(49, -123, distance = 50)</code></pre>
+<pre><code>## # A tibble: 12 x 14
+##    `OpenFlights ID` Name     City   Country IATA  ICAO  Latitude Longitude
+##               &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;  &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;    &lt;dbl&gt;     &lt;dbl&gt;
+##  1              104 Pitt Me… Pitt … Canada  &quot;\\N&quot; CYPK      49.2     -123.
+##  2              156 Vancouv… Vanco… Canada  YVR   CYVR      49.2     -123.
+##  3              175 Abbotsf… Abbot… Canada  YXX   CYXX      49.0     -122.
+##  4              184 Victori… Victo… Canada  YYJ   CYYJ      48.6     -123.
+##  5             3777 Belling… Belli… United… BLI   KBLI      48.8     -123.
+##  6             5500 Vancouv… Vanco… Canada  CXH   CYHC      49.3     -123.
+##  7             7083 Orcas I… Easts… United… ESD   KORS      48.7     -123.
+##  8             7269 Ganges … Ganges Canada  YGG   CAX6      48.9     -123.
+##  9             7273 Boundar… Bound… Canada  YDT   CZBB      49.1     -123.
+## 10             7274 Langley… Langl… Canada  &quot;\\N&quot; CYNJ      49.1     -123.
+## 11             8224 Victori… Patri… Canada  &quot;\\N&quot; CAP5      48.7     -123.
+## 12             9749 Bedwell… Bedwe… Canada  YBW   CAB3      48.8     -123.
+## # ... with 6 more variables: Altitude &lt;int&gt;, UTC &lt;dbl&gt;, DST &lt;chr&gt;,
+## #   Timezone &lt;chr&gt;, Type &lt;chr&gt;, Source &lt;chr&gt;</code></pre>
+</div>
+<div id="airport-distances" class="section level3">
+<h3>Airport distances</h3>
+<p>When working with origin/destination data sometimes you need to calculate the distance between to airports. <code>airport_distance()</code> calculates the distance between any two pairs of three-letter IATA codes. Distances are calculated using the <a href="https://en.wikipedia.org/wiki/Haversine_formula">Haversine Formula</a>:</p>
+<p><span class="math display">\[
+d = 2r\arcsin\Big(\sin^2\frac{(\varphi_2-\varphi_1)}{2}+\cos(\varphi_1)\cos(\varphi_2)\sin^2\frac{\lambda_2-\lambda_1}{2}\Big)
+\]</span>
+Where <span class="math inline">\(r\)</span> is the earth’s radius, <span class="math inline">\(\varphi_1\)</span> and <span class="math inline">\(\varphi_2\)</span> are the latitudes of the two airports in radians, <span class="math inline">\(\lambda_1\)</span> and <span class="math inline">\(\lambda_2\)</span> are the longitude in radians, and <span class="math inline">\(d\)</span> is the great circle distance between the two points.</p>
+<p>The Haversine method is relatively accurate over most distances but it does not take into account for the earth’s ellipsoidal nature and can result in <a href="http://www.movable-type.co.uk/scripts/latlong.html">errors of approximately 0.3% of distance</a>. Other methods such as the Vincenty Ellipsoid method are more accurate and are implemented in the much more robust and comprehensive <code>geosphere</code> <a href="https://cran.r-project.org/web/packages/geosphere/geosphere.pdf">package</a>.</p>
+</div>
+<div id="data" class="section level3">
+<h3>Data</h3>
+<p>Airport data is from the <a href="https://openflights.org/data.html">OpenFlights Airport Database</a> made available under the <a href="https://opendatacommons.org/licenses/odbl/1.0/">Open Database License</a>.</p>
+<p>Disclaimer on the data from OpenFlights:</p>
+<blockquote>
+<p>This data is not suitable for navigation. OpenFlights does not assume any responsibility whatsoever for its accuracy, and consequently assumes no liability whatsoever for results obtained or loss or damage incurred as a result of application of the data. OpenFlights expressly disclaims all warranties, expressed or implied, including but not limited to implied warranties of merchantability and fitness for any particular purpose.</p>
+</blockquote>
+</div>
+<div id="wrapping-up" class="section level3">
+<h3>Wrapping up</h3>
+<p>This was a fun little project to take on to comprehensively address a few different common tasks I face at work. I hope that this lightweight package can be useful to others who work with similar data, and I encourage anyone with suggestions for how this can made to be more useful still <a href="https://github.com/dshkol/airportr/issues">opens up an issue or PR on Github</a> or sends me an email.</p>
+</div>

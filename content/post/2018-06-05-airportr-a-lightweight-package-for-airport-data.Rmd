@@ -1,0 +1,92 @@
+---
+title: "Airportr: a lightweight package for airport data"
+author: ''
+date: '2018-06-06'
+description: 'Building a package to work with airport data'
+draft: no
+subdirectory: code
+slug: airportr-a-lightweight-package-for-airport-data
+tags:
+- r
+- travel
+- packages
+categories: blog
+---
+As someone whose day job is in the travel and tourism industry, I have to work with airport codes, names, and locations all the time. 
+
+`airportr` is a lightweight package to help deal with a few common airport related tasks. This package bundles open license airport data from OurFlights with several utility functions and does not require any API calls or dependencies beyond `dplyr`. 
+
+`airportr` is easy to install from Github (or soon CRAN).
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+#install.packages("devtools")
+devtools::install_github("dshkol/airportr")
+library(airportr)
+```
+
+### Simple lookup functions
+
+There are four simple lookup functions that work by taking some kind of input such as an airport name, an airport IATA/IACO code, or city name and returns structured and consistent data. This can be as simple as finding out what airport YYJ is:
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+airport_lookup("YYJ")
+```
+Or the geographic coordinates of Lester B. Pearson Airport in Toronto:
+```{r}
+airport_location("Lester B. Pearson International Airport")
+```
+Or the full available detailed data for CYEG:
+```{r}
+dplyr::glimpse(airport_detail("CYEG"))
+```
+
+The lookup functions are designed to be robust to any of the three standard inputs, whether it is an IATA code, an IACO code, or the full name of an airport, though specific input and output types can be added as function parameters. IATA and IACO codes are more robust and easier to use as names need to match exactly and there may be similar named airports in multiple countries. IACO codes in particular are more complete than IATA codes which do not include all smaller and domestic airports. Lookups by airport name are designed to return potential similarly named matches if there is no exact match, alongside a warning. 
+```{r}
+airport_lookup("Halifax", output_type = "IATA")
+```
+```{r}
+airport_lookup("Halifax / Stanfield International Airport", output_type = "IATA")
+```
+
+### City lookups
+
+Cities will often have multiple airports serving them. This is especially common for larger cities. Typically when working with airport origin/destination data, an analyst might need to identify what cities those airports actually serve. The `city_airports()` function helps with this.
+```{r}
+city_airports("Chicago")
+```
+
+### Nearest airport lookups
+
+Sometimes a city lookup is insufficient. Baltimore International Airport (BWI) serves Baltimore, but is typically grouped with other DC-area airports like DCA and IAD as a set of airports serving a particular metro area. We can lookup airports that fall within a specified distance of one another using the `airports_near()` function which takes an airport name or code as an argument alongside a specified distance radius in kilometres. 
+
+For example, to find all airports within 50KM of BWI:
+```{r}
+airports_near("BWI", distance = 50)
+```
+
+And sometimes all you have is a pair of coordinates. The `airports_around()` function takes a pair of lat/lon coordinates in decimal degrees as arguments and returns all airports that fall within a given radius. 
+```{r}
+airports_around(49, -123, distance = 50)
+```
+
+### Airport distances
+
+When working with origin/destination data sometimes you need to calculate the distance between to airports. `airport_distance()` calculates the distance between any two pairs of three-letter IATA codes. Distances are calculated using the [Haversine Formula](https://en.wikipedia.org/wiki/Haversine_formula):
+
+$$
+d = 2r\arcsin\Big(\sin^2\frac{(\varphi_2-\varphi_1)}{2}+\cos(\varphi_1)\cos(\varphi_2)\sin^2\frac{\lambda_2-\lambda_1}{2}\Big)
+$$
+Where $r$ is the earth's radius, $\varphi_1$ and $\varphi_2$ are the latitudes of the two airports in radians, $\lambda_1$ and $\lambda_2$ are the longitude in radians, and $d$ is the great circle distance between the two points. 
+
+The Haversine method is relatively accurate over most distances but it does not take into account for the earth's ellipsoidal nature and can result in [errors of approximately 0.3% of distance](http://www.movable-type.co.uk/scripts/latlong.html). Other methods such as the Vincenty Ellipsoid method are more accurate and are implemented in the much more robust and comprehensive `geosphere` [package](https://cran.r-project.org/web/packages/geosphere/geosphere.pdf). 
+
+### Data
+
+Airport data is from the [OpenFlights Airport Database](https://openflights.org/data.html) made available under the [Open Database License](https://opendatacommons.org/licenses/odbl/1.0/). 
+
+Disclaimer on the data from OpenFlights:
+
+> This data is not suitable for navigation. OpenFlights does not assume any responsibility whatsoever for its accuracy, and consequently assumes no liability whatsoever for results obtained or loss or damage incurred as a result of application of the data. OpenFlights expressly disclaims all warranties, expressed or implied, including but not limited to implied warranties of merchantability and fitness for any particular purpose.
+
+### Wrapping up 
+
+This was a fun little project to take on to comprehensively address a few different common tasks I face at work. I hope that this lightweight package can be useful to others who work with similar data, and I encourage anyone with suggestions for how this can made to be more useful still [opens up an issue or PR on Github](https://github.com/dshkol/airportr/issues) or sends me an email.
