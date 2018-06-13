@@ -18,7 +18,7 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 [Params]
     intro = true
     headline = "Scratchpad"
-    description = "blog blog blog"
+    description = ""
     github = "https://github.com/dshkol"
     linkedin = "https://linkedin.com/in/dmitryshkolnik/"
     twitter = "https://twitter.com/dshkol"
@@ -36,9 +36,19 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
     post = "/:year/:slug/"
 
 [[menu.main]]
-    name = "Blog"
+    name = "Posts"
     url = "/"
     weight = 1
+    
+[[menu.main]]
+    name = "Projects"
+    url = "/"
+    weight = 2
+    
+[[menu.main]]
+    name = "Code"
+    url = "/"
+    weight = 3
 
 [[menu.main]]
     name = "About"
