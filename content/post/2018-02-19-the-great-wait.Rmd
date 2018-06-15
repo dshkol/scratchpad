@@ -91,9 +91,6 @@ fr_theme <-   theme(panel.background = element_rect(fill = "grey87"),
                     legend.key.height = unit(0.5,"line"),
                     legend.key.width = unit(2,"line"))
 ```
-
-## The Great Wait
-
 This [interesting post](https://homefreesociology.wordpress.com) by [Nathanael Lauster](https://twitter.com/LausterNa) caught my eye last week looking at the gradual shift in age-specific birth rates for women in British Columbia over the last few decades. Nathanael is a Professor of Sociology at UBC and you may have heard of his book "The Life and Death of the Single-Family House".
 
 ```{r echo=FALSE}

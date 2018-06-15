@@ -9,7 +9,6 @@ draft: no
 subdirectory: post
 description: 'Comparing two different ways of generating small multiples maps in R'
 ---
-
 **TL;DR: Small multiples maps are one of my favourite ways to communicate multiple variables with a quantitative and spatial dimension. This example uses small multiples to show the distribution of the most spoken non-English languages in the Toronto CMA. Scroll to the end to see the results.** 
 
 After seeing the excellent electoral results maps from the [Berliner Morgenpost](https://interaktiv.morgenpost.de/analyse-bundestagswahl-2017/), I wanted to experiment with a similar approach for an alternative take on my maps of [linguistic diversity in Canadian cities](https://www.dshkol.com/2017/language-diversity-in-canada/). 

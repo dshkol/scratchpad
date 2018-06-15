@@ -18,8 +18,6 @@ subdirectory: post
 
 
 
-<div id="the-great-wait" class="section level2">
-<h2>The Great Wait</h2>
 <p>This <a href="https://homefreesociology.wordpress.com">interesting post</a> by <a href="https://twitter.com/LausterNa">Nathanael Lauster</a> caught my eye last week looking at the gradual shift in age-specific birth rates for women in British Columbia over the last few decades. Nathanael is a Professor of Sociology at UBC and you may have heard of his book “The Life and Death of the Single-Family House”.</p>
 {{% tweet "963536381749284864" %}}
 <p>His post includes a striking visual showing the shift in age-specific birth rates for BC between 1989 and 2015. You can really see the year-by-year progression of BC women having more of their children at a later age.</p>
@@ -28,7 +26,6 @@ subdirectory: post
 <p>Fertility rates are provided for discrete age-specific cohorts, although ideally we would have fertility rates by year. The discrete cohorts lead to straight lines and angles. We can use X-splines with a shape adjustment parameter to simulate interpolation and produce more aesthetically pleasing curves that better resemble birth rate curves. X-splines are available as geoms in the <code>ggalt</code> package.</p>
 <p><img src="/post/2018-02-19-the-great-wait_files/figure-html/curve2-1.png" width="672" /></p>
 <p>Note, there are far more accurate interpolation approaches specifically for age-specific fertility rates, but they are <a href="http://www.humanfertility.org/Docs/paa/Grigoriev_Jdanov.pdf">far more involved</a>.</p>
-</div>
 <div id="a-rich-dataset" class="section level2">
 <h2>A rich dataset</h2>
 <p>The <a href="https://www2.gov.bc.ca/gov/content/data/statistics/people-population-community/population/vital-statistics">underlying dataset</a> is rich, providing age-specific fertility rates for BC Local Health Areas (LHA). Many vital statistics in BC are provided for the five “Health Authority” levels which are then broken down into Health Service Delivery areas. These are further subdivided into Local Health Areas, of which there are 86.</p>
