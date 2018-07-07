@@ -1,0 +1,677 @@
+---
+title: 'Diversity and Segregation in Canadian Cities '
+author: ''
+date: '2018-07-09'
+slug: diversity-and-segregation-canadian-cities
+categories:
+  - diversity
+  - census
+  - analysis
+  - maps
+tags:
+  - cancensus
+  - census
+  - r
+  - maps
+draft: no
+description: ''
+---
+```{r Preprocessing, message=FALSE, warning=FALSE, include=FALSE}
+library(dplyr)
+library(sf)
+library(cancensus) 
+library(cancensusHelpers) # super specific helper functions 
+library(ggplot2)
+library(hrbrthemes)
+library(rmapzen) # for vector tiles
+library(ggrepel)
+
+## Identifying the vectors for visible Minority status
+parent_vector <- "v_CA16_3954"
+minorities <- list_census_vectors("CA16") %>% 
+  filter(vector == "v_CA16_3954") %>% 
+  child_census_vectors(leaves_only = TRUE) %>% 
+  pull(vector)
+
+minority_vectors <- c(parent_vector, minorities)
+
+# There are 244 ethnic origin vectors in the data. Let's get them at the CT level for the Vancouver metro region
+  
+# Now we set up functions to do all this at scale
+
+## A function to calculate diversity scores and map them
+diversity_index <- function(cma) {
+  
+  cma.ct <- get_census("CA16", regions=list(CMA=cma), 
+                       vectors = minority_vectors, level = "CT",
+                       labels = "short", geo_format = NA)
+  
+  cma.csd <- get_census("CA16", regions=list(CMA=cma), 
+                        vectors = minority_vectors, level = "CSD",
+                        labels = "short", geo_format = NA)
+  
+  # Calculating diversity (Theil's E)
+  # For every variable, divide by v_CA16_3999 and multiply times the logged inverse proportion, then
+  # take the sum for each tract. With 14 different groups, the max entropy is ln(14) = 2.64
+  base_pop <- quo(v_CA16_3954)
+  cma.ei <- cma.ct %>% 
+    group_by(GeoUID) %>% 
+    mutate_at(minorities, funs(E = (./!!(base_pop))*(log(!!(base_pop)/.)))) %>%
+    select(GeoUID, ends_with("_E")) %>% 
+    ungroup() %>% 
+    mutate_at(vars(ends_with("_E")), funs(ifelse(is.nan(.),0,.))) %>% 
+    mutate(Ei = rowSums(select(.,-1), na.rm = FALSE)) %>% 
+    select(GeoUID, Ei)
+  
+  cma.eicsd <- cma.csd %>% 
+    group_by(GeoUID) %>% 
+    mutate_at(minorities, funs(E = (./!!(base_pop))*(log(!!(base_pop)/.)))) %>%
+    select(GeoUID, ends_with("_E")) %>% 
+    ungroup() %>% 
+    mutate_at(vars(ends_with("_E")), funs(ifelse(is.nan(.),0,.))) %>% 
+    mutate(Ei = rowSums(select(.,-1), na.rm = FALSE)) %>% 
+    select(GeoUID, Ei)
+  
+  # Join with geography
+  
+  cma.geo <- get_census_geometry("CA16", regions=list(CMA=cma), 
+                                 level = "CT", geo_format = "sf")
+  
+  cma.csd.geo <- get_census_geometry("CA16", regions=list(CMA=cma), 
+                                     level = "CSD", geo_format = "sf")
+  
+  # Which Census Tracts are in which CSD
+  
+  cma.ct <- cma.geo %>% 
+    left_join(cma.ei) %>% 
+    mutate()
+  
+  cma.csd <- cma.csd.geo %>% 
+    left_join(cma.eicsd) %>% 
+    mutate()
+  
+  # Adding map detail
+  mz_set_tile_host_nextzen()
+  get_vector_tiles <- function(bbox){
+    mz_set_tile_host_nextzen(getOption("nextzen_API_key"))
+    mx_box=mz_rect(bbox$xmin,bbox$ymin,bbox$xmax,bbox$ymax)
+    mz_vector_tiles(mx_box, height = 1000, width = 1000)
+  }
+  
+  bbox <- st_bbox(cma.ct)
+  vector_tiles <- get_vector_tiles(bbox)
+  
+  if(length(vector_tiles$water$features) > 0) {
+    water <- as_sf(vector_tiles$water)
+  } 
+  
+  if(length(vector_tiles$roads$features) > 0) {
+    roads <- as_sf(vector_tiles$roads) %>% 
+      filter(kind == "highway")
+  } else {roads <- water}
+  
+  if(length(vector_tiles$transit$features) > 0) {
+    transit <- as_sf(vector_tiles$transit) %>% filter(kind == "subway")
+  } else {transit <- water}
+  
+  ct_div_plot <- ggplot(cma.ct) + 
+    geom_sf(aes(fill = Ei, colour = Ei)) +  
+    geom_sf(data = cma.csd.geo, fill = NA, colour = "white") +
+    geom_sf(data = transit, size = 0.2, colour = "grey24") +
+    geom_sf(data = roads, size = 0.2, colour = "grey36") +
+    geom_sf(data = water, fill = "lightblue", colour = NA) + 
+    coord_sf(datum = NA) +
+    scale_fill_viridis_c("Diversity Entropy Index",
+                         option = 3, breaks = c(0,0.5,1,1.5,2), 
+                         limits = c(0,2),
+                         labels = c("Less\nDiverse","","","","More\nDiverse"),
+                         guide = guide_legend(
+                           direction = "horizontal",
+                           title.position = "top",
+                           label.position = "bottom",
+                           keywidth = unit(3,"line"))) +
+    scale_colour_viridis_c(option = 3, guide = "none",limits = c(0,2)) +
+    theme(panel.background = element_blank(),
+          legend.position = c(0.2,0.9),
+          legend.background = element_blank(),
+          legend.key = element_rect(color = NA)) +
+    labs(caption = "Dmitry Shkolnik @dshkol | Data: Census 2016, Statistics Canada")
+  
+  csd_div_plot <- ggplot(cma.csd) + 
+    geom_sf(aes(fill = Ei, colour = Ei)) +  
+    geom_sf(data = transit, size = 0.2, colour = "grey24") +
+    geom_sf(data = roads, size = 0.2, colour = "grey36") +
+    geom_sf(data = water, fill = "lightblue", colour = NA) + 
+    coord_sf(datum = NA) +
+    scale_fill_viridis_c("Diversity Entropy Index",
+                         option = 3, breaks = c(0,0.5,1,1.5,2),
+                         limits = c(0,2),
+                         labels = c("Less\nDiverse","","","","More\nDiverse"),
+                         guide = guide_legend(
+                           direction = "horizontal",
+                           title.position = "top",
+                           label.position = "bottom",
+                           keywidth = unit(3,"line"))) +
+    scale_colour_viridis_c(option = 3, guide = "none",limits = c(0,2)) +
+    theme(panel.background = element_blank(),
+          legend.position = c(0.175,0.9),
+          legend.background = element_blank(),
+          legend.key = element_rect(color = NA)) +
+    labs(caption = "Dmitry Shkolnik @dshkol | Data: Census 2016, Statistics Canada")
+  objects <- list(ct = cma.ct, ct_plot = ct_div_plot,csd = cma.csd, csd_plot = csd_div_plot)
+  return(objects)
+}
+
+diversity_csd_map <- function(csd) {
+   
+  csd.ct <- get_census("CA16", regions=list(CSD=csd), 
+                       vectors = minority_vectors, level = "CT",
+                       labels = "short", geo_format = NA)
+  
+  csd.csd <- get_census("CA16", regions=list(CSD=csd), 
+                        vectors = minority_vectors, level = "CSD",
+                        labels = "short", geo_format = NA)
+  
+  # Calculating diversity (Theil's E)
+  # For every variable, divide by v_CA16_3999 and multiply times the logged inverse proportion, then
+  # take the sum for each tract. With 14 different groups, the max entropy is ln(14) = 2.64
+  base_pop <- quo(v_CA16_3954)
+  csd.ei <- csd.ct %>% 
+    group_by(GeoUID) %>% 
+    mutate_at(minorities, funs(E = (./!!(base_pop))*(log(!!(base_pop)/.)))) %>%
+    select(GeoUID, ends_with("_E")) %>% 
+    ungroup() %>% 
+    mutate_at(vars(ends_with("_E")), funs(ifelse(is.nan(.),0,.))) %>% 
+    mutate(Ei = rowSums(select(.,-1), na.rm = FALSE)) %>% 
+    select(GeoUID, Ei)
+  
+  csd.eicsd <- csd.csd %>% 
+    group_by(GeoUID) %>% 
+    mutate_at(minorities, funs(E = (./!!(base_pop))*(log(!!(base_pop)/.)))) %>%
+    select(GeoUID, ends_with("_E")) %>% 
+    ungroup() %>% 
+    mutate_at(vars(ends_with("_E")), funs(ifelse(is.nan(.),0,.))) %>% 
+    mutate(Ei = rowSums(select(.,-1), na.rm = FALSE)) %>% 
+    select(GeoUID, Ei)
+  
+  # Join with geography
+  
+  csd.geo <- get_census_geometry("CA16", regions=list(CSD=csd), 
+                                 level = "CT", geo_format = "sf")
+  
+  csd.csd.geo <- get_census_geometry("CA16", regions=list(CSD=csd), 
+                                     level = "CSD", geo_format = "sf")
+  
+  # Which Census Tracts are in which CSD
+  
+  csd.ct <- csd.geo %>% 
+    left_join(csd.ei) %>% 
+    mutate()
+  
+  csd.csd <- csd.csd.geo %>% 
+    left_join(csd.eicsd) %>% 
+    mutate()
+  
+  # Adding map detail
+  mz_set_tile_host_nextzen()
+  get_vector_tiles <- function(bbox){
+    mz_set_tile_host_nextzen(getOption("nextzen_API_key"))
+    mx_box=mz_rect(bbox$xmin,bbox$ymin,bbox$xmax,bbox$ymax)
+    mz_vector_tiles(mx_box, height = 1000, width = 1000)
+  }
+  
+  bbox <- st_bbox(csd.ct)
+  vector_tiles <- get_vector_tiles(bbox)
+  
+  if(length(vector_tiles$water$features) > 0) {
+    water <- as_sf(vector_tiles$water)
+  } 
+  
+  if(length(vector_tiles$roads$features) > 0) {
+    roads <- as_sf(vector_tiles$roads) %>% 
+      filter(kind == "highway")
+  } else {roads <- water}
+  
+  if(length(vector_tiles$transit$features) > 0) {
+    transit <- as_sf(vector_tiles$transit) %>% filter(kind == "subway")
+  } else {transit <- water}
+  
+  ct_div_plot <- ggplot(csd.ct) + 
+    geom_sf(aes(fill = Ei, colour = Ei)) +  
+    geom_sf(data = csd.csd.geo, fill = NA, colour = "white") +
+    geom_sf(data = transit, size = 0.2, colour = "grey24") +
+    geom_sf(data = roads, size = 0.2, colour = "grey36") +
+    geom_sf(data = water, fill = "lightblue", colour = NA) + 
+    coord_sf(datum = NA) +
+    scale_fill_viridis_c("Diversity Entropy Index",
+                         option = 3, breaks = c(0,0.5,1,1.5,2), 
+                         limits = c(0,2),
+                         labels = c("Less\nDiverse","","","","More\nDiverse"),
+                         guide = guide_legend(
+                           direction = "horizontal",
+                           title.position = "top",
+                           label.position = "bottom",
+                           keywidth = unit(3,"line"))) +
+    scale_colour_viridis_c(option = 3, guide = "none",limits = c(0,2)) +
+    theme(panel.background = element_blank(),
+          legend.position = c(0.2,0.9),
+          legend.background = element_blank(),
+          legend.key = element_rect(color = NA)) + 
+    labs(caption = "Dmitry Shkolnik @dshkol | Data: Census 2016, Statistics Canada")
+  return(ct_div_plot)
+}
+
+# A function to calculate diversity scores only for CSD
+diversity_csd <- function(cma) {
+  cma.csd <- get_census("CA16", regions=list(CMA=cma), 
+                        vectors = minority_vectors, level = "CSD",
+                        labels = "short", geo_format = NA)
+  
+  # Calculating diversity (Theil's E)
+  # For every variable, divide by v_CA16_3999 and multiply times the logged inverse proportion, then
+  # take the sum for each tract. With 14 different groups, the max entropy is ln(14) = 2.64
+  base_pop <- quo(v_CA16_3954)
+  cma.eicsd <- cma.csd %>% 
+    group_by(GeoUID,`Region Name`, Population) %>% 
+    mutate_at(minorities, funs(E = (./!!(base_pop))*(log(!!(base_pop)/.)))) %>%
+    select(GeoUID, `Region Name`, Population, ends_with("_E")) %>% 
+    ungroup() %>% 
+    mutate_at(vars(ends_with("_E")), funs(ifelse(is.nan(.),0,.))) %>% 
+    mutate(Ei = rowSums(select(.,-c(1,2,3)), na.rm = FALSE)) %>% 
+    mutate(CMA = cma) %>% 
+    select(CMA, GeoUID, `Region Name`, Population, Ei)
+  return(cma.eicsd)
+}
+
+# Apply function to get EI for all CSD for all Canadian CMAS
+cmas <- list_census_regions("CA16") %>% filter(level == "CMA") %>% select(region, name, pop)
+
+cma_ei <- purrr::map_df(cmas$region, .f = diversity_csd) %>% 
+  left_join(cmas, by = c("CMA"="region")) %>% 
+  select(`Region Name`, `CMA Name`=name, CMA, GeoUID, Population, `CMA Population` = pop, Ei)
+
+# Top diverse CMAs with population over 5000
+
+cma_ei %>% filter(Population > 5000) %>% arrange(desc(Ei)) %>% clean_names
+
+# Pregenerating some sample CMA diversity objects - these make for the cool maps.
+
+vancouver <- diversity_index("59933")
+toronto <- diversity_index("35535")
+montreal <-diversity_index("24462")
+#ottawa <-diversity_index("505")
+#quebeccity <- diversity_index("24421")
+#winnipeg <-diversity_index("46602")
+calgary <-diversity_index("48825")
+#hamilton <-diversity_index("35537")
+#stjohns <- diversity_index("10001")
+#victoria <- diversity_index("59935")
+#saguenay <- diversity_index("24408")
+#abby <- diversity_index("59932")
+#sask <- diversity_index("47725")
+
+# A function to calculate the segregation of a CMA with calculated diversity and geo
+
+calc_h <- function(cma_obj) {
+  cth <- cma_obj$ct %>% 
+    select(GeoUID, CSD_UID, Population, Ei)
+  st_geometry(cth) <- NULL
+  
+  cth <- cth %>%
+    left_join(cma_obj$csd, by = c("CSD_UID"="GeoUID")) %>%
+    select(GeoUID, CSD_UID, name, ctpop = Population.x,
+           csdpop = Population.y, ctei = Ei.x, csdei = Ei.y) %>%
+    group_by(GeoUID, CSD_UID) %>%
+    filter(csdpop > 1000) %>%
+    mutate(smallh = (ctpop*(csdei - ctei))/(csdei*csdpop)) %>%
+    ungroup()
+
+  csdh <- cth %>%
+    group_by(CSD_UID, csdei) %>%
+    summarise(H = sum(smallh, na.rm = TRUE)) %>% 
+    right_join(cma_obj$csd,by = c("CSD_UID"="GeoUID"))
+  
+  return(csdh)
+}
+
+# A function to calculate segregation of CSD without geo
+
+segregation_csd <- function(cma) {
+  cma.ct <- get_census("CA16", regions=list(CMA=cma), 
+                        vectors = minority_vectors, level = "CT",
+                        labels = "short", geo_format = "sf")
+  st_geometry(cma.ct) <- NULL
+  
+  cma.csd <- get_census("CA16", regions=list(CMA=cma), 
+                        vectors = minority_vectors, level = "CSD",
+                        labels = "short", geo_format = NA)
+  
+  base_pop <- quo(v_CA16_3954)
+  
+  cma.eict <- cma.ct %>% 
+    group_by(GeoUID,`Region Name`, Population) %>% 
+    mutate_at(minorities, funs(E = (./!!(base_pop))*(log(!!(base_pop)/.)))) %>%
+    ungroup() %>% 
+    select(GeoUID, CSD_UID, Population, ends_with("_E")) %>% 
+    mutate_at(vars(ends_with("_E")), funs(ifelse(is.nan(.),0,.))) %>% 
+    mutate(Ei = rowSums(select(.,-c(1,2,3)), na.rm = FALSE)) %>% 
+    ungroup() %>% 
+    select(GeoUID, CSD_UID, Population, Ei)
+
+  cma.eicsd <- cma.csd %>%
+    group_by(GeoUID,`Region Name`, Population) %>%
+    mutate_at(minorities, funs(E = (./!!(base_pop))*(log(!!(base_pop)/.)))) %>%
+    ungroup() %>%
+    select(GeoUID, `Region Name`, Population, ends_with("_E")) %>%
+    mutate_at(vars(ends_with("_E")), funs(ifelse(is.nan(.),0,.))) %>%
+    mutate(Ei = rowSums(select(.,-c(1,2,3)), na.rm = FALSE)) %>%
+    mutate(CMA = cma) %>%
+    select(CMA, GeoUID, `Region Name`, Population, Ei)
+
+  cma.h <- cma.eict %>%
+    left_join(cma.eicsd, by = c("CSD_UID"="GeoUID")) %>%
+    select(GeoUID, CSD_UID, name = `Region Name`, ctpop = Population.x,
+           csdpop = Population.y, ctei = Ei.x, csdei = Ei.y) %>%
+    filter(csdpop > 1000) %>%
+    group_by(GeoUID, CSD_UID) %>%
+    mutate(smallh = (ctpop*(csdei - ctei))/(csdei*csdpop)) %>%
+    ungroup() %>%
+    group_by(CSD_UID, csdei, name, csdpop) %>%
+    summarise(H = sum(smallh, na.rm = TRUE)) %>% 
+    mutate(cma = cma)
+return(cma.h)
+}
+
+cma_seg <- purrr::map_df(cmas$region, .f = segregation_csd) %>% 
+  left_join(cmas, by = c("cma"="region")) %>% 
+  select(`Region Name`=name.x, `CMA Name`=name.y, CMA = cma,Population = csdpop, `CMA Population` = pop, Ei = csdei, H) %>% 
+  ungroup()
+
+
+clean_names <- function (dfr) {
+    dfr <- dfr %>% mutate(name = as.character(name))
+    replacement <- dfr %>% mutate(name = gsub(" \\(.*\\)", 
+        "", name)) %>% pull(name)
+    duplicated_rows <- c(which(duplicated(replacement, fromLast = TRUE)), 
+        which(duplicated(replacement, fromLast = FALSE)))
+    replacement[duplicated_rows] <- dfr$name[duplicated_rows]
+    dfr$name <- factor(replacement)
+    dfr
+}
+
+clean_names2 <- function (dfr) {
+    dfr <- dfr %>% mutate(`Region Name` = as.character(`Region Name`))
+    replacement <- dfr %>% mutate(`Region Name` = gsub(" \\(.*\\)", 
+        "", `Region Name`)) %>% pull(`Region Name`)
+    duplicated_rows <- c(which(duplicated(replacement, fromLast = TRUE)), 
+        which(duplicated(replacement, fromLast = FALSE)))
+    replacement[duplicated_rows] <- dfr$`Region Name`[duplicated_rows]
+    dfr$`Region Name` <- factor(replacement)
+    dfr
+}
+```
+This is the first part in a short series of posts looking at how we can measure diversity of visible minority groups in Canadian cities using Census data. By using a measure that relates diversity to segregation, we can also look at how these cities distribute minority groups and to what extent these cities are segregated. Part 2 of this post will look at changing trends in diversity and segregation in select Canadian metropolitan areas. 
+
+## The diversity of Canada's metropolitan areas
+
+Canada is a pretty diverse nation. There's a good chance that the notion of the "cultural mosaic" will appear on a new Canadian's Citizenship test. That Canada is a diverse place would be obvious to anyone who has spent time in some of Canada's largest metropolitan areas. Statistics Canada's 2016 Census data includes a number of different dimensions that can be used to quantify diversity. Using Census data, we can measure diversity by looking at broad visible minority groups, specific ethnicity, [language](https://www.dshkol.com/project/language-diversity-in-canada/), recent immigration origin, among others. There are good reasons to use or not use any of these categories, but this post will focus primarily on diversity as measured by the Census dimension for "Visible minority in private households". This Census dimension is from the long-form Census questionnaire with about 25% sample coverage and provides variables for the following groups:
+
+* Not a visible minority
+* South Asian
+* Chinese
+* Black
+* Filipino
+* Latin American
+* Arab
+* Southeast Asian
+* West Asian
+* Korean
+* Japanese
+* Other, and
+* Multiple visible minorities
+
+We can also take diversity to represent a variety of groups across any dimension - whether it is based on ethnicity, or wealth, or education, or occupation, or just about any of the multigroup measures available in the Census. 
+
+### Measuring Diversity to Measure Segregation
+
+There exist a number of different ways to measure the diversity. A typical approach is, for any given geographic area, to construct an index based off the demographic profile of that area. These indices can represent different ways to calculate measures relating to concentration, dispersion, and evenness of demographic variables by groups. 
+
+### Theil's Entropy Index
+
+The specific approach used here to measure diversity relies on ideas from information theory. Theil's Entropy Index (Theil's E) is a measure of diversity. This approach is well documented and the implementation in this post is based off of Iceland (2004) [(pdf from census.gov)](https://www.census.gov/hhes/www/housing/resseg/multigroup_entropy.pdf).
+
+There are two parts to calculating the entropy score. The score first has to be calculated for the entire geographic area:
+
+$E = \sum\limits_{r=1}^r\Pi_{r}ln(\frac{1}{\Pi_{r}})$
+
+where $\Pi_r$  is a given group's proportion of the entire population of the geographic area. Then an entropy score must be calculated for each sub-region (i.e. Census tract or similar) that is a component of the aggregated region:
+
+$E_i = \sum\limits_{r=1}^r\pi_{ri}ln(\frac{1}{\pi_{ri}})$
+
+where, similarly, $\pi_{ri}$ is a group's proportion of the total in sub-region $i$.
+
+The actual diversity score (Theil's $E$) depends on the number of different groups. If you have 13 possible groups the maximum diversity score is log(13) = `log(13)`. If instead, you used every possible ethnic group in the Census as the basis for your calculation, the max score would be log(244) = `log(244)`. Because of this, Theil's entropy scores should not be used to compare across different dimensions; rather they are most valuable as a relative measure: a higher number indicates greater diversity. The max score would result if every individual group made up an equal proportion of a geographic area (i.e. if you had 13 groups, you would see that each group represented `1/13` of the total population in that area.)
+
+This measure of entropy on its own can inform us about the diversity in an area but it does not tell us much about segregation because it does not look at the spatial distribution among groups. A place can be highly diverse but also segregated. Two metropolitan areas with the same diversity measured by subgroup proportions can look very different. A metropolitan area where every member of a subgroup is randomly distributed would not score highly on any measure of segregation compared to a metro area where every member of a subgroup lived in their own neighbourhoods. 
+
+Measuring segregation requires some knowledge of the distribution of these demographic groups within a region. By taking advantage of different levels of geographic aggregation we can build up an estimate of segregation by comparing the overall diversity of a region at one level of geographic aggregation (e.g. a Census sub-division) and to evaluate how that differs from the diversity observed in the geographic regions that make up that particular region (e.g. Census tracts or Dissemination Areas). 
+
+Segregation (Theil's $H$) is measured by a population-weighted sum of the divergences between the diversity index at the aggregate level and the same indices at the sub-regional level. 
+
+$H = \sum\limits_{i=1}^{n}\Big[\frac{t_i(E-E_i)}{ET}\Big]$
+
+With this measure, a higher $H$ indicates greater levels of segregation. 
+
+### Data and tools
+
+All data in this post comes from Statistics Canada's 2016 Census, accessed and retrieved through our `cancensus` [R package](https://mountainmath.github.io/cancensus/index.html). I am biased but I think this package is the best way to work with Canadian census data and allows for a more programmatic way to retrieve and manipulate Census data. The maps in this post combine Census data with vector tile data from Nextzen, an open-source project that has kept Mapzen's (RIP) great open-source geographic tools online. I discuss the code and the tools used in a little bit more detail at the end of the post, and the code used to generate the analysis and visuals in this post is view-able on [Github]().
+
+### What diversity looks like in the Vancouver CMA
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, }
+vancouver$ct_plot
+```
+Some of the most diverse Census tracts in Canada are within in Surrey, Burnaby, and Coquitlam. It is no surprise that these municipalities are the most diverse in the Vancouver metropolitan area.
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+vancouver$csd_plot
+```
+#### The most diverse cities in Metro Vancouver
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+ggplot(vancouver$csd %>% 
+         filter(Population > 50000) %>% 
+         clean_names, 
+       aes(y = Ei, x = reorder(name, Ei))) + 
+  geom_bar(stat = "identity", fill = "#00205B") +
+  scale_y_continuous(limits = c(0, log(13))) +
+  coord_flip() + 
+  theme_ipsum() + 
+  theme(panel.grid.major.y = element_blank(),
+        panel.background = element_blank()) +
+  labs(y = "Diversity entropy index", x = "", 
+       caption = "Entropy index of visible minorities\n@dshkol | Data: Statistics Canada, Census 2016")
+```
+
+#### Toronto
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+toronto$ct_plot
+```
+#### Montreal
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+montreal$ct_plot
+```
+#### Calgary
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+calgary$ct_plot
+```
+#### The most diverse cities in Canada are all in the GTA and Metro Vancouver
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+ggplot(cma_ei%>% filter(Population > 50000) %>% clean_names2 %>% top_n(10, Ei ), 
+       aes(y = Ei, x = reorder(`Region Name`, Ei), fill = `CMA Name`)) + 
+  geom_bar(stat = "identity") +
+  scale_y_continuous(limits = c(0, log(13))) +
+  scale_fill_manual("",values = c("#CE1141","#00205B")) +
+  coord_flip() + 
+  theme_ipsum() + 
+  theme(panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        legend.position = c(0.92,0.95)) +
+  labs(y = "Diversity entropy index", x = "", 
+       caption = "Entropy index of visible minorities\n@dshkol | Data: Statistics Canada, Census 2016")
+```
+The ranking of most diverse cities in Canada (with population greater than 50,000) is dominated by two metro areas. Anybody familiar with Canada would have expected Metro Toronto and Metro Vancouver to feature prominently, but all of the top 10 Census subdivisions in Canada are within these two regions. 
+
+The most diverse municipalities outside of these two metro areas are Brossard (Montréal) and the city of Edmonton (Edmonton) at 11th and 16th most diverse, respectively.
+
+#### The least diverse cities in Canada are in Quebec (and Ontario)
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+ggplot(cma_ei%>% filter(Population > 50000) %>% clean_names2 %>% top_n(10, -Ei ) %>% 
+         mutate(Quebec = ifelse(substr(GeoUID,0,2)=="24",1,0)), 
+       aes(y = Ei, x = reorder(`Region Name`, -Ei), fill = factor(Quebec))) + 
+  geom_bar(stat = "identity") +
+  scale_y_continuous(limits = c(0, log(13))) +
+  scale_fill_manual("",values = c("grey40","#1C5BA2")) + 
+  coord_flip() + 
+  theme_ipsum() +
+  theme(panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        legend.position = "none") +
+  labs(y = "Diversity entropy index", x = "", 
+       caption = "Entropy index of visible minorities\n@dshkol | Data: Statistics Canada, Census 2016")
+```
+
+## Segregation
+
+With the diversity of these cities defined, calculating the extent of segregation is straight-forward. Returning to the Theil measurement of multigroup entropy, segregation is the measure of the difference between the diversity of the entire system (i.e. city) and the weighted average diversity of the individual elements that make up that city (i.e. Census tracts). 
+
+#### The most and the least segregated large cities in Canada
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+ggplot(bind_rows(cma_seg %>% 
+         filter(Population > 100000) %>% 
+         clean_names2 %>% 
+         top_n(10, -H), 
+         cma_seg %>% 
+           filter(Population > 100000) %>% 
+           clean_names2 %>% 
+           top_n(10, H)), 
+       aes(y = H, x = reorder(`Region Name`, H), size = Population)) + 
+  #geom_bar(stat = "identity") +
+  geom_point(colour = "#7e008c") + 
+  coord_flip() + 
+  theme_ipsum() +
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.major.y = element_line(linetype = "dotted"),
+        legend.position = "none") +
+  labs(y = "Segregation entropy index", x = "", 
+       #title = "The most and the least segregated large cities in Canada",
+       caption = "Segregation index of visible minorities\n@dshkol | Data: Statistics Canada, Census 2016")
+```
+Several of the cities that appear near the top of this list were previously highlighted as some of the most diverse in the country. This goes back to the idea that segregation depends entirely on how groups are distributed within a geographic area. Toronto (the City of), while incredibly diverse by any metric when looked as a whole consists of visible minority groups that are relatively concentrated within specific areas of the city. 
+
+Compare, for example, group distribution in Toronto:
+```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+toronto.ct <- get_census("CA16", regions=list(CSD="3520005"), 
+                     vectors = minority_vectors, level = "CT",
+                     labels = "detailed", geo_format = "sf")
+names(toronto.ct)[14:27] <- c("Total","White","South Asian","Chinese","Black","Filipino",
+                              "Latin American","Arab","SE Asian","West Asian","Korean",
+                              "Japanese","Other","Multiple")
+
+toronto.ct.tidy <- toronto.ct %>% 
+  select(-White) %>% 
+  tidyr::gather(Group, Count, `South Asian`:Multiple) %>% 
+  mutate(Proportion = Count/Total)
+
+ggplot(toronto.ct.tidy) + geom_sf(aes(fill = Proportion^(1/2), colour = Proportion^(1/2))) + 
+  scale_fill_viridis_c(option = 3, guide = FALSE) + 
+  scale_colour_viridis_c(option = 3, guide = FALSE) + 
+  theme_void() +
+  coord_sf(datum = NA) +
+  facet_wrap(~Group, ncol = 4)  +
+  labs(caption = "Visible minority groups by square-root proportion of Census Tract population\n@dshkol | Data: Statistics Canada, Census 2016")
+```
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+markham.ct <- get_census("CA16", regions=list(CSD="3519036"), 
+                     vectors = minority_vectors, level = "CT",
+                     labels = "detailed", geo_format = "sf")
+names(markham.ct)[14:27] <- c("Total","White","South Asian","Chinese","Black","Filipino",
+                              "Latin American","Arab","SE Asian","West Asian","Korean",
+                              "Japanese","Other","Multiple")
+
+markham.ct.tidy <- markham.ct %>% 
+  select(-White) %>% 
+  tidyr::gather(Group, Count, `South Asian`:Multiple) %>% 
+  mutate(Proportion = Count/Total)
+
+ggplot(markham.ct.tidy) + geom_sf(aes(fill = Proportion^(1), colour = Proportion^(1))) + 
+  scale_fill_viridis_c(option = 3, guide = FALSE) + 
+  scale_colour_viridis_c(option = 3, guide = FALSE) + 
+  theme_void() +
+  coord_sf(datum = NA) +
+  facet_wrap(~Group, ncol = 4)  +
+  labs(caption = "Visible minority groups by square-root proportion of Census Tract population\n@dshkol | Data: Statistics Canada, Census 2016")
+```
+And in Longueuil, QC, where the different groups that are present are more evenly distributed across the entire city.
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+long.ct <- get_census("CA16", regions=list(CSD="2458227"), 
+                     vectors = minority_vectors, level = "CT",
+                     labels = "detailed", geo_format = "sf")
+names(long.ct)[14:27] <- c("Total","White","South Asian","Chinese","Black","Filipino",
+                              "Latin American","Arab","SE Asian","West Asian","Korean",
+                              "Japanese","Other","Multiple")
+
+long.ct.tidy <- long.ct %>% 
+  select(-White) %>% 
+  tidyr::gather(Group, Count, `South Asian`:Multiple) %>% 
+  mutate(Proportion = Count/Total)
+
+ggplot(long.ct.tidy) + geom_sf(aes(fill = Proportion^(1/2), colour = Proportion^(1/2))) + 
+  scale_fill_viridis_c(option = 3, guide = FALSE) + 
+  scale_colour_viridis_c(option = 3, guide = FALSE) + 
+  theme_void() + 
+  coord_sf(datum = NA) +
+  facet_wrap(~Group, ncol = 4)  +
+  labs(caption = "Visible minority groups by square-root proportion of Census Tract population\n@dshkol | Data: Statistics Canada, Census 2016")
+```
+The takeaway is that cities can be both relatively diverse _and_ relatively segregated. Putting it all together, we can construct a simplified taxonomy by placing Canadian cities along both a diversity index axis and a segregation index axis at once. 
+#### Toronto, Saguenay, Burnaby, and Terrebonne 
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+ggplot(cma_seg%>% filter(Population > 100000) %>% clean_names2 %>% 
+         mutate(big_cma = ifelse(`CMA Population` > 1000000, `CMA Name`,"Other")),
+       aes(y= H, x = Ei, size = Population^1.5, colour = big_cma)) +
+  #geom_label_repel(aes(label = `Region Name`)) +
+  geom_text_repel(aes(label = `Region Name`)) +
+  scale_size_continuous(guide = FALSE) + 
+  scale_colour_ipsum("", guide = FALSE) +
+  theme_ipsum() +
+  theme(panel.grid = element_blank(),
+        axis.text = element_blank()) + 
+  labs(x = "More diverse \u2192", y = "More segregated \u2192",
+       caption = "Entropy index based calculations of diversity and segregation\nof visible minority groups in cities with population over 100,000\n@dshkol | Data: Statistics Canada, Census 2016")
+  #scale_colour_brewer(guide = FALSE, palette = "Dark")
+```
+In part two of this post I plan to look at how these areas have changed over the last few Census periods going back to 2006.
+
+### A final note
+
+The measures of diversity and segregation used in this post are sensitive to the assumptions around which demographic characteristics are the basis for the measurements. The same analysis could be performed with birthplaces of immigrant populations, with languages spoken at home, or, really, with any set demographic variables that profile an area and the numbers could well likely be different than what is presented here. An alternative approach could use ethnic origin instead of visible minority, but the Canadian Census has an incredibly large number of ethnic origins represented. Canada is a country with a rich immigrant history and the majority of Canadians can trace their origins to a few (or many) ethnic groups; however, the broad groups that people think of when they think about diversity, integration, and segregation tend to be visible minority groups. 
+
+The entropy-based approach for measuring diversity and segregation works well for comparing places that have the same type of data. With the data in the Canadian Census, it becomes straight-forward to directly compare any Canadian cities against one another in relative terms. Where this approach begins to struggle is when we think about whether or not the cities in question are actually segregated or not, or if they are merely slightly less integrated than one another. This approach also struggles in forming a valid comparison with data from places that have different data, even if the calculation methodology is the same. As a result, it is difficult to say segregation in Canadian cities compares with, say, what we would observe [using similar approaches in American cities](https://www.washingtonpost.com/graphics/2018/national/segregation-us-cities/?utm_term=.b6b1181a0c51). My own sense from this exercise is that Canadian cities are all relatively integrated given their high levels of diversity. It is both outside the scope of this piece and outside my expertise to answer the question of why that may be.
+
+### Code
+
+All of the R code for the analysis and visuals in this post is embedded within this page as RMarkdown code. It's hidden by default but can be viewed on [Github](). All of the data is accessed and retrieved using the [cancensus package](https://mountainmath.github.io/cancensus/index.html). The ability, thanks to this package, to work with hierarchical variable structures and to iterate analysis across many regions and variables make something like this a relatively easy thing to put together. In addition, this post relies on a number of other great R packages:
+
+```{r eval=FALSE, include=TRUE}
+library(cancensus) # access, retrieve, and work with Census data
+library(cancensusHelpers) # personal use helper functions - development
+library(dplyr) # data manipulation
+library(purrr) # recursive programming
+library(tidyr) # reshaping data
+library(sf) # spatial data and visualization
+library(ggplot2) # visualization 
+library(ggrepel) # for smarter labelling
+library(hrbrthemes) # typographic theme elements
+library(rmapzen) # vector tiles for maps
+```
+

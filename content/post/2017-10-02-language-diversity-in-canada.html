@@ -113,11 +113,11 @@ ldi_calc &lt;- function(df) {
   return(tidy_langs)
 }</code></pre>
 <p>Now that the diversity indices for each of our top-10 CMAs are calculated, let’s visualize how they compare to one another. I like to use <code>geom_lollipop</code> from the <a href="https://github.com/hrbrmstr/ggalt">ggalt</a> package to arrange and compare indicators.</p>
-<p><img src="/project/2017-10-02-language-diversity-in-canada_files/figure-html/cma_ldi_plot-1.png" width="768" /></p>
+<p><img src="/post/2017-10-02-language-diversity-in-canada_files/figure-html/cma_ldi_plot-1.png" width="768" /></p>
 <p>Ottawa-Gatineau, not Toronto, is the most linguistically diverse <em>Census metropolitan areas</em> in Canada based on Greenberg’s Language Diversity Index. Montréal comes second, and Toronto and Vancouver round out the top-4. This is a surprising result, but it may make more sense when you think about the structure of these metropolitan areas.</p>
 <p>Canadian Census metropolitan areas are specially-defined geographic groupings that represent urban agglomeration of Census subdivisions. The standard subprovincial level of Census geography are Census divisions and Census subdivisions. The Census subdivision level is probably the best way to compare municipalities within metro areas across different metro areas.</p>
 <p>A metropolitan area includes multiple municipalities, townships and other municipal-level administrative regions. A large CMA may have some areas with extremely high linguistic diversity and other areas with much lower diversity that bring the overall diversity score down for that metropolitan area. We can check this out by computing a diversity score for each individual CSD within our top-10 CMAs and visualizing in a way that we can see how distributions differ for each CMA. A <a href="https://github.com/eclarke/ggbeeswarm">beeswarm</a> plot is an effective way to represent this type of data.</p>
-<p><img src="/project/2017-10-02-language-diversity-in-canada_files/figure-html/cma_variance-1.png" width="768" /></p>
+<p><img src="/post/2017-10-02-language-diversity-in-canada_files/figure-html/cma_variance-1.png" width="768" /></p>
 <p>This explains things better. While Ottawa has the highest score at the CMA level, Montréal, Toronto, and Vancouver have numerous individual Census subdivisions that are more diverse than anything in Ottawa-Gatineau. However, they also have relatively many low diversity areas that bring down the overall diversity index score at the CMA level. The bubbles in the above plot scale with CSD population and they further show Toronto and Vancouver have a number of high diversity areas of larger populations, which helps explain why most people expected either one of these two CMAs to rank the highest. Which begs the question: what are the most diverse municipalities in Canada?</p>
 </div>
 <div id="linguistic-diversity-of-municipalities" class="section level4">
@@ -135,7 +135,7 @@ langs_csd50 &lt;- get_census(dataset, level = &quot;CSD&quot;, regions = csd50_l
 # Calculate index
 csd50_ldi &lt;- ldi_calc(langs_csd50) %&gt;%
   mutate(`Region Name` = as.factor(gsub(&quot; \\(.*\\)&quot;,&quot;&quot;,`Region Name`)))</code></pre>
-<p><img src="/project/2017-10-02-language-diversity-in-canada_files/figure-html/csd_lollipop-1.png" width="768" /></p>
+<p><img src="/post/2017-10-02-language-diversity-in-canada_files/figure-html/csd_lollipop-1.png" width="768" /></p>
 <p>Out of the top 50 largest CSDs in Canada, Richmond, British Columbia ends up scoring the highest on our diversity index. As a Richmond native, this is a somewhat surprising result. While Richmond consistently has one of the lowest English/French speaking shares, the general perception is that Richmond is still linguistically homogeneous with most people speaking a handful of non-official languages.</p>
 <p>Brossard and Mont-Royal in Montréal have higher index scores but they do not make the cut for the 50 most populous CSDs. Richmond Hill and Markham stand out in the GTA, while Burnaby and, to a lesser extent, Surrey and Coquitlam score highly in the Lower Mainland.</p>
 <p>The Quebec municipalities of Trois-Rivières, Lévis, and Saguenay are by the far the least diverse populous Census subdivisions.</p>
@@ -155,12 +155,12 @@ langs_csd100 &lt;- get_census(dataset, level = &quot;CSD&quot;, regions = csd100
 # Calculate index
 csd100_ldi &lt;- ldi_calc(langs_csd100) %&gt;%
   mutate(`Region Name` = as.factor(gsub(&quot; \\(.*\\)&quot;,&quot;&quot;,`Region Name`)))</code></pre>
-<p><img src="/project/2017-10-02-language-diversity-in-canada_files/figure-html/csd_lang_plot1-1.png" width="768" /></p>
+<p><img src="/post/2017-10-02-language-diversity-in-canada_files/figure-html/csd_lang_plot1-1.png" width="768" /></p>
 <p>Due to the wide range in population among CSDs a logarithmic scale for the population axis is probably more appropriate to use here. .</p>
-<p><img src="/project/2017-10-02-language-diversity-in-canada_files/figure-html/csd_plot2-1.png" width="768" /></p>
+<p><img src="/post/2017-10-02-language-diversity-in-canada_files/figure-html/csd_plot2-1.png" width="768" /></p>
 <p>There appears to be a log-linear relationship between population and language diversity. This makes intuitive sense but the causal relationship is not clear and is beyond the scope of this simple data exploration piece. Linguistic diversity is likely associated with immigration, and immigrants are not uniformly distributed across the country, rather they are concentrated in a handful of larger cities.</p>
 <p>We can fit a simple linear model with <code>geom_smooth(...)</code> to see what that relationship looks like.</p>
-<p><img src="/project/2017-10-02-language-diversity-in-canada_files/figure-html/csd_plot3-1.png" width="768" /></p>
+<p><img src="/post/2017-10-02-language-diversity-in-canada_files/figure-html/csd_plot3-1.png" width="768" /></p>
 </div>
 </div>
 <div id="linguistic-diversity-within-cities" class="section level2">
@@ -198,34 +198,34 @@ van_ldi &lt;- inner_join(langs_van, van_ldi)</code></pre>
 <p>We can make maps using <code>ggplot2</code> which works well with <code>sf</code>-class objects <em>in theory</em>. The reality is that <code>sf</code> is still very much a developing standard for spatial data and the corresponding ggplot <code>geom_sf</code> is only available (as of writing) in the <a href="https://github.com/tidyverse/ggplot2">development version</a> of <code>ggplot2</code> which can be downloaded by running <code>devtools::install_github(&quot;tidyverse/ggplot2&quot;)</code>.</p>
 <div id="greater-vancouver-cma" class="section level4">
 <h4>Greater Vancouver CMA</h4>
-<p><img src="/project/2017-10-02-language-diversity-in-canada_files/figure-html/city_maps_van-1.png" width="960" /></p>
+<p><img src="/post/2017-10-02-language-diversity-in-canada_files/figure-html/city_maps_van-1.png" width="960" /></p>
 <p>And the same process can be used for the other cities.</p>
 </div>
 <div id="greater-toronto-cma" class="section level4">
 <h4>Greater Toronto CMA</h4>
-<p><img src="/project/2017-10-02-language-diversity-in-canada_files/figure-html/city_maps_tor-1.png" width="960" /></p>
+<p><img src="/post/2017-10-02-language-diversity-in-canada_files/figure-html/city_maps_tor-1.png" width="960" /></p>
 </div>
 <div id="montreal-cma" class="section level4">
 <h4>Montreal CMA</h4>
-<p><img src="/project/2017-10-02-language-diversity-in-canada_files/figure-html/city_maps_mtl-1.png" width="960" /></p>
+<p><img src="/post/2017-10-02-language-diversity-in-canada_files/figure-html/city_maps_mtl-1.png" width="960" /></p>
 </div>
 <div id="ottawa---gatineau" class="section level4">
 <h4>Ottawa - Gatineau</h4>
-<p><img src="/project/2017-10-02-language-diversity-in-canada_files/figure-html/city_maps_ott-1.png" width="960" /></p>
+<p><img src="/post/2017-10-02-language-diversity-in-canada_files/figure-html/city_maps_ott-1.png" width="960" /></p>
 </div>
 <div id="vancouver-in-detail" class="section level4">
 <h4>Vancouver in Detail</h4>
 <p>Taking a look at Vancouver in more detail we can focus specifically on Vancouver (including UBC and the University Endowment Lands), Burnaby, Richmond, and New Westminster to identify the most linguistically diverse parts of those municipalities.</p>
-<p><img src="/project/2017-10-02-language-diversity-in-canada_files/figure-html/van_detail-1.png" width="960" /><img src="/project/2017-10-02-language-diversity-in-canada_files/figure-html/van_detail-2.png" width="960" /></p>
+<p><img src="/post/2017-10-02-language-diversity-in-canada_files/figure-html/van_detail-1.png" width="960" /><img src="/post/2017-10-02-language-diversity-in-canada_files/figure-html/van_detail-2.png" width="960" /></p>
 </div>
 <div id="appendix-single-response-vs-multiple-response" class="section level3">
 <h3>Appendix: Single Response vs Multiple Response</h3>
 <p>Census variables for the language spoken most commonly at home are separated into two types of responses. The majority of responses are classified as “Single Responses” where a respondent indicated exclusively one language on their response. Alternatively, respondents are able to select one of four additional options: “English and French”, “English and non-official language”, “French and non-official language”, or “English, French, and non-official language”. These are categorized under the Multiple Response hierarchy and are separated from the rest of the responses. This obviously complicates calculating language diversity – how do you accurately calculate diversity using the data in the Multiple Response category when it does not have the same level of detail as the Single Response data.</p>
 <p>We can do some testing of the data within this category to better understand what is their likely impact on the diversity index score.</p>
-<p><img src="/project/2017-10-02-language-diversity-in-canada_files/figure-html/mr_testing-1.png" width="768" /></p>
+<p><img src="/post/2017-10-02-language-diversity-in-canada_files/figure-html/mr_testing-1.png" width="768" /></p>
 <p>The share of respondents selecting the Multiple Response option differs across the top 10 CMAs with Toronto at one end with 9.5% of respondents and Quebec City at the other end with only 1.4% of respondents falling into the Multiple Response group.</p>
 <p>The objective of this analysis is less on quantifying the exact linguistic diversity of each area but more to see the relative diversity across different areas. In other words - which parts of Canada are the most linguistically diverse. In order to think about how this additional data affects the diversity index, a closer look at how these data points break down is required.</p>
-<p><img src="/project/2017-10-02-language-diversity-in-canada_files/figure-html/mr_testing_detail-1.png" width="960" />
+<p><img src="/post/2017-10-02-language-diversity-in-canada_files/figure-html/mr_testing_detail-1.png" width="960" />
 There is a relatively consistent share of English/French and non-official language respondents, so its not clear that including or excluding these respondents would have any effect on the relative diversity in those cities. Similarly, Quebec City has such a small share of respondents falling into this category that it is next to meaningless to worry about it. Where it may pose a challenge is with the relatively large share of English + French respondents in Montréal and Ottawa - Gatineau. Because those two languages are already the dominant languages in both those areas, excluding data for the Multiple Responses set would have the effect of shrinking true denominator for the diversity index and overstating the impact of all other languages, leading to potentially inflated diversity score. Similarly, including Multiple Response data points into the index as distinct linguistic groups would also inflate the diversity score by double counting some English or French speakers as speaking a distinct language from other English or French speakers.</p>
 <p>My proposed solution to address the Single Response/Multiple Response issue is the following:</p>
 <ul>
