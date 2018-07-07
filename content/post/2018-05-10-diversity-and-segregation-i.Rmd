@@ -3,6 +3,7 @@ title: 'Diversity and Segregation in Canadian Cities '
 author: ''
 date: '2018-07-09'
 slug: diversity-and-segregation-canadian-cities
+twitterImg: post/2018-05-10-diversity-and-segregation-i_files/figure-html/unnamed-chunk-4-1.png.png
 categories:
   - diversity
   - census
@@ -129,7 +130,7 @@ diversity_index <- function(cma) {
                            direction = "horizontal",
                            title.position = "top",
                            label.position = "bottom",
-                           keywidth = unit(3,"line"))) +
+                           keywidth = unit(2,"line"))) +
     scale_colour_viridis_c(option = 3, guide = "none",limits = c(0,2)) +
     theme(panel.background = element_blank(),
           legend.position = c(0.2,0.9),
@@ -151,10 +152,10 @@ diversity_index <- function(cma) {
                            direction = "horizontal",
                            title.position = "top",
                            label.position = "bottom",
-                           keywidth = unit(3,"line"))) +
+                           keywidth = unit(2,"line"))) +
     scale_colour_viridis_c(option = 3, guide = "none",limits = c(0,2)) +
     theme(panel.background = element_blank(),
-          legend.position = c(0.175,0.9),
+          legend.position = c(0.2,0.9),
           legend.background = element_blank(),
           legend.key = element_rect(color = NA)) +
     labs(caption = "Dmitry Shkolnik @dshkol | Data: Census 2016, Statistics Canada")
@@ -251,7 +252,7 @@ diversity_csd_map <- function(csd) {
                            direction = "horizontal",
                            title.position = "top",
                            label.position = "bottom",
-                           keywidth = unit(3,"line"))) +
+                           keywidth = unit(2,"line"))) +
     scale_colour_viridis_c(option = 3, guide = "none",limits = c(0,2)) +
     theme(panel.background = element_blank(),
           legend.position = c(0.2,0.9),
@@ -414,7 +415,7 @@ This is the first part in a short series of posts looking at how we can measure 
 
 ## The diversity of Canada's metropolitan areas
 
-Canada is a pretty diverse nation. There's a good chance that the notion of the "cultural mosaic" will appear on a new Canadian's Citizenship test. That Canada is a diverse place would be obvious to anyone who has spent time in some of Canada's largest metropolitan areas. Statistics Canada's 2016 Census data includes a number of different dimensions that can be used to quantify diversity. Using Census data, we can measure diversity by looking at broad visible minority groups, specific ethnicity, [language](https://www.dshkol.com/project/language-diversity-in-canada/), recent immigration origin, among others. There are good reasons to use or not use any of these categories, but this post will focus primarily on diversity as measured by the Census dimension for "Visible minority in private households". This Census dimension is from the long-form Census questionnaire with about 25% sample coverage and provides variables for the following groups:
+Canada is a pretty diverse nation. There's a good chance that the notion of the "cultural mosaic" will appear on a new Canadian's Citizenship test. That Canada is a diverse place would be obvious to anyone who has spent time in some of Canada's largest metropolitan areas. Statistics Canada's 2016 Census data includes a number of different dimensions that can be used to quantify diversity. Using Census data, we can measure diversity by looking at broad visible minority groups, specific ethnicity, [language](https://www.dshkol.com/2017/language-diversity-in-canada/), recent immigration origin, among others. There are good reasons to use or not use any of these categories, but this post will focus primarily on diversity as measured by the Census dimension for "Visible minority in private households". This Census dimension is from the long-form Census questionnaire with about 25% sample coverage and provides variables for the following groups:
 
 * Not a visible minority
 * South Asian
@@ -442,15 +443,15 @@ The specific approach used here to measure diversity relies on ideas from inform
 
 There are two parts to calculating the entropy score. The score first has to be calculated for the entire geographic area:
 
-$E = \sum\limits_{r=1}^r\Pi_{r}ln(\frac{1}{\Pi_{r}})$
+<center>$E = \sum\limits_{r=1}^r\Pi_{r}ln(\frac{1}{\Pi_{r}})$</center>
 
 where $\Pi_r$  is a given group's proportion of the entire population of the geographic area. Then an entropy score must be calculated for each sub-region (i.e. Census tract or similar) that is a component of the aggregated region:
 
-$E_i = \sum\limits_{r=1}^r\pi_{ri}ln(\frac{1}{\pi_{ri}})$
+<center>$E_i = \sum\limits_{r=1}^r\pi_{ri}ln(\frac{1}{\pi_{ri}})$</center>
 
 where, similarly, $\pi_{ri}$ is a group's proportion of the total in sub-region $i$.
 
-The actual diversity score (Theil's $E$) depends on the number of different groups. If you have 13 possible groups the maximum diversity score is log(13) = `log(13)`. If instead, you used every possible ethnic group in the Census as the basis for your calculation, the max score would be log(244) = `log(244)`. Because of this, Theil's entropy scores should not be used to compare across different dimensions; rather they are most valuable as a relative measure: a higher number indicates greater diversity. The max score would result if every individual group made up an equal proportion of a geographic area (i.e. if you had 13 groups, you would see that each group represented `1/13` of the total population in that area.)
+The actual diversity score (Theil's $E$) depends on the number of different groups. If you have 13 possible groups the maximum diversity score is log(13) = `r log(13)`. If instead, you used every possible ethnic group in the Census as the basis for your calculation, the max score would be log(244) = `r log(244)`. Because of this, Theil's entropy scores should not be used to compare across different dimensions; rather they are most valuable as a relative measure: a higher number indicates greater diversity. The max score would result if every individual group made up an equal proportion of a geographic area (i.e. if you had 13 groups, you would see that each group represented `1/13` of the total population in that area.)
 
 This measure of entropy on its own can inform us about the diversity in an area but it does not tell us much about segregation because it does not look at the spatial distribution among groups. A place can be highly diverse but also segregated. Two metropolitan areas with the same diversity measured by subgroup proportions can look very different. A metropolitan area where every member of a subgroup is randomly distributed would not score highly on any measure of segregation compared to a metro area where every member of a subgroup lived in their own neighbourhoods. 
 
@@ -458,13 +459,13 @@ Measuring segregation requires some knowledge of the distribution of these demog
 
 Segregation (Theil's $H$) is measured by a population-weighted sum of the divergences between the diversity index at the aggregate level and the same indices at the sub-regional level. 
 
-$H = \sum\limits_{i=1}^{n}\Big[\frac{t_i(E-E_i)}{ET}\Big]$
+<center>$H = \sum\limits_{i=1}^{n}\Big[\frac{t_i(E-E_i)}{ET}\Big]$</center>
 
 With this measure, a higher $H$ indicates greater levels of segregation. 
 
 ### Data and tools
 
-All data in this post comes from Statistics Canada's 2016 Census, accessed and retrieved through our `cancensus` [R package](https://mountainmath.github.io/cancensus/index.html). I am biased but I think this package is the best way to work with Canadian census data and allows for a more programmatic way to retrieve and manipulate Census data. The maps in this post combine Census data with vector tile data from Nextzen, an open-source project that has kept Mapzen's (RIP) great open-source geographic tools online. I discuss the code and the tools used in a little bit more detail at the end of the post, and the code used to generate the analysis and visuals in this post is view-able on [Github]().
+All data in this post comes from Statistics Canada's 2016 Census, accessed and retrieved through our `cancensus` [R package](https://mountainmath.github.io/cancensus/index.html). I am biased but I think this package is the best way to work with Canadian census data and allows for a more programmatic way to retrieve and manipulate Census data. The maps in this post combine Census data with vector tile data from Nextzen, an open-source project that has kept Mapzen's (RIP) great open-source geographic tools online. I discuss the code and the tools used in a little bit more detail at the end of the post, and the code used to generate the analysis and visuals in this post is view-able on [Github](https://github.com/dshkol/scratchpad/blob/master/content/post/2018-05-10-diversity-and-segregation-i.Rmd).
 
 ### What diversity looks like in the Vancouver CMA
 
@@ -475,6 +476,7 @@ Some of the most diverse Census tracts in Canada are within in Surrey, Burnaby, 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 vancouver$csd_plot
 ```
+
 #### The most diverse cities in Metro Vancouver
 ```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 ggplot(vancouver$csd %>% 
@@ -495,14 +497,17 @@ ggplot(vancouver$csd %>%
 ```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 toronto$ct_plot
 ```
+
 #### Montreal
 ```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 montreal$ct_plot
 ```
+
 #### Calgary
 ```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 calgary$ct_plot
 ```
+
 #### The most diverse cities in Canada are all in the GTA and Metro Vancouver
 ```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 ggplot(cma_ei%>% filter(Population > 50000) %>% clean_names2 %>% top_n(10, Ei ), 
@@ -611,6 +616,7 @@ ggplot(markham.ct.tidy) + geom_sf(aes(fill = Proportion^(1), colour = Proportion
   facet_wrap(~Group, ncol = 4)  +
   labs(caption = "Visible minority groups by square-root proportion of Census Tract population\n@dshkol | Data: Statistics Canada, Census 2016")
 ```
+
 And in Longueuil, QC, where the different groups that are present are more evenly distributed across the entire city.
 ```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 long.ct <- get_census("CA16", regions=list(CSD="2458227"), 
@@ -660,7 +666,7 @@ The entropy-based approach for measuring diversity and segregation works well fo
 
 ### Code
 
-All of the R code for the analysis and visuals in this post is embedded within this page as RMarkdown code. It's hidden by default but can be viewed on [Github](). All of the data is accessed and retrieved using the [cancensus package](https://mountainmath.github.io/cancensus/index.html). The ability, thanks to this package, to work with hierarchical variable structures and to iterate analysis across many regions and variables make something like this a relatively easy thing to put together. In addition, this post relies on a number of other great R packages:
+All of the R code for the analysis and visuals in this post is embedded within this page as RMarkdown code. It's hidden by default but can be viewed on [Github](https://github.com/dshkol/scratchpad/blob/master/content/post/2018-05-10-diversity-and-segregation-i.Rmd). All of the data is accessed and retrieved using the [cancensus package](https://mountainmath.github.io/cancensus/index.html). The ability, thanks to this package, to work with hierarchical variable structures and to iterate analysis across many regions and variables make something like this a relatively easy thing to put together. In addition, this post relies on a number of other great R packages:
 
 ```{r eval=FALSE, include=TRUE}
 library(cancensus) # access, retrieve, and work with Census data
