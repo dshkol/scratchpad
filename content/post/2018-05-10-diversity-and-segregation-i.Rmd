@@ -480,7 +480,7 @@ All data in this post comes from Statistics Canada's 2016 Census, accessed and r
 vancouver$ct_plot
 ```
 Some of the most diverse Census tracts in Canada are within in Surrey, Burnaby, and Coquitlam. It is no surprise that these municipalities are the most diverse in the Vancouver metropolitan area.
-```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.width=10, fig.height=10}
 vancouver$csd_plot
 ```
 
@@ -501,17 +501,17 @@ ggplot(vancouver$csd %>%
 ```
 
 #### Toronto
-```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.width=10, fig.height=10}
 toronto$ct_plot
 ```
 
 #### Montreal
-```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.width=10, fig.height=10}
 montreal$ct_plot
 ```
 
 #### Calgary
-```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.width=10, fig.height=10}
 calgary$ct_plot
 ```
 
@@ -581,7 +581,7 @@ ggplot(bind_rows(cma_seg %>%
 Several of the cities that appear near the top of this list were previously highlighted as some of the most diverse in the country. This goes back to the idea that segregation depends entirely on how groups are distributed within a geographic area. Toronto (the City of), while incredibly diverse by any metric when looked as a whole consists of visible minority groups that are relatively concentrated within specific areas of the city. 
 
 Compare, for example, group distribution in Toronto:
-```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+```{r eval=TRUE, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE, fig.width=10, fig.height=10}
 toronto.ct <- get_census("CA16", regions=list(CSD="3520005"), 
                      vectors = minority_vectors, level = "CT",
                      labels = "detailed", geo_format = "sf")
@@ -602,7 +602,7 @@ ggplot(toronto.ct.tidy) + geom_sf(aes(fill = Proportion^(1/2), colour = Proporti
   facet_wrap(~Group, ncol = 4)  +
   labs(caption = "Visible minority groups by square-root proportion of Census Tract population\n@dshkol | Data: Statistics Canada, Census 2016")
 ```
-```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r eval = FALSE, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.width=10, fig.height=10}
 markham.ct <- get_census("CA16", regions=list(CSD="3519036"), 
                      vectors = minority_vectors, level = "CT",
                      labels = "detailed", geo_format = "sf")
@@ -625,7 +625,7 @@ ggplot(markham.ct.tidy) + geom_sf(aes(fill = Proportion^(1), colour = Proportion
 ```
 
 And in Longueuil, QC, where the different groups that are present are more evenly distributed across the entire city.
-```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.width=10, fig.height=10}
 long.ct <- get_census("CA16", regions=list(CSD="2458227"), 
                      vectors = minority_vectors, level = "CT",
                      labels = "detailed", geo_format = "sf")
@@ -665,7 +665,7 @@ ggplot(cma_seg%>% filter(Population > 100000) %>% clean_names2 %>%
 ```
 In part two of this post I plan to look at how these areas have changed over the last few Census periods going back to 2006.
 
-### A final note
+### A final comment
 
 The measures of diversity and segregation used in this post are sensitive to the assumptions around which demographic characteristics are the basis for the measurements. The same analysis could be performed with birthplaces of immigrant populations, with languages spoken at home, or, really, with any set demographic variables that profile an area and the numbers could well likely be different than what is presented here. An alternative approach could use ethnic origin instead of visible minority, but the Canadian Census has an incredibly large number of ethnic origins represented. Canada is a country with a rich immigrant history and the majority of Canadians can trace their origins to a few (or many) ethnic groups; however, the broad groups that people think of when they think about diversity, integration, and segregation tend to be visible minority groups. 
 
