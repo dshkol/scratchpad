@@ -476,7 +476,7 @@ All data in this post comes from Statistics Canada's 2016 Census, accessed and r
 
 ### What diversity looks like in the Vancouver CMA
 
-```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, }
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.width=10, fig.height=10}
 vancouver$ct_plot
 ```
 Some of the most diverse Census tracts in Canada are within in Surrey, Burnaby, and Coquitlam. It is no surprise that these municipalities are the most diverse in the Vancouver metropolitan area.
