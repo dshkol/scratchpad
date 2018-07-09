@@ -581,7 +581,7 @@ ggplot(bind_rows(cma_seg %>%
 Several of the cities that appear near the top of this list were previously highlighted as some of the most diverse in the country. This goes back to the idea that segregation depends entirely on how groups are distributed within a geographic area. Toronto (the City of), while incredibly diverse by any metric when looked as a whole consists of visible minority groups that are relatively concentrated within specific areas of the city. 
 
 Compare, for example, group distribution in Toronto:
-```{r eval=TRUE, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE, fig.width=10, fig.height=10}
+```{r fig.height=10, fig.width=10, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
 toronto.ct <- get_census("CA16", regions=list(CSD="3520005"), 
                      vectors = minority_vectors, level = "CT",
                      labels = "detailed", geo_format = "sf")
@@ -602,7 +602,7 @@ ggplot(toronto.ct.tidy) + geom_sf(aes(fill = Proportion^(1/2), colour = Proporti
   facet_wrap(~Group, ncol = 4)  +
   labs(caption = "Visible minority groups by square-root proportion of Census Tract population\n@dshkol | Data: Statistics Canada, Census 2016")
 ```
-```{r eval = FALSE, echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE, fig.width=10, fig.height=10}
+```{r eval=FALSE, fig.height=10, fig.width=10, message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
 markham.ct <- get_census("CA16", regions=list(CSD="3519036"), 
                      vectors = minority_vectors, level = "CT",
                      labels = "detailed", geo_format = "sf")
