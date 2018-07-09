@@ -4,6 +4,7 @@ author: ''
 date: '2018-07-09'
 slug: diversity-and-segregation-canadian-cities
 twitterImg: post/2018-05-10-diversity-and-segregation-i_files/figure-html/unnamed-chunk-4-1.png
+description: "Comparing spatial patterns in visible minority groups across Canadian cities.""
 categories:
   - diversity
   - census
@@ -15,7 +16,6 @@ tags:
   - r
   - maps
 draft: no
-description: ''
 ---
 ```{r Preprocessing, message=FALSE, warning=FALSE, include=FALSE}
 library(dplyr)
