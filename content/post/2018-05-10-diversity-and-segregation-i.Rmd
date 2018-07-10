@@ -4,7 +4,7 @@ author: ''
 date: '2018-07-09'
 slug: diversity-and-segregation-canadian-cities
 twitterImg: post/2018-05-10-diversity-and-segregation-i_files/figure-html/unnamed-chunk-4-1.png
-description: "Comparing spatial patterns in visible minority groups across Canadian cities.""
+description: "Comparing spatial patterns in visible minority groups across Canadian cities."
 categories:
   - diversity
   - census
@@ -625,6 +625,7 @@ ggplot(long.ct.tidy) + geom_sf(aes(fill = Proportion^(1/2), colour = Proportion^
   labs(caption = "Visible minority groups by square-root proportion of Census Tract population\n@dshkol | Data: Statistics Canada, Census 2016")
 ```
 The takeaway is that cities can be both relatively diverse _and_ relatively segregated. Putting it all together, we can construct a simplified taxonomy by placing Canadian cities along both a diversity index axis and a segregation index axis at once. 
+
 #### Toronto, Saguenay, Burnaby, and Terrebonne 
 ```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
 ggplot(cma_seg%>% filter(Population > 100000) %>% clean_names2 %>% 
