@@ -1,0 +1,168 @@
+---
+title: "Mirror images: city similarity with t-SNE"
+author: Dmitry Shkolnik
+date: '2018-07-12'
+slug: mirror-images-clustering-cities-demographics
+twitterImg: post/2018-07-01-demographic-tsne_files/figure-html/minority_tsne-1.png.png
+description: "Using machine learning to find similar cities across many dimensions."
+categories:
+  - blog
+  - census
+  - visualization
+  - analysis
+tags:
+  - r
+  - machine learning
+  - cancensus
+  - census
+draft: no
+---
+
+
+
+<p>While putting together the data for the longer post on <a href="https://www.dshkol.com/2018/diversity-and-segregation-canadian-cities/">measuring and visualizing diversity and segregation in Canadian cities</a>, I wanted to see if there was an intuitive way to compare similarity of cities across multiple Census demographic variables at the same time. Comparing across many Census variables at once requires us to think across many dimensions at once.</p>
+<p>As our eyes really perceive in at best four dimensions, visualizing many dimensions requires a reduction in the number of dimensions from many to the two (or three) dimensions that best allow for visual interpretation. Typically this is done through dimension reducing approaches like principle components but, increasingly, t-SNE has become a preferred technique for embedding highly dimensional data in to lower dimensional space while preserving local structure.</p>
+<div id="what-is-t-sne" class="section level3">
+<h3>What is t-SNE?</h3>
+{{% vimeo "191187346" %}}
+<center>
+<small>“t-SNE convergence” by Gene Kogan on Vimeo (CC BY-NC-SA 3.0)</small>
+</center>
+<p><a href="https://lvdmaaten.github.io/tsne/">T-distributed Stochastic Neighbour Embedding</a> is a non-linear dimensionality reduction algorithm for turning high-dimensional data into two or three dimensional representations. It is primarily used for visualizing high-dimensional data in a way that preserves the relationships between similar observations and is regularly used in applications requiring interpretation of high-dimensional data such as bioinformatics, explaining neural nets, and even <a href="https://paulvanderlaken.com/2017/08/11/t-sne-the-ultimate-drum-machine-and-more/">music analysis</a>.</p>
+</div>
+<div id="some-notes-on-interpreting-t-sne." class="section level3">
+<h3>Some notes on interpreting t-SNE.</h3>
+<p>It’s important to remember that t-SNE is not really an algorithm for clustering or classifying data. Rather it’s a highly effective and popular technique for visualizing relationships in high-dimensional data. t-SNE does not preserve information on distance or density between data points, so the resulting visualizations require careful interpretation.</p>
+<p>The sizes and positions of clusters formed by a t-SNE embedding do not mean much. The important thing is the proximity of individual data points to their neighbours. The distance between clusters is not informative. Some clusters appear closer together but this does not imply greater similarity if there is good separation. A t-SNE visual is good for showing relationships in <em>local</em> space but not in <em>global</em> space.</p>
+<p>The results are highly dependent on hyper-parameters. Changing parameters for perplexity, learning rate, iterations, exaggeration factors can lead to very different looking shapes, and there isn’t really an automatic way to tune these parameters. Stability, though, is a good indicator that there is <em>something</em> there.</p>
+</div>
+<div id="data-and-preprocessing" class="section level3">
+<h3>Data and preprocessing</h3>
+<p>Calculating the proportions for any demographic Census variable is relatively straightforward using the <a href="https://mountainmath.github.io/cancensus/index.html">cancensus</a> package largely thanks in part to functions taking advantage of the hierarchical variable within the Census. The <code>child_census_vectors</code> function returns all descendant variables for a given parent vector. In this case, we look at visible minority status and return the specific reference vectors for each specific group.</p>
+<pre class="r"><code># Using the cancensus package to get Census demographic data for Canadian cities
+library(cancensus)
+library(dplyr)
+
+## Identifying the vectors for visible Minority status
+parent_vector &lt;- &quot;v_CA16_3954&quot;
+minorities &lt;- list_census_vectors(&quot;CA16&quot;) %&gt;% 
+  filter(vector == &quot;v_CA16_3954&quot;) %&gt;% 
+  child_census_vectors(leaves_only = TRUE) %&gt;% 
+  pull(vector)
+
+minority_vectors &lt;- c(parent_vector, minorities)</code></pre>
+<p>With the relevant vectors identified, I use a custom function to pull down the numbers for the Census Subdivisions that make up a given Census Metropolitan Area and then quickly calculate the proportion thanks to the new non-standard evaluation tools in the <code>dplyr</code> package.</p>
+<pre class="r"><code># A function to download census variables and calculate proportions for a given CMA
+csd_props &lt;- function(cma) {
+  cma.csd &lt;- get_census(&quot;CA16&quot;, regions=list(CMA=cma), 
+                        vectors = minority_vectors, level = &quot;CSD&quot;,
+                        labels = &quot;short&quot;, geo_format = NA)
+  
+  base_pop &lt;- quo(v_CA16_3954)
+  csd.props &lt;- cma.csd %&gt;% 
+    group_by(GeoUID) %&gt;% 
+    mutate_at(minorities, funs(prop = (./!!(base_pop)))) %&gt;%
+    select(`Region Name`, Population, GeoUID, ends_with(&quot;_prop&quot;)) %&gt;% 
+    ungroup()
+  return(csd.props)
+}</code></pre>
+<p>With the <code>csd_props</code> defined and ready to go, we can simply map the function over a list of all Canadian CMA codes to calculate proportions for every CSD within a CMA using the incredibly useful <code>map_df</code> function from the <a href="">purrr</a> package.</p>
+<pre class="r"><code># Get list of all CMA codes
+cmas &lt;- list_census_regions(&quot;CA16&quot;) %&gt;% filter(level == &quot;CMA&quot;) %&gt;% select(region, name, pop)
+
+# Map function to each CMA
+all_csd_props &lt;- purrr::map_df(cmas$region, .f = csd_props)
+
+# Filter to just Census subdivisions with a min pop of 50,000
+larger_csd_props &lt;- all_csd_props %&gt;% filter(Population &gt; 75000)
+
+# Turn data frame into a matrix of proportions 
+prop_matrix &lt;- larger_csd_props %&gt;% 
+  select(starts_with(&quot;v_&quot;)) %&gt;% 
+  as.matrix()</code></pre>
+<p>The last stage in data preprocessing is to filter our data to include larger cities and municipalities only before constructing a simplified matrix of variable proportions to use for t-SNE visualization.</p>
+</div>
+<div id="two-dimensional-embedding-of-visible-minority-proportions-by-city" class="section level3">
+<h3>Two dimensional embedding of visible minority proportions by city</h3>
+<p>The <a href="https://cran.r-project.org/web/packages/Rtsne/index.html">Rtsne</a> package provides an R API for generating t-sne embeddings from matrices.</p>
+<pre class="r"><code># Load Rtsne package
+library(Rtsne)
+
+# Run TSNE algorithm with PCA preprocessing
+#
+# Note that proportion data is already normalized. 
+# Other types of variables may require normalization 
+# to be effectively used in TSNE. 
+#
+# Higher perplexity increases processing time but generally 
+# improves groupings in reduced dimensional space. Perplexity 
+# is typically set between 10 and 50. Max perplexity depends 
+# on the size of the matrix and the number of elements we are 
+# looking at. 
+
+csd_tsne &lt;- Rtsne(prop_matrix, perplexity = 5, 
+                  exaggeration_factor = 2, 
+                  max_iter = 2000)
+
+# Store matrix of positions in 2-dimensional space for plotting
+csd_tsne_2d = as.data.frame(csd_tsne$Y)
+
+# Add names for labelling
+# `clean_names2` is a helper function to tidy up names, not needed for other data, but can be found in the code for this page on github if needed. 
+csd_tsne_2d$name = larger_csd_props %&gt;% 
+  clean_names2() %&gt;% pull(`Region Name`) %&gt;% 
+  as.character()</code></pre>
+<p>Finally we can visualize the results using the embeddings as X and Y coordinates. Every t-SNE run will produce a different result unless there is very well defined structure within the data. Changing hyper-parameters will also produce different results so interpretation of these plots requires a lot of care. Specifically we want to look for tight groupings of cities, even pairings, that suggest close similarity across many dimensions.</p>
+<pre class="r"><code># Visualize the layout
+library(ggplot2)
+library(hrbrthemes) # clean typography
+
+ggplot(csd_tsne_2d, aes(x=V1, y=V2)) +
+  geom_text(aes(label = name), size = 3) +
+  labs(x = &quot;Dimension 1&quot;, 
+       y = &quot;Dimension 2&quot;,
+       title = &quot;2-d t-SNE embedding of cities by distribution\nof visible minority groups&quot;) + 
+  theme_ipsum() + 
+  theme(axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        panel.grid = element_blank(),
+        panel.background = element_rect(fill = &quot;grey95&quot;, colour = NA))</code></pre>
+<p><img src="/post/2018-07-01-demographic-tsne_files/figure-html/minority_tsne-1.png" /><!-- -->
+While the results of this embedding suggest there is a bit of random noise rather, some clear groups of cities do emerge. In one tight grouping you have Vancouver, Richmond, Burnaby, Coquitlam, Markham, and Richmond Hill - all of which are large diverse cities with a large Asian population within the Lower Mainland or the GTA. Another grouping occurs with some of the other municipalities in the Lower Mainland and the GTA with Brampton, Surrey, Mississauga, Ajax, and Abbotsford. Sudbury, Saguenay, and Thunder Bay look to have similar proportions of different visible minority groups, as does Calgary, Edmonton, Vaughan, Oakville, and Saanich. Overall, there are a number of these types of groupings that can be spotted in the resulting embedding.</p>
+</div>
+<div id="occupation-of-work" class="section level3">
+<h3>Occupation of work</h3>
+<p>The same approach can be quickly replicated to look at a different set of variables such as occupation, industry, or education.</p>
+<p><img src="/post/2018-07-01-demographic-tsne_files/figure-html/occupation_tsne-1.png" /><!-- -->
+The t-SNE embeddings for occupation group show some interesting groupings. Toronto, Vancouver, and Montréal are large cosmopolitan urban centres with a diversity of occupations that structurally resemble one another more than they do other their neighbouring municipalities. A few other interesting groups pop out as well: a Provincial capital group with places like Victoria, Halifax, Québec, and St. Johns in one group, along side presumably similar cities like Kingston and Gatineau. Despite being the national capital, Ottawa is most similar to Waterloo, likely due to the strong technology and education sectors in both cities.</p>
+</div>
+<div id="major-industry-groups" class="section level3">
+<h3>Major industry groups</h3>
+<p>By looking at major industry group instead, we can better explore sector similarity across the country.
+<img src="/post/2018-07-01-demographic-tsne_files/figure-html/industry_tsne-1.png" /><!-- -->
+In this case we see some cities almost neatly overlapping one another suggesting very close similarity. When we look at some of these groups the results are obvious in some cases: Ottawa and Gatineau are home to much of the federal government; and perhaps less so in other cases. The similarity of GTA suburbs comes out clearly, as do the Fraser Valley municipalities and some other clearly visible groups.</p>
+</div>
+<div id="post-secondary-major" class="section level3">
+<h3>Post-secondary major</h3>
+<p>Finally we take a look at whether there are hidden patterns in where Canadian adults (25-64) with post-secondary degrees are settling using post-secondary major of study as the input set of dimensions to embed.
+<img src="/post/2018-07-01-demographic-tsne_files/figure-html/educ_tsne-1.png" /><!-- --></p>
+<p>If anyone wants to make their own representation with different variables the code to put together the data and visualizations for this post is on <a href="https://github.com/dshkol/scratchpad/blob/master/content/post/2018-07-01-demographic-tsne.Rmd">Github</a>. Send me a note via email or <a href="https://twitter.com/dshkol">Twitter</a> - I would love to see other takes on this approach.</p>
+</div>
+<div id="recommended-further-reading-on-t-sne-techniques" class="section level3">
+<h3>Recommended further reading on t-SNE techniques</h3>
+<ul>
+<li><a href="http://jmlr.org/papers/volume9/vandermaaten08a/vandermaaten08a.pdf">(Van der Maaten and Hinton) Visualizing Data using t-SNE</a>
+<ul>
+<li>the paper that introduced the t-SNE</li>
+</ul></li>
+<li><a href="https://arxiv.org/abs/1706.02582">(Linderman and Steinerberger) Clustering with t-SNE, provably</a>
+<ul>
+<li>Good paper on hyper-parameter usage, particularly early exaggeration.<br />
+</li>
+</ul></li>
+<li><a href="https://distill.pub/2016/misread-tsne/">Distill: How to Use t-SNE Effectively</a>
+<ul>
+<li>a great interactive article with an emphasis on how hyper-parameters affect t-SNE results.</li>
+</ul></li>
+</ul>
+</div>
