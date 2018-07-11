@@ -28,6 +28,7 @@ draft: no
 <center>
 <small>“t-SNE convergence” by Gene Kogan on Vimeo (CC BY-NC-SA 3.0)</small>
 </center>
+<p><br></p>
 <p><a href="https://lvdmaaten.github.io/tsne/">T-distributed Stochastic Neighbour Embedding</a> is a non-linear dimensionality reduction algorithm for turning high-dimensional data into two or three dimensional representations. It is primarily used for visualizing high-dimensional data in a way that preserves the relationships between similar observations and is regularly used in applications requiring interpretation of high-dimensional data such as bioinformatics, explaining neural nets, and even <a href="https://paulvanderlaken.com/2017/08/11/t-sne-the-ultimate-drum-machine-and-more/">music analysis</a>.</p>
 </div>
 <div id="some-notes-on-interpreting-t-sne." class="section level3">
@@ -84,21 +85,10 @@ prop_matrix &lt;- larger_csd_props %&gt;%
 </div>
 <div id="two-dimensional-embedding-of-visible-minority-proportions-by-city" class="section level3">
 <h3>Two dimensional embedding of visible minority proportions by city</h3>
-<p>The <a href="https://cran.r-project.org/web/packages/Rtsne/index.html">Rtsne</a> package provides an R API for generating t-sne embeddings from matrices.</p>
+<p>The <a href="https://cran.r-project.org/web/packages/Rtsne/index.html">Rtsne</a> package provides an R API for generating t-SNE embeddings from matrices. By default, <code>Rtsne</code> applies PCA for preprocessing and provides options for normalization and scaling. In this case, working with proportion data, the numbers are already normalized, but other types of variables may require normalization to be effectively used for t-SNE.</p>
+<p>T-SNE embeddings are extremely sensitive to hyperparameter selection for perplexity, iterations (steps), and other settings like exagerration factor. There is not really a correct setting for hyperparameters and different datasets will require some trial and error to identify appropriate settings. Perplexity is probably the most consequential parameter, as it more or less determines how many neighbours embeddings should consider. Perplexity is typically set between 10 and 50 and the maximum perplexity depends on the size of the matrix and the number of elements we are looking at. Ultimately it depends on the data itself: how large it is, how complex, and how much natural structure there may be in it. Setting perplexity too low may not result in meaningful convergence in embeddings, while high perplexity can lead to convergence where there is none in reality. At particularly high settings for perplexity the t-SNE visualization will look like individual lines. Higher perplexity also increases processing time but generally improves groupings in reduced dimensional space.</p>
 <pre class="r"><code># Load Rtsne package
 library(Rtsne)
-
-# Run TSNE algorithm with PCA preprocessing
-#
-# Note that proportion data is already normalized. 
-# Other types of variables may require normalization 
-# to be effectively used in TSNE. 
-#
-# Higher perplexity increases processing time but generally 
-# improves groupings in reduced dimensional space. Perplexity 
-# is typically set between 10 and 50. Max perplexity depends 
-# on the size of the matrix and the number of elements we are 
-# looking at. 
 
 csd_tsne &lt;- Rtsne(prop_matrix, perplexity = 5, 
                   exaggeration_factor = 2, 
