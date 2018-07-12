@@ -3,7 +3,7 @@ title: "Mirror images: city similarity with t-SNE"
 author: Dmitry Shkolnik
 date: '2018-07-12'
 slug: mirror-images-clustering-cities-demographics
-twitterImg: post/2018-07-01-demographic-tsne_files/figure-html/minority_tsne-1.png.png
+twitterImg: post/2018-07-01-demographic-tsne_files/figure-html/minority_tsne-1.png
 description: "Using machine learning to find similar cities across many dimensions."
 categories:
   - blog
@@ -18,10 +18,7 @@ tags:
 draft: no
 ---
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE,
-                      fig.width = 10,
-                      fig.height = 6,
-                      fig.retina = TRUE)
+knitr::opts_chunk$set(echo = TRUE)
 
 clean_names2 <- function (dfr) {
     dfr <- dfr %>% mutate(`Region Name` = as.character(`Region Name`))

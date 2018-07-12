@@ -3,7 +3,7 @@ title: "Mirror images: city similarity with t-SNE"
 author: Dmitry Shkolnik
 date: '2018-07-12'
 slug: mirror-images-clustering-cities-demographics
-twitterImg: post/2018-07-01-demographic-tsne_files/figure-html/minority_tsne-1.png.png
+twitterImg: post/2018-07-01-demographic-tsne_files/figure-html/minority_tsne-1.png
 description: "Using machine learning to find similar cities across many dimensions."
 categories:
   - blog
@@ -117,25 +117,25 @@ ggplot(csd_tsne_2d, aes(x=V1, y=V2)) +
         axis.text.y=element_blank(),
         panel.grid = element_blank(),
         panel.background = element_rect(fill = &quot;grey95&quot;, colour = NA))</code></pre>
-<p><img src="/post/2018-07-01-demographic-tsne_files/figure-html/minority_tsne-1.png" /><!-- -->
+<p><img src="/post/2018-07-01-demographic-tsne_files/figure-html/minority_tsne-1.png" width="672" />
 While the results of this embedding suggest there is a bit of random noise rather, some clear groups of cities do emerge. In one tight grouping you have Vancouver, Richmond, Burnaby, Coquitlam, Markham, and Richmond Hill - all of which are large diverse cities with a large Asian population within the Lower Mainland or the GTA. Another grouping occurs with some of the other municipalities in the Lower Mainland and the GTA with Brampton, Surrey, Mississauga, Ajax, and Abbotsford. Sudbury, Saguenay, and Thunder Bay look to have similar proportions of different visible minority groups, as does Calgary, Edmonton, Vaughan, Oakville, and Saanich. Overall, there are a number of these types of groupings that can be spotted in the resulting embedding.</p>
 </div>
 <div id="occupation-of-work" class="section level3">
 <h3>Occupation of work</h3>
 <p>The same approach can be quickly replicated to look at a different set of variables such as occupation, industry, or education.</p>
-<p><img src="/post/2018-07-01-demographic-tsne_files/figure-html/occupation_tsne-1.png" /><!-- -->
+<p><img src="/post/2018-07-01-demographic-tsne_files/figure-html/occupation_tsne-1.png" width="672" />
 The t-SNE embeddings for occupation group show some interesting groupings. Toronto, Vancouver, and Montréal are large cosmopolitan urban centres with a diversity of occupations that structurally resemble one another more than they do other their neighbouring municipalities. A few other interesting groups pop out as well: a Provincial capital group with places like Victoria, Halifax, Québec, and St. Johns in one group, along side presumably similar cities like Kingston and Gatineau. Despite being the national capital, Ottawa is most similar to Waterloo, likely due to the strong technology and education sectors in both cities.</p>
 </div>
 <div id="major-industry-groups" class="section level3">
 <h3>Major industry groups</h3>
 <p>By looking at major industry group instead, we can better explore sector similarity across the country.
-<img src="/post/2018-07-01-demographic-tsne_files/figure-html/industry_tsne-1.png" /><!-- -->
+<img src="/post/2018-07-01-demographic-tsne_files/figure-html/industry_tsne-1.png" width="672" />
 In this case we see some cities almost neatly overlapping one another suggesting very close similarity. When we look at some of these groups the results are obvious in some cases: Ottawa and Gatineau are home to much of the federal government; and perhaps less so in other cases. The similarity of GTA suburbs comes out clearly, as do the Fraser Valley municipalities and some other clearly visible groups.</p>
 </div>
 <div id="post-secondary-major" class="section level3">
 <h3>Post-secondary major</h3>
 <p>Finally we take a look at whether there are hidden patterns in where Canadian adults (25-64) with post-secondary degrees are settling using post-secondary major of study as the input set of dimensions to embed.
-<img src="/post/2018-07-01-demographic-tsne_files/figure-html/educ_tsne-1.png" /><!-- --></p>
+<img src="/post/2018-07-01-demographic-tsne_files/figure-html/educ_tsne-1.png" width="672" /></p>
 <p>If anyone wants to make their own representation with different variables the code to put together the data and visualizations for this post is on <a href="https://github.com/dshkol/scratchpad/blob/master/content/post/2018-07-01-demographic-tsne.Rmd">Github</a>. Send me a note via email or <a href="https://twitter.com/dshkol">Twitter</a> - I would love to see other takes on this approach.</p>
 </div>
 <div id="recommended-further-reading-on-t-sne-techniques" class="section level3">
