@@ -75,7 +75,7 @@ cmas &lt;- list_census_regions(&quot;CA16&quot;) %&gt;% filter(level == &quot;CM
 all_csd_props &lt;- purrr::map_df(cmas$region, .f = csd_props)
 
 # Filter to just Census subdivisions with a min pop of 50,000
-larger_csd_props &lt;- all_csd_props %&gt;% filter(Population &gt; 75000)
+larger_csd_props &lt;- all_csd_props %&gt;% filter(Population &gt; 74000)
 
 # Turn data frame into a matrix of proportions 
 prop_matrix &lt;- larger_csd_props %&gt;% 

@@ -95,7 +95,7 @@ cmas <- list_census_regions("CA16") %>% filter(level == "CMA") %>% select(region
 all_csd_props <- purrr::map_df(cmas$region, .f = csd_props)
 
 # Filter to just Census subdivisions with a min pop of 50,000
-larger_csd_props <- all_csd_props %>% filter(Population > 75000)
+larger_csd_props <- all_csd_props %>% filter(Population > 74000)
 
 # Turn data frame into a matrix of proportions 
 prop_matrix <- larger_csd_props %>% 
@@ -180,7 +180,7 @@ csd_props_occ <- function(cma) {
 all_csd_props_occ <- purrr::map_df(cmas$region, .f = csd_props_occ)
 
 # Filter to just Census subdivisions with a min pop of 75,000
-larger_csd_props_occ <- all_csd_props_occ %>% filter(Population > 75000)
+larger_csd_props_occ <- all_csd_props_occ %>% filter(Population > 74000)
 
 prop_matrix_occ <- larger_csd_props_occ %>% 
   select(starts_with("v_")) %>% 
@@ -237,7 +237,7 @@ csd_props_ind <- function(cma) {
 all_csd_props_ind <- purrr::map_df(cmas$region, .f = csd_props_ind)
 
 # Filter to just Census subdivisions with a min pop of 75,000
-larger_csd_props_ind <- all_csd_props_ind %>% filter(Population > 75000)
+larger_csd_props_ind <- all_csd_props_ind %>% filter(Population > 74000)
 
 prop_matrix_ind <- larger_csd_props_ind %>% 
   select(starts_with("v_")) %>% 
@@ -294,7 +294,7 @@ csd_props_maj <- function(cma) {
 all_csd_props_maj <- purrr::map_df(cmas$region, .f = csd_props_maj)
 
 # Filter to just Census subdivisions with a min pop of 75,000
-larger_csd_props_maj <- all_csd_props_maj %>% filter(Population > 75000)
+larger_csd_props_maj <- all_csd_props_maj %>% filter(Population > 74000)
 
 prop_matrix_maj <- larger_csd_props_maj %>% 
   select(starts_with("v_")) %>% 
