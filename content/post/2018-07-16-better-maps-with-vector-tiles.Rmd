@@ -12,6 +12,7 @@ categories:
 tags:
   - maps
   - r
+  - tutorial
 subdirectory: post
 ---
 
@@ -194,7 +195,7 @@ I continue to use Nextzen for vector tiles and have no issues with usage through
 
 ### Package info
 ```{r}
-sessionInfo()[6] %>% unlist()
+sessionInfo()
 ```
 
 
