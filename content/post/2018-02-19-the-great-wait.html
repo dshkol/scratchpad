@@ -1,19 +1,19 @@
 ---
-title: The Great Wait
-author: Dmitry Shkolnik
+title: "The Great Wait"
+author: "Dmitry Shkolnik"
 date: '2018-02-20'
+description: A look at age-specific birth rates in BC
 slug: the-great-wait
-twitterImg: post/2018-02-19-the-great-wait_files/figure-html/curve2-1.png
-description: "A look at age-specific birth rates in BC"
-categories:
-  - visualization
-  - analysis
-  - census
-  - blog
-tags:
-  - cancensus
-  - r
 subdirectory: post
+tags:
+- cancensus
+- r
+categories:
+- visualization
+- analysis
+- census
+- blog
+twitterImg: post/2018-02-19-the-great-wait_files/figure-html/curve2-1.png
 ---
 
 
@@ -157,42 +157,41 @@ ggplot(bcfr %&gt;% filter(Population &gt; 5000),
 <div id="session-info" class="section level2">
 <h2>Session info</h2>
 <pre class="r"><code>sessionInfo()</code></pre>
-<pre><code>## R version 3.4.3 (2017-11-30)
+<pre><code>## R version 3.5.1 (2018-07-02)
 ## Platform: x86_64-apple-darwin15.6.0 (64-bit)
 ## Running under: macOS High Sierra 10.13.4
 ## 
 ## Matrix products: default
-## BLAS: /Library/Frameworks/R.framework/Versions/3.4/Resources/lib/libRblas.0.dylib
-## LAPACK: /Library/Frameworks/R.framework/Versions/3.4/Resources/lib/libRlapack.dylib
+## BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRlapack.dylib
 ## 
 ## locale:
 ## [1] en_CA.UTF-8/en_CA.UTF-8/en_CA.UTF-8/C/en_CA.UTF-8/en_CA.UTF-8
 ## 
 ## attached base packages:
-## [1] methods   stats     graphics  grDevices utils     datasets  base     
+## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] bindrcpp_0.2.2     cancensus_0.1.7    ggalt_0.4.0       
-## [4] ggplot2_2.2.1.9000 tidyr_0.8.1        readr_1.1.1       
-## [7] dplyr_0.7.5       
+## [1] bindrcpp_0.2.2  cancensus_0.1.7 ggalt_0.4.0     ggplot2_3.0.0  
+## [5] tidyr_0.8.1     readr_1.1.1     dplyr_0.7.6    
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_0.12.17       RColorBrewer_1.1-2 pillar_1.2.2      
-##  [4] compiler_3.4.3     plyr_1.8.4         bindr_0.1.1       
-##  [7] tools_3.4.3        extrafont_0.17     digest_0.6.15     
-## [10] viridisLite_0.3.0  jsonlite_1.5       evaluate_0.10.1   
+##  [1] Rcpp_0.12.17       RColorBrewer_1.1-2 pillar_1.3.0      
+##  [4] compiler_3.5.1     plyr_1.8.4         bindr_0.1.1       
+##  [7] tools_3.5.1        extrafont_0.17     digest_0.6.15     
+## [10] viridisLite_0.3.0  jsonlite_1.5       evaluate_0.11     
 ## [13] tibble_1.4.2       gtable_0.2.0       pkgconfig_2.0.1   
-## [16] rlang_0.2.0.9001   cli_1.0.0          curl_3.2          
-## [19] yaml_2.1.19        blogdown_0.6.6     xfun_0.1          
-## [22] Rttf2pt1_1.3.4     httr_1.3.1         withr_2.1.2       
-## [25] stringr_1.3.1      knitr_1.20         maps_3.2.0        
-## [28] hms_0.4.0          rprojroot_1.3-2    grid_3.4.3        
-## [31] tidyselect_0.2.4   glue_1.2.0         R6_2.2.2          
-## [34] rmarkdown_1.9      bookdown_0.7       extrafontdb_1.0   
-## [37] purrr_0.2.5        magrittr_1.5       MASS_7.3-47       
-## [40] backports_1.1.2    scales_0.5.0.9000  htmltools_0.3.6   
-## [43] proj4_1.0-8        assertthat_0.2.0   colorspace_1.3-2  
-## [46] labeling_0.3       utf8_1.1.3         ash_1.0-15        
-## [49] KernSmooth_2.23-15 stringi_1.2.2      lazyeval_0.2.1    
-## [52] munsell_0.4.3      crayon_1.3.4</code></pre>
+## [16] rlang_0.2.1        cli_1.0.0          curl_3.2          
+## [19] yaml_2.1.19        blogdown_0.8       xfun_0.3          
+## [22] Rttf2pt1_1.3.7     httr_1.3.1         withr_2.1.2       
+## [25] stringr_1.3.1      knitr_1.20         maps_3.3.0        
+## [28] hms_0.4.2          rprojroot_1.3-2    grid_3.5.1        
+## [31] tidyselect_0.2.4   glue_1.3.0         R6_2.2.2          
+## [34] fansi_0.2.3        rmarkdown_1.10     bookdown_0.7      
+## [37] extrafontdb_1.0    purrr_0.2.5        magrittr_1.5      
+## [40] MASS_7.3-50        backports_1.1.2    scales_0.5.0      
+## [43] htmltools_0.3.6    proj4_1.0-8        assertthat_0.2.0  
+## [46] colorspace_1.3-2   labeling_0.3       utf8_1.1.4        
+## [49] ash_1.0-15         KernSmooth_2.23-15 stringi_1.2.4     
+## [52] lazyeval_0.2.1     munsell_0.5.0      crayon_1.3.4</code></pre>
 </div>

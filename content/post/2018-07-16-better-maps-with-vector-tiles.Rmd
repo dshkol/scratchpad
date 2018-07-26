@@ -1,0 +1,200 @@
+---
+title: Make better maps in R with vector tiles
+author: 
+date: '2018-07-26'
+slug: better-maps-with-vector-tiles
+twitterImg: post/2018-07-26-better-maps-with-vector-tiles/figure-html/vancouver-expo-1.png
+description: "Short tutorial for using and styling vector tiles in R for more flexibility with maps"
+categories:
+  - visualization
+  - maps
+  - blog
+tags:
+  - maps
+  - r
+subdirectory: post
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(rmapzen)
+mz_set_tile_host_nextzen(key = getOption("nextzen_API_key"))
+```
+### Vector tiles?
+
+When MapQuest and later Google Maps came on the scene we were blown away by the detail, speed, and convenience of "slippy maps" that you could scroll, pan, and drag across. The concept underpinning those maps was the use of tiles: pre-rendered map cells for every specified zoom level that would be loaded by your browser as you scrolled through a map. For many years after their introduction, these slippy maps used raster-based bitmaps as their tiles. As these tiles were images, that the only information available was pixel and colour. 
+
+R packages like [`ggmap`](https://cran.r-project.org/web/packages/ggmap/ggmap.pdf) can retrieve raster-based tiles to use as backgrounds for `ggplot` maps. Even if using raster tiles from different providers offering different styles (e.g. Stamen or Thunderforest or OSM), in the end the user was resigned to essentially having an unalterable image in their plot with no control over what exactly is displayed in those features. 
+
+Unlike raster tiles, vector tiles are just layers of numbers and strings containing geometry and metadata. Because they use far less data to transfer, vector tile based maps are much faster and more responsive, and most map services now use them instead. Google Maps has been vector tile based for over 5 years now. 
+
+In this simple demo, I want to focus on the advantages that come with using vector tiles. The metadata embedded within vector tile objects is what provides information on what those objects are such as type and name--and that allows a lot of flexibility in choosing what is useful and what is not. 
+
+### Mapzen and rmapzen
+This post relies on [Tarak Shah's](https://twitter.com/tarakc02) excellent [rmapzen](https://github.com/tarakc02/rmapzen) package which provides an R front-end to several Mapzen APIs. From the description: 
+
+> rmapzen is a client for any implementation of the Mapzen API. Though Mapzen itself has gone out of business, rmapzen can be set up to work with any provider who hosts Mapzen’s open-source software, including geocode.earth, Nextzen, and NYC GeoSearch from NYC Planning Labs. For more information, see https://mapzen.com/documentation/. The project is available on github as well as CRAN.
+
+[Mapzen](https://mapzen.com) was an innovative business that tried to be viable by making unreal open-source software with an emphasis on web mapping and geography products. These tools included a digital map rendering engine, search and routing services, open-source data tools for map data, terrain, and transit, gazetteers, and tile servers. This included an excellent vector tile service using OpenStreetMap data. Unfortunately Mapzen is now defunct but a number of other providers continue to host Mapzen's open-source tools. 
+
+Thanks to an [AWS Research Award](https://aws.amazon.com/earth/research-credits/) [Nextzen](https://www.nextzen.org) will continue to host the vector tile service through 2018 (and hopefully longer). 
+
+### Install and get yourself an API key
+```{r eval=FALSE, echo=TRUE}
+install.packages("rmapzen")
+library(rmapzen)
+```
+Create a key at (https://developers.nextzen.org) and save it as an environment variable or as an option in your `.rprofile` for persistence across sessions, and tell `rmapzen` to use Nextzen as it's tile host. (The package author has developed interfaces to a few other hosting services since Mapzen shutdown.)
+```{r eval=FALSE, echo=TRUE}
+options(nextzen_API_key="your_key")
+mz_set_tile_host_nextzen(key = getOption("nextzen_API_key"))
+```
+
+### An example
+In this example I will use spatial data for cities in the Victoria, British Columbia area and I wanted to add detailed vector tile base maps to improve the maps.
+
+### Some spatial data
+This will work with any kind of spatial data but for convenience sake I will use Census polygons data for population from the [cancensus]() package..
+```{r message=FALSE, warning=FALSE}
+library(cancensus)
+victoria <- get_census(dataset='CA16',
+                       regions=list(CSD=c("5917034","5917040","5917021","5917030","5917041","5917047")),
+                       vectors=c(), labels="detailed", geo_format='sf', level='CT')
+```
+And here's what that data looks like with a little bit of styling on top:
+```{r notiles}
+library(ggplot2)
+ggplot(victoria) +
+  geom_sf(aes(fill = Population)) +
+  scale_fill_viridis_c() +
+  guides(fill = guide_legend()) + 
+  coord_sf(datum = NA) +
+  theme_void()
+```
+Not bad, but it's missing the contextual geography and additional detail that comes with basemaps. 
+
+### Adding vector tiles
+You can download tiles by specifying bounding box of coordinates. There's a few ways of doing this, but I find with my workflow I will typically start off with some existing spatial data for which I want to have a vector tile-based background. To that end, I use the boundary extents of my spatial data of interest to create an appropriate bounding box for my download. There's a custom function I wrote that helps me with this:
+```{r}
+get_vector_tiles <- function(bbox){
+  mz_box=mz_rect(bbox$xmin,bbox$ymin,bbox$xmax,bbox$ymax)
+  mz_vector_tiles(mz_box)
+  }
+```
+Which I then combine with a call to `st_bbox` from the `sf` package to grab vector tiles. 
+```{r message=FALSE, warning=FALSE}
+library(sf)
+bbox <- st_bbox(victoria)
+vector_tiles <- get_vector_tiles(bbox)
+```
+The `vector_tiles` object is a list of spatial feature layers. Depending on what information is available for the selected geographic area there may be more or fewer layers. In this case, this set of vector tiles has 9 layers, though sometimes these layers are empty despite being downloaded so it's worth checking. 
+```{r}
+names(vector_tiles)
+# check if this layer has no data
+vector_tiles$transit
+```
+Having each of these as separate layers gives us a lot of flexibility in designing our maps because we can turn each layer into its own object, control the order of rendering, and style it however we want--or choose to exclude them altogether. We can also turn these layers into `sf` or `sp` objects and do any spatial analysis or manipulation that you can do with other spatial objects. In this case, I want to keep the `water` and the`roads` layers for my map. 
+```{r}
+water <- as_sf(vector_tiles$water)
+roads <- as_sf(vector_tiles$roads)
+```
+We can take a look at what these objects look like visually. 
+```{r roads_example}
+ggplot(roads) + 
+  geom_sf() + 
+  theme_void() + 
+  coord_sf(datum = NA)
+```
+Clearly the `roads` layer includes much more than roads alone. It's collection of features with many different fields for each object that tell us more about what those roads actually are, and allow us to have that much more control over representing these objects still. 
+```{r}
+names(roads)
+```
+We can look at what kind of data each of those elements has. 
+```{r}
+table(roads$kind)
+table(roads$cycleway)
+table(roads$surface)
+```
+With this information in hand we can split the `roads` object into different components representing different types of "roads". The information 
+```{r roads_detail}
+library(dplyr)
+
+ggplot() + 
+  geom_sf(data = roads %>% filter(kind == "ferry"), colour = "red") +
+  geom_sf(data = roads %>% filter(kind == "highway"), colour = "blue") +
+  geom_sf(data = roads %>% filter(kind == "rail"), colour = "green") +
+  geom_sf(data = roads %>% filter(kind == "major_road"), colour = "darkgrey") +
+  geom_sf(data = roads %>% filter(cycleway == "lane"), colour = "orange") +
+  theme_void() + 
+  coord_sf(datum = NA)
+```
+
+### More control over your maps
+Putting aside their obvious use for interesting spatial analysis and data, vector tiles give you an enormous amount of flexibility for designing maps by allowing you to customize the styling of each component individually if you were inclined to do that. The end result means that you can take something that looks like this:
+```{r notiles2}
+ggplot(victoria) +
+  geom_sf(aes(fill = Population)) +
+  scale_fill_viridis_c() +
+  guides(fill = guide_legend()) + 
+  coord_sf(datum = NA) +
+  theme_void()
+```
+And improve it with vector tiles so it looks like this:
+```{r withtiles}
+ggplot(victoria) +
+  geom_sf(aes(fill = Population), colour = NA) +
+  geom_sf(data = water %>% filter(kind %in% c("ocean", "lake", "river")), fill = "lightblue") + 
+  geom_sf(data = roads %>% filter(kind == "ferry"), colour = "grey90", size = 0.5) +
+  geom_sf(data = roads %>% filter(kind == "highway"), colour = "grey10", size = 1.25) +
+  geom_sf(data = roads %>% filter(kind == "rail"), colour = "brown") +
+  geom_sf(data = roads %>% filter(kind == "major_road"), colour = "grey20") +
+  geom_sf(data = roads %>% filter(cycleway == "lane"), colour = "grey30") +
+  scale_fill_viridis_c() +
+  guides(fill = guide_legend()) + 
+  coord_sf(datum = NA) +
+  theme_void()
+```
+And sometimes the additional geographic contextual information from vector tiles can go a long ways in explaining data presented on a map. Consider the following plot of logged population density in Vancouver, Burnaby, and New Westminster cities in the Metro Vancouver region. 
+```{r vanplot1, echo=FALSE, message=FALSE, warning=FALSE}
+vancouver <- get_census(dataset='CA16', 
+                        regions=list(CSD=c("5915022","5915025","5915029")), 
+                        vectors=c(),
+                        labels="detailed", geo_format='sf', level='CT')
+bbox <- st_bbox(vancouver)
+vector_tiles2 <- get_vector_tiles(bbox)
+water2 <- as_sf(vector_tiles2$water)
+roads2 <- as_sf(vector_tiles2$roads)
+transit2 <- as_sf(vector_tiles2$transit)
+ggplot(vancouver) +
+  geom_sf(aes(fill = log(Population/`Shape Area`)), colour = NA) +
+  geom_sf(data = water2 %>% filter(as.numeric(min_zoom) <6.5), fill = "lightblue") +
+  #geom_sf(data = transit2 %>% filter(kind == "subway"), colour = "brown") +
+  scale_fill_viridis_c(guide = FALSE) +
+  coord_sf(datum = NA) +
+  theme_void()
+```
+A dense downtown peninsula is clear, but the diagonal swathe of density across the city of Vancouver would only immediately make sense to someone familiar with the area who would recognize that the density reflects the shape of the Skytrain rapid transit network.
+```{r vancouver-expo, echo=FALSE}
+ggplot(vancouver) +
+  geom_sf(aes(fill = log(Population/`Shape Area`)), colour = NA) +
+  geom_sf(data = water2 %>% filter(as.numeric(min_zoom) <6.5), fill = "lightblue") +
+  geom_sf(data = transit2 %>% filter(kind == "subway"), colour = "brown") +
+  scale_fill_viridis_c(guide = FALSE) +
+  coord_sf(datum = NA) +
+  theme_void()
+```
+It's worth it to invest the time to add a bit more style and a lot more contextual information to your maps by using vector tiles. 
+
+### Can't I just download the shape files I need? 
+
+Sure, but for something like the plot of Victoria earlier in the post you would have needed to download separate files for landmass, roads, rail, each from potentially different data sources and then would have had to clip them to meet the extent of your target data. Vector tiles have all of that in one place and can be automatically clipped to the exact areas you are working with and the required code to do all of this is pretty straightforward thanks to the excellent `rmapzen` package. Another advantage is built-in object simplification: most maps will work just fine with simplified polygons--they do not need to be at the resource survey-level accuracy that public sector shape files are typically at.
+
+### Alternative sources for vector tiles
+I continue to use Nextzen for vector tiles and have no issues with usage through my free-level API access, but there are some alternatives out there like [Thunderforest](https://thunderforest.com) and [Mapcat](https://www.mapcat.com) that have free/hobbyist access tiers to their vector tile APIs. There is also [OpenMapTiles](https://openmaptiles.com/downloads/planet/) where you can download different types of vector tiles in bulk (note that the files are enormous in size) for free for non-commercial uses. 
+
+### Package info
+```{r}
+sessionInfo()[6] %>% unlist()
+```
+
+
