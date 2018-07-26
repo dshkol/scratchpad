@@ -55,7 +55,7 @@ mz_set_tile_host_nextzen(key = getOption("nextzen_API_key"))
 In this example I will use spatial data for cities in the Victoria, British Columbia area and I wanted to add detailed vector tile base maps to improve the maps.
 
 ### Some spatial data
-This will work with any kind of spatial data but for convenience sake I will use Census polygons data for population from the [cancensus]() package..
+This will work with any kind of spatial data but for convenience sake I will use Census polygons data for population from the [cancensus](https://mountainmath.github.io/cancensus/index.html) package.
 ```{r message=FALSE, warning=FALSE}
 library(cancensus)
 victoria <- get_census(dataset='CA16',
