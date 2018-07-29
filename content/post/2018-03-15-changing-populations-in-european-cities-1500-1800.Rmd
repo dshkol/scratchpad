@@ -20,7 +20,7 @@ categories:
 
 This is a demo
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 # install europop package
 # install.packages("europop")
 
@@ -47,9 +47,12 @@ city_list <- unique(euro_cities$city)
 
 inset_list <- map(.x = city_list, .f = inset_plot, df = euro_cities)
 
-pop.plots = mapview::popupGraph(inset_list, type='png')
+# pop.plots = mapview::popupGraph(inset_list, type='png')
 
-leaflet() %>% 
-  addProviderTiles("Stamen.Terrain", group='Terrain') %>% 
-  addCircleMarkers(data=euro_cities, popup=~pop.plots)
+# leaflet() %>% 
+#   addProviderTiles("Stamen.Terrain", group='Terrain') %>% 
+#   addCircleMarkers(data=euro_cities, popup=~pop.plots)
+
+mapview(euro_cities %>% distinct(city, region, geometry), popup = popupGraph(inset_list, type = "png"))
+
 ```
