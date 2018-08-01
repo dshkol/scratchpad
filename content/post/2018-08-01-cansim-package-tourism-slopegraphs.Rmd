@@ -13,7 +13,7 @@ tags:
   - cansim
   - r
 subdirectory: post
-draft: yes
+draft: no
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, 
@@ -22,13 +22,15 @@ knitr::opts_chunk$set(echo = TRUE,
 ```
 ### Preamble 
 
-The purpose of this short post is threefold: 
+This was a short post that turned into a longer post. The purpose of short post was to highlight and share a new package we have been working on to improve access to Canadian statistical data. This then turned into a post about domestic tourism patterns, and ultimately a discussion about two different types of visualization techniques for comparing changes over time. 
 
-1 - [Jens](@vb_jens) and I have been working on an R package to work with Statistics Canada's public datasets (traditionally referred to as CANSIM tables). I'll touch more on the purpose of this package shortly, but as the package heads towards completion it needs bug-fixing, tidying, and thoughtful critique ahead of any future CRAN release, and that requires more eyeballs on the code, and more users playing around with the package. 
+[Jens](@vb_jens) and I have been working on an R package to work with Statistics Canada's public datasets (traditionally referred to as CANSIM tables). I'll touch more on the purpose of this package shortly, but as the package heads towards completion it needs bug-fixing, tidying, and thoughtful critique ahead of any future CRAN release, and that requires more eyeballs on the code, and more users playing around with the package. 
 
-2 - Demonstrate a couple of different approaches for displaying chronological rankings, using a new package for [Tuftian](https://en.wikipedia.org/wiki/Edward_Tufte) [slopegraphs](https://github.com/leeper/slopegraph) by [Thomas Leeper](https://twitter.com/thosjleeper) in comparison one of my favourite chart-types, the [dumbell plot](http://datavizproject.com/data-type/dumbbell-plot/) from the [ggalt](https://github.com/hrbrmstr/ggalt) package by [Bob Rudis](https://twitter.com/hrbrmstr).
+As tourism statistics are what I do in my day-job, I thought it would be neat to showcase this packages abilities with some tourism data. In this case, we will look at some trends in domestic tourism spending and visitation in Canadian Metropolitan Areas from Statistics Canada's Travel Survey of Residents of Canada dataset. 
 
-3 - Show some cool tourism statistics as, at the end of the day, that is what I do at my day-job. In this case, we will look at some trends in domestic tourism spending and visitation in Canadian Metropolitan Areas from Statistics Canada's Travel Survey of Residents of Canada dataset. 
+This post also demonstrates a couple of different approaches for displaying chronological rankings, using a new package for [Tuftian](https://en.wikipedia.org/wiki/Edward_Tufte) [slopegraphs](https://github.com/leeper/slopegraph) by [Thomas Leeper](https://twitter.com/thosjleeper) to make this
+![](/post/2018-08-01-cansim-package-tourism-slopegraphs_files/figure-html/slope-visits-1.png)
+And to see how it compares to one of my favourite chart-types, the [dumbell plot](http://datavizproject.com/data-type/dumbbell-plot/) from the [ggalt](https://github.com/hrbrmstr/ggalt) package by [Bob Rudis](https://twitter.com/hrbrmstr), and when one is more appropriate to use than another one.
 
 ### The cansim package - some background
 
