@@ -3,7 +3,7 @@ title: The CANSIM package, Canadian tourism, and slopegraphs
 author: 
 date: '2018-08-01'
 slug: cansim-package-tourism-slopegraphs
-twitterImg: post/2018-08-01-cansim-package-tourism-slopegraphs_files/figure-html/slope-visits-1.png
+twitterImg: post/2018-08-01-cansim-package-tourism-slopegraphs_files/figure-html/slope_visits-1.png
 description: "A quick introduction to the cansim R package using an interesting dataset about Canadian domestic tourism trends"
 categories:
   - visualization
@@ -29,7 +29,7 @@ This was a short post that turned into a longer post. The purpose of short post 
 As tourism statistics are what I do in my day-job, I thought it would be neat to showcase this packages abilities with some tourism data. In this case, we will look at some trends in domestic tourism spending and visitation in Canadian Metropolitan Areas from Statistics Canada's Travel Survey of Residents of Canada dataset. 
 
 This post also demonstrates a couple of different approaches for displaying chronological rankings, using a new package for [Tuftian](https://en.wikipedia.org/wiki/Edward_Tufte) [slopegraphs](https://github.com/leeper/slopegraph) by [Thomas Leeper](https://twitter.com/thosjleeper) to make this
-![](/post/2018-08-01-cansim-package-tourism-slopegraphs_files/figure-html/slope-visits-1.png)
+![](/post/2018-08-01-cansim-package-tourism-slopegraphs_files/figure-html/slope_visits-1.png)
 And to see how it compares to one of my favourite chart-types, the [dumbell plot](http://datavizproject.com/data-type/dumbbell-plot/) from the [ggalt](https://github.com/hrbrmstr/ggalt) package by [Bob Rudis](https://twitter.com/hrbrmstr), and when one is more appropriate to use than another one.
 
 ### The cansim package - some background
@@ -148,7 +148,7 @@ What destinations have grown the most in terms of visitations and expenditures o
 Slopegraphs are used to communicate and compare changes for a list, especially across one or more time dimensions. They can be used with either absolute values or they can be used with relative values like ranks or indices. Tufte has his critics (c.f. Twitter) and I generally agree with those criticisms, but there's something to be said for cleanliness and information density in slopegraphs. So it is not surprising to see many examples of slopegraph implementations with R in blogposts or developed packages. One of these packages, Thomas Leeper's [slopegraph](https://github.com/leeper/slopegraph) package provides a very simple to call version that takes in a wide-shaped data frame (_not_ a tibble) with named rows, and generates a clean slopegraph in either base graphics or ggplot2 graphics. The package is still under development and is not available yet on CRAN, but can be downloaded from [Github](https://github.com/leeper/slopegraph). 
 
 The numbers we are looking at, visits and expenditures, have significant variation in size between the highest and lowest ranking destinations in this dataset. Placing them all on the same scale might lead to something distorted and not pleasing, so my preference for slopegraphs with many elements like we have here is to use ranks instead of absolute values. 
-```{r slope_visits, fig.height=6.5, fig.width=10}
+```{r slope_visits, fig.height=7, fig.width=10}
 # Slopegraphs
 
 # remotes::install_github("leeper/slopegraph")
@@ -178,7 +178,7 @@ ggslopegraph(visits_wide, offset.x = 0.06, yrev = TRUE) +
 Ranks are fairly consistent in the top-10 and begin to vary below that. I suspect that this is both a result of the top destinations being in a class of their own, but also due to lower sample sizes leading to greater variance for less visited destinations. 
 
 Again, we can easily repeat this exercise with spending. 
-```{r slope_spend, fig.height=6.5, fig.width=10}
+```{r slope_spend, fig.height=7, fig.width=10}
 # Spend
 tsrc %>% 
   filter(`Visit duration` == "Overnight census metropolitan areas (CMA)  visits",
@@ -207,7 +207,7 @@ ggslopegraph(spend_wide, offset.x = 0.06, yrev = TRUE) +
 
 It's possible to hack together a dumbbell plot in `ggplot2` using a combination of `geom_point` and `geom_segment`, but the [ggalt](https://github.com/hrbrmstr/ggalt) package by Bob Rudis adds an implementation of this via `geom_dumbbell`, in addition to a number of other alternative geoms and useful `ggplot2` tools.
 
-```{r dumbell_visits, fig.height=6.5, fig.width=10}
+```{r dumbell_visits, fig.height=7, fig.width=10}
 # install.packages("ggalt")
 library(ggalt)
 
@@ -228,7 +228,7 @@ ggplot(total_visits_wide, aes(y = reorder(GEO, `2011`), x = `2011`, xend = `2017
        caption = "@dshkol | Source: Travel Survey of Residents of Canada, Statistics Canada, 24-10-0030-01")
 ```
 And for tourism expenditures: 
-```{r dumbell_spend, echo=FALSE, fig.height=6.5, fig.width=10}
+```{r dumbell_spend, echo=FALSE, fig.height=7, fig.width=10}
 # Spend
 tsrc %>% 
   filter(`Visit duration` == "Overnight census metropolitan areas (CMA)  visits",
