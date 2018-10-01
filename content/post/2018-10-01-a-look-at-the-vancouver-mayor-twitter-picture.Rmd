@@ -55,6 +55,7 @@ Campaign financing reforms introduced prior to this election have meant that the
 ### Highlights and caveats
 
 There's a few key takeaways from this post that I want to highlight here:
+
 * Until we have election results, Twitter performance is not indicative or predictive of anything in this race, but it is an interesting way to look at things. 
 * Twitter engagement does not necessarily mean much on its own as it can reflect engagement with a built-in and captive audience, especially when it comes to messages using specific hashtags. 
 * That said, all things considered, as a candidate you would like to see an increasing trend in tweet engagement. 
