@@ -19,6 +19,9 @@ draft: no
 
 
 
+<blockquote>
+<p>(Updated October 16, 2018) With the election coming up in the next week and this page getting more traffic, I decided to do a quick refresh of the data used in this post up to and including October 15. Changes are relatively few, and as this site is a github repo, can be tracked via commits to this post.</p>
+</blockquote>
 <div id="the-2018-municipal-election-in-vancouver" class="section level3">
 <h3>The 2018 Municipal Election in Vancouver</h3>
 <p>On October 20, a relatively small portion of Vancouverites will vote to elect a mayor, 10 city councillors, 7 park board commissioners and 9 school trustees. Municipal elections do not receive the fanfare or attention of federal or provincial elections and see lower turnouts, but they are an important determinant towards the policies that affect the everyday lives of city residents.</p>
@@ -42,7 +45,7 @@ draft: no
 {{% tweet "1037388282286419968" %}}</li>
 </ul>
 <p><img src="/post/2018-10-01-a-look-at-the-vancouver-mayor-twitter-picture_files/figure-html/volume-1.png" width="672" />
-Of the six, Chen has been the most active tweeter since April 2018 with 2598 tweets, more than three and five times as many as the next prolific tweeters in Sylvester and Stewart, respectively. Bremner, Sim, and Young, in comparison are much less active tweeters, but all appear to have increased their tweeting as the election draws closer.</p>
+Of the six, Chen has been the most active tweeter since April 2018 with 2943 tweets, more than three and five times as many as the next prolific tweeters in Sylvester and Stewart, respectively. Bremner, Sim, and Young, in comparison are much less active tweeters, but all appear to have increased their tweeting as the election draws closer.</p>
 </div>
 <div id="engagement-trends" class="section level3">
 <h3>Engagement trends</h3>
@@ -68,10 +71,13 @@ We already saw earlier that Chen’s tweets are, on average, the most negative a
 <h3>Tweet language differences</h3>
 <p>Individual words or word-like components can be extracted from any text corpus, such as tweets, using a process called <a href="https://nlp.stanford.edu/IR-book/html/htmledition/tokenization-1.html">tokenization</a>. Again, with the NLP tools at our disposal nowadays, this is straight-forward and is further aided by the existence of Twitter specific <a href="http://www.cs.cmu.edu/~ark/TweetNLP/">token-parsers</a> lexicons of common stop-words that are not interesting for analysis (“it”, “the”, etc.). This is less of an issue with mayoral candidates who are more likely than the average Twitter user to post in standard English, but it allows for generalization of this process to other Twitter users who may use non-standard English terms (“smh”, “wtf”, “:)”, etc.).
 <img src="/post/2018-10-01-a-look-at-the-vancouver-mayor-twitter-picture_files/figure-html/text1-1.png" width="672" />
-Token analysis of the candidates’ tweets shows a fair bit of similarity: <em>Vancouver</em>, <em>city</em>, <em>people</em> regularly appearing as the most frequently used words by almost all candidates. Other differences do appear between candidates, however. Consider Sim’s emphasis on <em>team</em>, Bremner’s <em>hope</em>, Chen’s <em>tax</em> and <em>money</em>, and Young’s <em>bike</em>. Both Stewart and Sylvester really emphasis <em>housing</em> in their tweets.</p>
+Token analysis of the candidates’ tweets shows a fair bit of similarity: <em>Vancouver</em>, <em>city</em>, <em>people</em> regularly appearing as the most frequently used words by almost all candidates. Other differences do appear between candidates, however. Consider Sim’s emphasis on <em>team</em>, Bremner’s <em>hope</em> … and <em>prior(?)</em>, Chen’s <em>tax</em> and <em>money</em>, and Young’s <em>bike</em>. Both Stewart and Sylvester really emphasis <em>housing</em> in their tweets, as well as Chen to a lesser extent.</p>
 <p>As this text comes from tweets, we can combine it those tweets’ engagement numbers to see if any of these words are more likely to lead to likes than other words for each candidate.
 <img src="/post/2018-10-01-a-look-at-the-vancouver-mayor-twitter-picture_files/figure-html/text2-1.png" width="672" />
 A few things immediately stand out that should be obvious to anyone who has paid attention to this race to this point: Stewart’s audience cares about the coast and his plan to fight the Kinder Morgan pipeline expansion. Sylvester’s audience cares about the Broadway Millennium Line extension. Young’s tweets about bike lanes appear to particularly resonate, Sim is earning engagement for being Sim and not for what he tweets, and Bremner needs to tweet more so that his data can be quantitatively meaningful.</p>
+<blockquote>
+<p>(Oct.16) Update: not too many changes here with the exception of Sylvester who appears to have greater amounts of positive engagements for her recent “leadership”-focused posts. This coincides with a significant increase in the average number of engagements for Sylvester’s posts but it’s not obvious whether there is a causal relationship there.</p>
+</blockquote>
 </div>
 <div id="a-note-on-data-and-tools" class="section level3">
 <h3>A note on data and tools</h3>

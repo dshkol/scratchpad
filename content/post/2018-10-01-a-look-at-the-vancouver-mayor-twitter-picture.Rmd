@@ -40,6 +40,8 @@ mayor_timelines <- get_timelines(user = mayor_candidates, n = 10000) %>%
          month(date) %in% c(4:10))
 ```
 
+> (Updated October 16, 2018) With the election coming up in the next week and this page getting more traffic, I decided to do a quick refresh of the data used in this post up to and including October 15. Changes are relatively few, and as this site is a github repo, can be tracked via commits to this post. 
+
 ### The 2018 Municipal Election in Vancouver
 
 On October 20, a relatively small portion of Vancouverites will vote to elect a mayor, 10 city councillors, 7 park board commissioners and 9 school trustees. Municipal elections do not receive the fanfare or attention of federal or provincial elections and see lower turnouts, but they are an important determinant towards the policies that affect the everyday lives of city residents. 
@@ -234,7 +236,7 @@ library(stringr)
 remove_reg <- "&amp;|&lt;|&gt;"
 
 mayor_text <- mayor_timelines %>% 
-    filter(month(date) %in% c(6,7,8,9),
+    filter(month(date) %in% c(6:10),
            is_retweet == FALSE) %>% 
     select(name, text, favorite_count, retweet_count) %>% 
     filter(!str_detect(text, "^RT")) %>%
@@ -274,7 +276,7 @@ ggplot(top_words_adjusted, aes(x = reorder(word, freq),
        x = "", y = "Frequency of non-stopword terms",
        caption = paste0("@dshkol | Excludes stopwords, mentions, and hashtags | Tweets extracted on ",Sys.Date()))
 ```
-Token analysis of the candidates' tweets shows a fair bit of similarity: _Vancouver_, _city_, _people_ regularly appearing as the most frequently used words by almost all candidates. Other differences do appear between candidates, however. Consider Sim's emphasis on _team_, Bremner's _hope_, Chen's _tax_ and _money_, and Young's _bike_. Both Stewart and Sylvester really emphasis _housing_ in their tweets. 
+Token analysis of the candidates' tweets shows a fair bit of similarity: _Vancouver_, _city_, _people_ regularly appearing as the most frequently used words by almost all candidates. Other differences do appear between candidates, however. Consider Sim's emphasis on _team_, Bremner's _hope_ ... and _prior(?)_, Chen's _tax_ and _money_, and Young's _bike_. Both Stewart and Sylvester really emphasis _housing_ in their tweets, as well as Chen to a lesser extent. 
 
 As this text comes from tweets, we can combine it those tweets' engagement numbers to see if any of these words are more likely to lead to likes than other words for each candidate. 
 ```{r text2, echo = FALSE, message=FALSE}
@@ -303,6 +305,8 @@ ggplot(top_faves, aes(x = reorder(word, median_faves),
        caption = paste0("@dshkol | Excludes stopwords, mentions, and hashtags | Tweets extracted on ",Sys.Date()))
 ```
 A few things immediately stand out that should be obvious to anyone who has paid attention to this race to this point: Stewart's audience cares about the coast and his plan to fight the Kinder Morgan pipeline expansion. Sylvester's audience cares about the Broadway Millennium Line extension. Young's tweets about bike lanes appear to particularly resonate, Sim is earning engagement for being Sim and not for what he tweets, and Bremner needs to tweet more so that his data can be quantitatively meaningful. 
+
+> (Oct.16) Update: not too many changes here with the exception of Sylvester who appears to have greater amounts of positive engagements for her recent "leadership"-focused posts. This coincides with a significant increase in the average number of engagements for Sylvester's posts but it's not obvious whether there is a causal relationship there. 
 
 ### A note on data and tools
 
