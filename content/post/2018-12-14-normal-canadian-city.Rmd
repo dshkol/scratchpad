@@ -221,7 +221,7 @@ _Photograph of downtown Hamilton, Ontario taken from Sam Lawrence Park, Wikipedi
 </center>
 
 Hamilton has almost identical proportions to Canada as a whole for almost every variable looked at in calculating the score. Like Canada overall, the majority of the population falls into either the 45-64 or 15-29 groups that represent the Boomer and Millennial mega-generations. Educational attainment similar with the majority of people living in Canada possessing a post-secondary diploma below a university degree. The individual proportions of visible minority groups is remarkably similar as almost every group has a share of the population that falls within 1% of the national proporton. 
-```{r hamilton, echo=FALSE, message=FALSE, warning=FALSE, out.width="100%", fig.height=7, fig.retina=TRUE}
+```{r hamilton, echo=FALSE, message=FALSE, warning=FALSE, out.width="100%", fig.height=7, fig.retina=TRUE, dpi=320}
 library(ggplot2)
 library(lato)
 library(patchwork)
@@ -362,7 +362,7 @@ national_demo %>%
     title = "Is Hamilton the most \"normal\" city in Canada?")
 ```
 Compare this with the city of Vancouver, below, which drastically differs from the national averages in across all categories. Vancouver has fewer children under 15, more university educated people, a far higher incidence of renters and immigrants, and a far lower incidence of commuting by car. 
-```{r vancouver, echo=FALSE, message=FALSE, warning=FALSE, out.width="100%", fig.height=7, fig.retina=TRUE}
+```{r vancouver, echo=FALSE, message=FALSE, warning=FALSE, out.width="100%", fig.height=7, dpi=320, fig.retina=TRUE}
 
 selected_csd <- "Vancouver"
 
@@ -552,12 +552,12 @@ There are many dimensions we can use to measure similarity across cities and, by
 
 Just as using a different set of variables could lead to different results, a different distance measure for similarity or a different measurement methodology could lead to different results as well. There are many different ways to measure something like this. 
 
-One approach to something like this is to use algorithms that map high-dimensional data into lower dimensional space to visually display similarity between many high-dimensional objects at the same time. In an older post, I wrote about [identifying clusters of Canadian cities based on similarity in either visible minority group, education, or occupation](https://www.dshkol.com/2018/mirror-images-clustering-cities-demographics/). That post used an application of the [t-SNE]() algorithm for visualizing closeness for high-dimensional data. The upside of that approach versus something like the geometric similarity index used in this post is that it shows relationships between all selected cities instead of one city at a time. 
+One approach to something like this is to use algorithms that map high-dimensional data into lower dimensional space to visually display similarity between many high-dimensional objects at the same time. In an older post, I wrote about [identifying clusters of Canadian cities based on similarity in either visible minority group, education, or occupation](https://www.dshkol.com/2018/mirror-images-clustering-cities-demographics/). That post used an application of the [t-SNE](https://lvdmaaten.github.io/tsne/) algorithm for visualizing closeness for high-dimensional data. The upside of that approach versus something like the geometric similarity index used in this post is that it shows relationships between all selected cities instead of one city at a time. 
 
 Something similar can be done with the multi-dimensional data used in calculating the similarity indices above. The [unifold manifold approximation and projection](https://arxiv.org/abs/1802.03426) (UMAP) algorithm is another method that is increasingly used in lieu of t-SNE for dimensional reduction and visualization in lower dimensional space. UMAP has some advantages over t-SNE in that it tends to be computationally faster and, more importantly for us, tends to do a better job in preserving global structure in lower-dimensional embeddings. Typically in t-SNE embeddings objects close together are similar across their many dimensions, but objects far from one another are not necessarily dissimilar, which can be counter-intuitive for someone looking at the resulting visualization.
 
 The below visualization shows a UMAP embedding using the same variables as in the similarity index for all Census subdivisions with populations above 100,000. In this visualization, the national demographic and characteristic mix is embedded in the middle and the CSDs with the most similar mixes should be located closest to that point. Notably, this approach produces some differences in results. Hamilton, while still very similar, is no longer the most "normal" CSD. That distinction falls to Windsor, Ontario, with Saanich, BC also in close proximity. There is a pretty good overlap in the cities identified by this approach and the similarity indices above which is a good sign that we can consider that group of cities as representative of a "normal" Canada--if at least for this combination of demographic and characteristic variables. UMAP embeddings have an element of randomness to them and the exact layout will be different every time it is generated, but there should be consistency in the _approximate_ placement of individual points if there is an actual structure to the data. 
-```{r echo=FALSE, message=FALSE, warning=FALSE, height=12, out.width="100%"}
+```{r echo=FALSE, message=FALSE, warning=FALSE, height=12, out.width="100%", dpi=320}
 library(umap)
 library(ggrepel)
 library(lato)
@@ -598,7 +598,7 @@ The advantage of this approach is it shows both the similarity and dissimilarity
 
 ### Show us the guts
 
-The code for getting Census data, transforming it, and calculating the similarity scores is below. The code for this entire page is, as always, view-able on Github. The UMAP visualization takes advantage of the excellent [umap](https://cran.r-project.org/web/packages/umap/vignettes/umap.html) R package. 
+The code for getting Census data, transforming it, and calculating the similarity scores is below. The code for this entire page is, as always, view-able on [Github](https://github.com/dshkol/scratchpad/blob/master/content/post/2018-12-14-normal-canadian-city.Rmd). The UMAP visualization takes advantage of the excellent [umap](https://cran.r-project.org/web/packages/umap/vignettes/umap.html) R package. 
 ```{r echo=TRUE, eval=FALSE}
 # Load required packages
 library(cancensus)
