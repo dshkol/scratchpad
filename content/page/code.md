@@ -8,7 +8,7 @@ author = ""
 ### cancensus 
 Co-creator and maintainer
 [Reference Page](https://mountainmath.github.io/cancensus/index.html)|[Github](https://github.com/mountainMath/cancensus)
-[![Build Status](https://travis-ci.org/mountainMath/cancensus.svg?branch=master)](https://travis-ci.org/mountainMath/cancensus)[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/cancensus)](https://cran.r-project.org/package=cancensus)[![CRAN_Downloads_Badge](https://cranlogs.r-pkg.org/badges/cancensus)](https://cranlogs.r-pkg.org/badges/cancensus)
+[![Build Status](https://travis-ci.org/mountainMath/cancensus.svg?branch=master)](https://travis-ci.org/mountainMath/cancensus)[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/cancensus)](https://cran.r-project.org/package=cancensus)[![CRAN_Downloads_Badge](https://cranlogs.r-pkg.org/badges/cancensus)](https://cranlogs.r-pkg.org/badges/cancensus)
 
 * Access, retrieve, and work with Canadian Census data and geography.
 * Download data and Census geography in tidy and analysis-ready format

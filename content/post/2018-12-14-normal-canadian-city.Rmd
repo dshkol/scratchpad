@@ -13,7 +13,7 @@ tags:
   - census
   - cancensus
   - r
-draft: yes
+draft: no
 ---
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 
