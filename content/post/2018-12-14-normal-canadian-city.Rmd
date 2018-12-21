@@ -1,0 +1,750 @@
+---
+title: 'What is the most "normal" city in Canada?'
+author: ''
+date: '2018-12-21'
+slug: normal-canadian-city
+twitterImg: post/2018-12-14-normal-canadian-city/figure-html/hamilton-1.png
+description: ""
+categories:
+  - blog
+  - analysis
+  - census
+tags:
+  - census
+  - cancensus
+  - r
+draft: yes
+---
+```{r message=FALSE, warning=FALSE, include=FALSE}
+
+# Load required packages
+library(cancensus)
+library(dplyr)
+
+# Generate list of Census Subdivisions in Canada with pop >= 100000
+csdlist <- list_census_regions("CA16") %>% 
+  filter(pop >= 10000, level == "CSD") %>% 
+  as_census_region_list()
+
+# Get region code for Canada-wide region
+national_region <- list_census_regions("CA16") %>% filter(level == "C") %>% as_census_region_list()
+
+# Convenience function to tidy up CSD names
+clean_names2 <- function (dfr) {
+  dfr <- dfr %>% mutate(`Region Name` = as.character(`Region Name`))
+  replacement <- dfr %>% mutate(`Region Name` = gsub(" \\(.*\\)", 
+                                                     "", `Region Name`)) %>% pull(`Region Name`)
+  duplicated_rows <- c(which(duplicated(replacement, fromLast = TRUE)), 
+                       which(duplicated(replacement, fromLast = FALSE)))
+  replacement[duplicated_rows] <- dfr$`Region Name`[duplicated_rows]
+  dfr$`Region Name` <- factor(replacement)
+  dfr
+}
+
+# Identify appropriate vector codes 
+# 0-14, 15-29, 30-44, 45-64, 65+
+age_vectors <- c("v_CA16_1", "v_CA16_4", "v_CA16_64", "v_CA16_82","v_CA16_100",
+          "v_CA16_118","v_CA16_136", "v_CA16_154","v_CA16_172","v_CA16_190",
+          "v_CA16_208","v_CA16_226","v_CA16_244")
+
+# Visible minorities vectors
+parent_vector <- "v_CA16_3954"
+minorities <- list_census_vectors("CA16") %>% 
+  filter(vector == "v_CA16_3954") %>% 
+  child_census_vectors(leaves_only = TRUE) %>% 
+  pull(vector)
+minority_vectors <- c(parent_vector, minorities)
+
+# Education vectors - uses only data for population aged 25 and over. 
+# no diploma, high-school, post-secondary certificate, university diploma or higher
+educ_vectors <- c("v_CA16_5096", "v_CA16_5099", "v_CA16_5102", "v_CA16_5105", "v_CA16_5123")
+
+# Immigration status vectors
+imm_vectors <- c("v_CA16_3405","v_CA16_3408","v_CA16_3411","v_CA16_3435")
+
+# Tenure vectors
+ten_vectors <- c("v_CA16_4836","v_CA16_4837","v_CA16_4838","v_CA16_4839")
+
+# Commute vectors
+com_vectors <- c("v_CA16_5792","v_CA16_5795","v_CA16_5798","v_CA16_5801",
+                 "v_CA16_5804","v_CA16_5807")
+
+# Mobility vectors
+#mob_vectors <- c("v_CA16_6692", "v_CA16_6707","v_CA16_6716")
+
+# Coerce all vectors requested together
+demo_vectors <- c(age_vectors, minority_vectors, educ_vectors, imm_vectors, ten_vectors, com_vectors)
+
+# Download census data for national level
+national <- get_census("CA16", level = "C", regions = national_region, vectors = demo_vectors, labels = "short")
+
+# Group vectors where appropriate and calculate proportions
+national_demo <- national %>% 
+  mutate(age_014 = v_CA16_4/v_CA16_1,
+         age_1529 = (v_CA16_64 + v_CA16_64 + v_CA16_82 + v_CA16_100)/v_CA16_1,
+         age_3044 = (v_CA16_118 + v_CA16_136 + v_CA16_154)/v_CA16_1,
+         age_4564 = (v_CA16_172 + v_CA16_190 + v_CA16_208 + v_CA16_226)/v_CA16_1,
+         age_65p = v_CA16_244/v_CA16_1,
+         min_white = v_CA16_3996/v_CA16_3954,
+         min_sasian = v_CA16_3960/v_CA16_3954,
+         min_chinese = v_CA16_3963/v_CA16_3954,
+         min_black = v_CA16_3966/v_CA16_3954,
+         min_filipino = v_CA16_3969/v_CA16_3954,
+         min_latinam = v_CA16_3972/v_CA16_3954,
+         min_arab = v_CA16_3975/v_CA16_3954,
+         min_seasian = v_CA16_3978/v_CA16_3954,
+         min_wasian = v_CA16_3981/v_CA16_3954,
+         min_korean = v_CA16_3984/v_CA16_3954,
+         min_japanese = v_CA16_3987/v_CA16_3954,
+         min_oth = v_CA16_3990/v_CA16_3954,
+         educ_nohs = v_CA16_5099/v_CA16_5096,
+         educ_hs = v_CA16_5102/v_CA16_5096,
+         educ_dip = v_CA16_5105/v_CA16_5096,
+         educ_uni = v_CA16_5123/v_CA16_5096,
+         imm_nat = v_CA16_3408/v_CA16_3405,
+         imm_imm = v_CA16_3411/v_CA16_3405,
+         imm_non = v_CA16_3435/v_CA16_3405,
+         ten_own = v_CA16_4837/v_CA16_4836,
+         ten_rent = v_CA16_4838/v_CA16_4836,
+         ten_band = v_CA16_4839/v_CA16_4836,
+         com_car = (v_CA16_5795 + v_CA16_5798)/v_CA16_5792,
+         com_trans = v_CA16_5801/v_CA16_5792,
+         com_walk = v_CA16_5804/v_CA16_5792,
+         com_bike = v_CA16_5807/v_CA16_5792) %>% 
+  select(GeoUID, `Region Name`, pop = Population, starts_with("age"), starts_with("min"), starts_with("educ"),
+         starts_with("imm"), starts_with("ten"), starts_with("com"))
+
+# Get demographic vectors for all selected csds
+csds <- get_census("CA16", level = "CSD", regions = csdlist, vectors = demo_vectors, labels = "short")
+
+# adjust into groups and calculate proportions - same as above. 
+csds <- csds %>% 
+  mutate(age_014 = v_CA16_4/v_CA16_1,
+         age_1529 = (v_CA16_64 + v_CA16_64 + v_CA16_82 + v_CA16_100)/v_CA16_1,
+         age_3044 = (v_CA16_118 + v_CA16_136 + v_CA16_154)/v_CA16_1,
+         age_4564 = (v_CA16_172 + v_CA16_190 + v_CA16_208 + v_CA16_226)/v_CA16_1,
+         age_65p = v_CA16_244/v_CA16_1,
+         min_white = v_CA16_3996/v_CA16_3954,
+         min_sasian = v_CA16_3960/v_CA16_3954,
+         min_chinese = v_CA16_3963/v_CA16_3954,
+         min_black = v_CA16_3966/v_CA16_3954,
+         min_filipino = v_CA16_3969/v_CA16_3954,
+         min_latinam = v_CA16_3972/v_CA16_3954,
+         min_arab = v_CA16_3975/v_CA16_3954,
+         min_seasian = v_CA16_3978/v_CA16_3954,
+         min_wasian = v_CA16_3981/v_CA16_3954,
+         min_korean = v_CA16_3984/v_CA16_3954,
+         min_japanese = v_CA16_3987/v_CA16_3954,
+         min_oth = v_CA16_3990/v_CA16_3954,
+         educ_nohs = v_CA16_5099/v_CA16_5096,
+         educ_hs = v_CA16_5102/v_CA16_5096,
+         educ_dip = v_CA16_5105/v_CA16_5096,
+         educ_uni = v_CA16_5123/v_CA16_5096,
+         imm_nat = v_CA16_3408/v_CA16_3405,
+         imm_imm = v_CA16_3411/v_CA16_3405,
+         imm_non = v_CA16_3435/v_CA16_3405,
+         ten_own = v_CA16_4837/v_CA16_4836,
+         ten_rent = v_CA16_4838/v_CA16_4836,
+         ten_band = v_CA16_4839/v_CA16_4836,
+         com_car = (v_CA16_5795 + v_CA16_5798)/v_CA16_5792,
+         com_trans = v_CA16_5801/v_CA16_5792,
+         com_walk = v_CA16_5804/v_CA16_5792,
+         com_bike = v_CA16_5807/v_CA16_5792) %>% 
+  select(GeoUID, `Region Name`, pop = Population, starts_with("age"), starts_with("min"), starts_with("educ"),
+         starts_with("imm"), starts_with("ten"), starts_with("com"))
+
+# Finally, calculate pairwise dissimilarity between each CSD and the national rates using a Euclidian distance measurement and then calculate an index value for how closely similar or not CSDs are to national rates.
+diss <- bind_rows(national_demo, csds) %>% 
+  mutate_at(vars(age_014:com_bike), funs((.- first(.))^2)) %>% 
+  tidyr::gather(vars, values, age_014:com_bike) %>% 
+  group_by(`Region Name`, pop) %>% 
+  summarise(index = sqrt(sum(values))) %>% 
+  mutate(sim = (1/(1+index)*100)) %>% 
+  ungroup() %>% 
+  filter(`Region Name` != "Canada") %>% 
+  clean_names2()
+```
+### What does it mean to be "normal"? 
+
+Consider for a moment the quintessential Canadian city. What does that image in your head look like? Are there outdoor rinks, wheat fields, and abundant Timmies? Does your mental image include a yoga studio, a dispensary, and a third-wave coffee shop? Canadians like to celebrate a self-constructed identity of diversity-_the cultural mosaic_- that is punctuated with conspicuous Canadiana that binds everything together. Canada is a highly urbanized country--it is a nation of cities, and while every Canadian city has elements that scream "Canada!", is there a city that can stand above the rest and definitely claim to be the most quintessentially Canadian city of them all? 
+
+One way of approaching a question like this would be to define some kind of criteria that best represents this Canadian essence--but that would be hard and, truthfully, rather icky. The idea of the "normal" place is a common rhetorical approach often used to conjure up an image of a majority-dominant heartland that truly represents the values of a country. You can see this in politics all the time: cities are more diverse and heterogeneous than rural places, and, in many industrialized countries, account for the majority of the population, but are seldom viewed as representative of a country's characteristics.  
+
+### A more data-driven approach
+
+So instead of a selecting for some arbitrary characteristics that define what the Canadian "normal" is, let's take a data-driven approach. Fortunately, this [FiveThirtyEight](https://fivethirtyeight.com/features/normal-america-is-not-a-small-town-of-white-people/) article by the economist [Jed Kolko](http://jedkolko.com) looking at identifying the most "normal" place in America provides a good template to start. The motivation behind the FiveThirtyEight article is simple: there is a disconnect between what pundits and some politicians view as representative of a "normal America" and what actual demographics say. The most "normal" place in America is not Oshkosh, Wisconsin but New Haven, Connecticut. Kolko's approach is pretty simple as it relies on a quantitative analysis of demographics across US metros using age, education, and race as key indicators. The demographic mix of each metro area is compared against the demographic mix of the US as a whole using a dissimilarity index across every combination of selected demographic indicators from the American Community Survey. 
+
+We can do something similar using Canadian data. While we lack the crosstabs across Census values to apply the exact same methodology as the [FiveThirtyEight](https://fivethirtyeight.com/features/normal-america-is-not-a-small-town-of-white-people/) article, a roughly similar approach can be taken by calculating the proportion or incidence of selected Census demographic or behavioral values for a given place and comparing it to a national benchmark. The cumulative sum of the geometric distance between the values for the national rate and that of the selected place provides an indication of similarity or dissimilarity. The most "normal" city in Canada will be the city that has the most similar demographic and characteristic makeup to the national benchmark. 
+
+The code chunk for this post is at the bottom of the page and the similarity calculations are contained in the last few lines of code. 
+
+### The demographic mix
+
+While the [FiveThirtyEight](https://fivethirtyeight.com/features/normal-america-is-not-a-small-town-of-white-people/) article looks at age, education, and race only, we have the entire range of Canadian Census values to work with. This distinction is important because the result of any similarity calculation like the one in this post will depend on the variables that are selected. Using all available Census variables is not feasible, but we can go beyond age, education, and visible minority groups to also include immigration status, household tenure type, and commute types to capture some additional indicators that define how a city looks and feels. Income variables are not used here for several reasons: one, they are likely to be highly correlated with other variables that are included like education and household tenure; and, two, income can vary across cities, regions, and provinces for many reasons that can be specific to those places. Age and education variables are collapsed into broader groups to streamline things a bit.
+
+### Census subdivisions
+
+Census subdivisions are a standard [Statistics Canada geographic area](https://www12.statcan.gc.ca/census-recensement/2011/ref/dict/geo012-eng.cfm) that represents municipalities or areas deemed to be equivalent such as indigenous reserves. Using Census subdivisions instead of Census Metropolitan areas provides more granularity and more interesting results--there are some very different demographic mixes in the different cities that make up the [Greater Toronto Area](https://www.reddit.com/r/dataisbeautiful/comments/8yv8cf/distribution_of_the_top_nonofficial_languages/) that could average out at the metro area. The latest Census has data for 5,148 Census subdivisions, though most of these are areas with very low population. Similarity is calculated here for the 413 subdivisions with population of 10,000 or more. 
+
+### The most "normal" places in Canada
+
+Using geometric distances between demographic and characteristic compositions the most "normal" or most representative municipality in Canada is Hamilton, Ontario. Guelph, London, Winnipeg, and Kitchener round out the bottom five. 
+
+```{r echo=FALSE, message=TRUE, warning=TRUE}
+library(knitr)
+library(kableExtra)
+diss %>% 
+  select(Municipality = `Region Name`,
+         Population = pop,
+         `Similarity Score` = sim) %>% 
+  arrange(desc(`Similarity Score`)) %>% 
+  mutate(Municipality = ifelse(Municipality == "Hamilton (C)",
+                               "Hamilton",
+                               as.character(Municipality))) %>% 
+  head(5) %>% 
+  kable(digits = 1, big.mark = ",",
+        format.args = list(big.mark = ",")) %>%
+  kable_styling(bootstrap_options = c("hover", "condensed"),
+                full_width = F) %>% 
+  footnote(general = "Source: Statistics Canada Census 2016.
+           Similarity score calculated using a combination of
+           demographic and characteristic Census variables as
+           compared with national rates.")
+
+```
+
+### Model of a modern Canadian city
+
+<center>
+![Hamilton!](https://upload.wikimedia.org/wikipedia/commons/0/08/Hamilton-5145.jpg)
+_Photograph of downtown Hamilton, Ontario taken from Sam Lawrence Park, Wikipedia CC BY-SA 2.5_
+</center>
+
+Hamilton has almost identical proportions to Canada as a whole for almost every variable looked at in calculating the score. Like Canada overall, the majority of the population falls into either the 45-64 or 15-29 groups that represent the Boomer and Millennial mega-generations. Educational attainment similar with the majority of people living in Canada possessing a post-secondary diploma below a university degree. The individual proportions of visible minority groups is remarkably similar as almost every group has a share of the population that falls within 1% of the national proporton. 
+```{r hamilton, echo=FALSE, message=FALSE, warning=FALSE, out.width="100%", fig.height=7, fig.retina=TRUE}
+library(ggplot2)
+library(lato)
+library(patchwork)
+national_demo %>%
+  bind_rows(csds %>% clean_names2 %>% filter(`Region Name` == "Hamilton (C)")) %>% 
+  tidyr::gather(var, value, pop:com_bike) %>% 
+  filter(grepl("^educ",var)) %>% 
+  ggplot(. ,aes(y = value, x = var, fill = `Region Name`)) + 
+  geom_bar(stat = "identity", position = "dodge", colour = "grey90") +
+  scale_x_discrete(labels = c("Diploma","High school","No HS","Uni+")) + 
+  scale_y_continuous(labels = scales::percent,
+                     breaks = c(0,0.25,0.5,0.75)) +
+  scale_fill_manual(values = c("grey30",
+                               "#BF0070")) +
+  theme_lato() +
+  theme(legend.position = "FALSE",
+        plot.title = element_text(size = "50%"),
+        panel.grid = element_blank()) +
+  labs(x = "", y = "", title = "Educational attainment") + 
+  coord_flip() -> p2
+
+national_demo %>%
+  bind_rows(csds %>% clean_names2 %>% filter(`Region Name` == "Hamilton (C)")) %>% 
+  tidyr::gather(var, value, pop:com_bike) %>% 
+  filter(grepl("^age",var)) %>% 
+  ggplot(. ,aes(y = value, x = var, fill = `Region Name`)) + 
+  geom_bar(stat = "identity", position = "dodge", colour = "grey90") +
+  scale_x_discrete(labels = c("0-14","15-29","30-44","45-64","65+")) + 
+  scale_fill_manual(values = c("grey30",
+                               "#BF0070")) +
+  scale_y_continuous(labels = scales::percent,
+                     breaks = c(0,0.25,0.5,0.75)) +
+  theme_lato() +
+  theme(legend.position = "FALSE",
+        plot.title = element_text(size = "50%"),
+        panel.grid = element_blank()) +
+  labs(x = "", y = "", title = "Age groups") + 
+  coord_flip() -> p1
+
+national_demo %>%
+  bind_rows(csds %>% clean_names2 %>% filter(`Region Name` == "Hamilton (C)")) %>% 
+  tidyr::gather(var, value, pop:com_bike) %>% 
+  filter(grepl("^com",var)) %>% 
+  ggplot(. ,aes(y = value, x = var, fill = `Region Name`)) + 
+  geom_bar(stat = "identity", position = "dodge", colour = "grey90") +
+  scale_fill_manual(values = c("grey30",
+                               "#BF0070")) +
+  scale_x_discrete(labels = c("Bike","Car","Transit","Walk")) +
+  scale_y_continuous(labels = scales::percent,
+                     breaks = c(0,0.25,0.5,0.75)) +
+  theme_lato() +
+  theme(legend.position = "FALSE",
+        plot.title = element_text(size = "50%"),
+        panel.grid = element_blank()) +
+  labs(x = "", y = "", title = "Commute type") + 
+  coord_flip() -> p3
+
+national_demo %>%
+  bind_rows(csds %>% clean_names2 %>% filter(`Region Name` == "Hamilton (C)")) %>% 
+  tidyr::gather(var, value, pop:com_bike) %>% 
+  filter(grepl("^imm",var)) %>% 
+  ggplot(. ,aes(y = value, x = var, fill = `Region Name`)) + 
+  geom_bar(stat = "identity", position = "dodge", colour = "grey90") +
+  scale_fill_manual(values = c("grey30",
+                               "#BF0070")) +
+  scale_x_discrete(labels = c("Immig.","Non-\nimmig.","Temp\nres.")) +
+  scale_y_continuous(labels = scales::percent) +
+  theme_lato() +
+  theme(legend.position = "FALSE",
+        plot.title = element_text(size = "50%"),
+        panel.grid = element_blank()) +
+  labs(x = "", y = "", title = "Immigrant status") -> p4
+
+national_demo %>%
+  bind_rows(csds %>% clean_names2 %>% filter(`Region Name` == "Hamilton (C)")) %>% 
+  tidyr::gather(var, value, pop:com_bike) %>% 
+  filter(grepl("^ten",var)) %>% 
+  ggplot(. ,aes(y = value, x = var, fill = `Region Name`)) + 
+  geom_bar(stat = "identity", position = "dodge", colour = "grey90") +
+  scale_fill_manual(values = c("grey30",
+                               "#BF0070")) +
+  scale_x_discrete(labels = c("Band\nHousing","Owner","Renter")) +
+  scale_y_continuous(labels = scales::percent) +
+  theme_lato() +
+  theme(legend.position = "FALSE",
+        plot.title = element_text(size = "50%"),
+        panel.grid = element_blank()) +
+  labs(x = "", y = "", title = "Household tenure type") -> p5
+
+national_demo %>%
+  bind_rows(csds %>% clean_names2 %>% filter(`Region Name` == "Hamilton (C)")) %>% 
+  select(`Region Name`,min_white) %>% 
+  ggplot(., aes(x = `Region Name`, y = 1-min_white,
+         fill = `Region Name`)) +
+  scale_fill_manual(values = c("grey30",
+                               "#BF0070"),
+                    guide = FALSE) +
+  scale_y_continuous(limits = c(0,1),labels = scales::percent) +
+  scale_x_discrete(labels = c("Can.","Hamilton")) +
+  geom_bar(stat = "identity", position = "dodge", colour = "grey90") +
+  theme_lato() + 
+  theme(plot.title = element_text(size = "50%"),
+        panel.grid = element_blank()) +
+  labs(x = "", y = "", title = "Visible minority") -> v1
+  
+national_demo %>%
+  bind_rows(csds %>% clean_names2 %>% filter(`Region Name` == "Hamilton (C)")) %>% 
+  tidyr::gather(var, value, pop:com_bike) %>% 
+  filter(grepl("^min",var),
+         var != "min_white") %>% 
+  ggplot(. ,aes(y = value, x = var, colour = `Region Name`)) +
+  geom_point(size = 4, alpha = 1) +
+  geom_point(size = 3, alpha = 0.50) +
+  scale_colour_manual("",values = c("grey30",
+                               "#BF0070")) +
+  scale_y_continuous(labels = scales::percent) +
+  scale_x_discrete(labels = c("Arab","Black","Chinese",
+                              "Filipino","Japanese","Korean",
+                              "Latin Am.","Other","S Asian",
+                              "SE Asian","W Asian")) +
+  theme_lato() + 
+  theme(plot.title = element_text(size = "50%"),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.major.x = element_blank(),
+        legend.position = "bottom",
+        legend.background = element_blank(),
+        legend.box.background = element_blank()) +
+  labs(x = "", y = "", title = "Visible minority proportions") +
+  coord_flip() -> v2
+
+(p1+p2+p3+p4+p5+v1)/v2 +
+  plot_layout(heights = c(3,3,3)) +
+  plot_annotation(
+    theme = theme(plot.background = element_rect(fill = "grey90"),
+                  plot.title = element_text(family = "Lato",
+                                            face = "bold",
+                                            colour = "grey30")),
+    title = "Is Hamilton the most \"normal\" city in Canada?")
+```
+Compare this with the city of Vancouver, below, which drastically differs from the national averages in across all categories. Vancouver has fewer children under 15, more university educated people, a far higher incidence of renters and immigrants, and a far lower incidence of commuting by car. 
+```{r vancouver, echo=FALSE, message=FALSE, warning=FALSE, out.width="100%", fig.height=7, fig.retina=TRUE}
+
+selected_csd <- "Vancouver"
+
+national_demo %>%
+  bind_rows(csds %>% clean_names2 %>% filter(`Region Name` == selected_csd)) %>% 
+  tidyr::gather(var, value, pop:com_bike) %>% 
+  filter(grepl("^educ",var)) %>% 
+  ggplot(. ,aes(y = value, x = var, fill = `Region Name`)) + 
+  geom_bar(stat = "identity", position = "dodge", colour = "grey90") +
+  scale_x_discrete(labels = c("Diploma","High school","No HS","Uni+")) + 
+  scale_y_continuous(labels = scales::percent,
+                     breaks = c(0,0.25,0.5,0.75)) +
+  scale_fill_manual(values = c("grey30",
+                               "#BF0070")) +
+  theme_lato() +
+  theme(legend.position = "FALSE",
+        plot.title = element_text(size = "50%"),
+        panel.grid = element_blank()) +
+  labs(x = "", y = "", title = "Educational attainment") + 
+  coord_flip() -> p2
+
+national_demo %>%
+  bind_rows(csds %>% clean_names2 %>% filter(`Region Name` == selected_csd)) %>% 
+  tidyr::gather(var, value, pop:com_bike) %>% 
+  filter(grepl("^age",var)) %>% 
+  ggplot(. ,aes(y = value, x = var, fill = `Region Name`)) + 
+  geom_bar(stat = "identity", position = "dodge", colour = "grey90") +
+  scale_x_discrete(labels = c("0-14","15-29","30-44","45-64","65+")) + 
+  scale_fill_manual(values = c("grey30",
+                               "#BF0070")) +
+  scale_y_continuous(labels = scales::percent,
+                     breaks = c(0,0.25,0.5,0.75)) +
+  theme_lato() +
+  theme(legend.position = "FALSE",
+        plot.title = element_text(size = "50%"),
+        panel.grid = element_blank()) +
+  labs(x = "", y = "", title = "Age groups") + 
+  coord_flip() -> p1
+
+national_demo %>%
+  bind_rows(csds %>% clean_names2 %>% filter(`Region Name` == selected_csd)) %>% 
+  tidyr::gather(var, value, pop:com_bike) %>% 
+  filter(grepl("^com",var)) %>% 
+  ggplot(. ,aes(y = value, x = var, fill = `Region Name`)) + 
+  geom_bar(stat = "identity", position = "dodge", colour = "grey90") +
+  scale_fill_manual(values = c("grey30",
+                               "#BF0070")) +
+  scale_x_discrete(labels = c("Bike","Car","Transit","Walk")) +
+  scale_y_continuous(labels = scales::percent,
+                     breaks = c(0,0.25,0.5,0.75)) +
+  theme_lato() +
+  theme(legend.position = "FALSE",
+        plot.title = element_text(size = "50%"),
+        panel.grid = element_blank()) +
+  labs(x = "", y = "", title = "Commute type") + 
+  coord_flip() -> p3
+
+national_demo %>%
+  bind_rows(csds %>% clean_names2 %>% filter(`Region Name` == selected_csd)) %>% 
+  tidyr::gather(var, value, pop:com_bike) %>% 
+  filter(grepl("^imm",var)) %>% 
+  ggplot(. ,aes(y = value, x = var, fill = `Region Name`)) + 
+  geom_bar(stat = "identity", position = "dodge", colour = "grey90") +
+  scale_fill_manual(values = c("grey30",
+                               "#BF0070")) +
+  scale_x_discrete(labels = c("Immig.","Non-\nimmig.","Temp\nres.")) +
+  scale_y_continuous(labels = scales::percent) +
+  theme_lato() +
+  theme(legend.position = "FALSE",
+        plot.title = element_text(size = "50%"),
+        panel.grid = element_blank()) +
+  labs(x = "", y = "", title = "Immigrant status") -> p4
+
+national_demo %>%
+  bind_rows(csds %>% clean_names2 %>% filter(`Region Name` == selected_csd)) %>% 
+  tidyr::gather(var, value, pop:com_bike) %>% 
+  filter(grepl("^ten",var)) %>% 
+  ggplot(. ,aes(y = value, x = var, fill = `Region Name`)) + 
+  geom_bar(stat = "identity", position = "dodge", colour = "grey90") +
+  scale_fill_manual(values = c("grey30",
+                               "#BF0070")) +
+  scale_x_discrete(labels = c("Band\nHousing","Owner","Renter")) +
+  scale_y_continuous(labels = scales::percent) +
+  theme_lato() +
+  theme(legend.position = "FALSE",
+        plot.title = element_text(size = "50%"),
+        panel.grid = element_blank()) +
+  labs(x = "", y = "", title = "Household tenure type") -> p5
+
+national_demo %>%
+  bind_rows(csds %>% clean_names2 %>% filter(`Region Name` == selected_csd)) %>% 
+  select(`Region Name`,min_white) %>% 
+  ggplot(., aes(x = `Region Name`, y = 1-min_white,
+         fill = `Region Name`)) +
+  scale_fill_manual(values = c("grey30",
+                               "#BF0070"),
+                    guide = FALSE) +
+  scale_y_continuous(limits = c(0,1),labels = scales::percent) +
+  scale_x_discrete(labels = c("Can.",selected_csd)) +
+  geom_bar(stat = "identity", position = "dodge", colour = "grey90") +
+  theme_lato() + 
+  theme(plot.title = element_text(size = "50%"),
+        panel.grid = element_blank()) +
+  labs(x = "", y = "", title = "Visible minority") -> v1
+  
+national_demo %>%
+  bind_rows(csds %>% clean_names2 %>% filter(`Region Name` == selected_csd)) %>% 
+  tidyr::gather(var, value, pop:com_bike) %>% 
+  filter(grepl("^min",var),
+         var != "min_white") %>% 
+  ggplot(. ,aes(y = value, x = var, colour = `Region Name`)) +
+  geom_point(size = 4, alpha = 1) +
+  geom_point(size = 3, alpha = 0.50) +
+  scale_colour_manual("",values = c("grey30",
+                               "#BF0070")) +
+  scale_y_continuous(labels = scales::percent) +
+  scale_x_discrete(labels = c("Arab","Black","Chinese",
+                              "Filipino","Japanese","Korean",
+                              "Latin Am.","Other","S Asian",
+                              "SE Asian","W Asian")) +
+  theme_lato() + 
+  theme(plot.title = element_text(size = "50%"),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.major.x = element_blank(),
+        legend.position = "bottom",
+        legend.background = element_blank(),
+        legend.box.background = element_blank()) +
+  labs(x = "", y = "", title = "Visible minority proportions") +
+  coord_flip() -> v2
+
+(p1+p2+p3+p4+p5+v1)/v2 +
+  plot_layout(heights = c(3,3,3)) +
+  plot_annotation(
+    theme = theme(plot.background = element_rect(fill = "grey90"),
+                  plot.title = element_text(family = "Lato",
+                                            face = "bold",
+                                            colour = "grey30")),
+    title = "Meanwhile, Vancouver is one of the least representative")
+```
+Canada's major population centres: the GTA, Montreal, and the Lower Mainland all tend to have a higher educational attainment, different commuting patterns, more renters, and much more visible diversity. Because these few metropolitan regions account for so much of the national population, they will skew the national rates to reflect these differences. 
+
+Of the most similar cities on the list, the first 9 municipalities all have larger populations. The smaller towns with high similarity scores, View Royal, BC and L'Île-Perrot, QC are extended suburbs of Victoria and Montreal, respectively. If the objective of something like this is to find the definitive small Canadian town with the demographic mix that best represents the country and is not within the immediate geographic influence of a larger metropolitan area, you have to wait to the 24-th ranked city on the list, Brandon, MB. This is not unexpected as any Canadian average will be significantly weighted by larger metropolitan areas that tend to be more educated and more diverse than smaller cities outside of core metro areas. 
+
+```{r echo=FALSE, message=TRUE, warning=TRUE}
+diss %>% 
+  select(Municipality = `Region Name`,
+         Population = pop,
+         `Similarity Score` = sim) %>% 
+  filter(Population > 25000, Population <50000) %>% 
+  arrange(desc(`Similarity Score`)) %>% 
+  head(5) %>% 
+  kable(digits = 1, big.mark = ",",
+        format.args = list(big.mark = ",")) %>%
+  kable_styling(bootstrap_options = c("hover", "condensed"),
+                full_width = F) %>% 
+  footnote(general = "Source: Statistics Canada Census 2016")
+```
+
+### Find your city
+
+You can scroll the full table below which has the similarity scores for all Canadian municipalities and municipality-like regions with populations above 10,000. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+#library(formattable)
+diss %>% 
+  select(Municipality = `Region Name`,
+         Population = pop,
+         `Similarity Score` = sim) %>%
+  filter(!is.nan(`Similarity Score`)) %>% 
+  arrange(desc(`Similarity Score`)) %>% 
+  #mutate(`Similarity Score` = color_bar("lightgrey")(round(`Similarity Score`,1))) %>%
+  mutate(`Similarity Score` = cell_spec(
+    sprintf("%.1f",round(`Similarity Score`,1)), color = "white", bold = T,
+    background = spec_color(`Similarity Score`, option = "A", direction = -1)
+  )) %>%
+  kable(format.args = list(big.mark = ","),
+        escape = F) %>%
+  kable_styling(bootstrap_options = c("hover", "condensed"),
+                full_width = T,position = "center") %>% 
+  footnote(general = "Source: Statistics Canada Census 2016.") %>% 
+  scroll_box(width = "100%", height = "300px")
+```
+
+### Mirror images - a detour
+
+There are many dimensions we can use to measure similarity across cities and, by extension, many assumptions to consider when doing so. The similarity numbers used here reflect assumptions about both which dimensions should be included or excluded and the method through which we evaluate similarity. A different selection of variables or dimensions would likely lead to a different result. Even the way that variables are aggregated here could affect the results. This is all to say that this post is not trying to be a definitive study of city similarity and that it is affected by the choices made by the author in terms of what to measure--and how. This caveat applies to both this post and to the source FiveThirtyEight post. New Haven is the most "normal" city in America (based on that article's author's choice of relevant variables and methodology). It might still be the most "normal" given a different set of input variables, but it might also not be.  
+
+Just as using a different set of variables could lead to different results, a different distance measure for similarity or a different measurement methodology could lead to different results as well. There are many different ways to measure something like this. 
+
+One approach to something like this is to use algorithms that map high-dimensional data into lower dimensional space to visually display similarity between many high-dimensional objects at the same time. In an older post, I wrote about [identifying clusters of Canadian cities based on similarity in either visible minority group, education, or occupation](https://www.dshkol.com/2018/mirror-images-clustering-cities-demographics/). That post used an application of the [t-SNE]() algorithm for visualizing closeness for high-dimensional data. The upside of that approach versus something like the geometric similarity index used in this post is that it shows relationships between all selected cities instead of one city at a time. 
+
+Something similar can be done with the multi-dimensional data used in calculating the similarity indices above. The [unifold manifold approximation and projection](https://arxiv.org/abs/1802.03426) (UMAP) algorithm is another method that is increasingly used in lieu of t-SNE for dimensional reduction and visualization in lower dimensional space. UMAP has some advantages over t-SNE in that it tends to be computationally faster and, more importantly for us, tends to do a better job in preserving global structure in lower-dimensional embeddings. Typically in t-SNE embeddings objects close together are similar across their many dimensions, but objects far from one another are not necessarily dissimilar, which can be counter-intuitive for someone looking at the resulting visualization.
+
+The below visualization shows a UMAP embedding using the same variables as in the similarity index for all Census subdivisions with populations above 100,000. In this visualization, the national demographic and characteristic mix is embedded in the middle and the CSDs with the most similar mixes should be located closest to that point. Notably, this approach produces some differences in results. Hamilton, while still very similar, is no longer the most "normal" CSD. That distinction falls to Windsor, Ontario, with Saanich, BC also in close proximity. There is a pretty good overlap in the cities identified by this approach and the similarity indices above which is a good sign that we can consider that group of cities as representative of a "normal" Canada--if at least for this combination of demographic and characteristic variables. UMAP embeddings have an element of randomness to them and the exact layout will be different every time it is generated, but there should be consistency in the _approximate_ placement of individual points if there is an actual structure to the data. 
+```{r echo=FALSE, message=FALSE, warning=FALSE, height=12, out.width="100%"}
+library(umap)
+library(ggrepel)
+library(lato)
+
+bind_rows(national_demo, csds) %>% 
+  filter(pop > 100000) %>% 
+  select(-GeoUID, - pop) %>% 
+  tidyr::drop_na()-> csd_map_data
+
+csd_labels <- csd_map_data %>% 
+  select(`Region Name`) 
+csd_map_data <- csd_map_data %>% 
+  select(-`Region Name`)
+  
+csd_umap <- umap(csd_map_data, random_state = 200)
+
+csd_umap$layout %>% 
+  scale() %>% 
+  as_data_frame() %>% 
+  bind_cols(csd_labels) %>% 
+  clean_names2() %>% 
+  ggplot(., aes(x = V1, y = V2)) +
+  geom_point(data = . %>% filter(`Region Name` == "Canada"), colour = "#BF0070", size = 30, alpha = 0.750, shape = 21) +
+  geom_point(data = . %>% filter(`Region Name` == "Canada"), colour = "#BF0070", size = 60, alpha = 0.750, shape = 21) +
+  geom_point(data = . %>% filter(`Region Name` == "Canada"), colour = "#BF0070", size = 90, alpha = 0.750, shape = 21) +
+  geom_point() +
+  geom_label_repel(data = . %>% filter(`Region Name` != "Canada"), aes(label = `Region Name`), fill = "grey90", colour = "black", size = 1.5, ) +
+  geom_point(data = . %>% filter(`Region Name` == "Canada"), colour = "#BF0070", size = 3) +
+  theme_lato() +
+  theme(panel.grid = element_blank(),
+        axis.text = element_blank()) +
+  labs(title = "",
+       subtitle = "Circles indicate multi-dimensional closeness to Canada mix based on age groups,\n visible minority, education, immigration status, household tenure, and commute",
+       caption = "@dshkol | Source: Statistics Canada, Census 2016",
+       x = "", y = "")
+```
+The advantage of this approach is it shows both the similarity and dissimilarity of these CSDs to the national mix, but it also can be interpreted to show similarity and dissimilarity of these CSDs from one another. Richmond and Richmond Hill have high similarity to another one, as do Sherbrooke and St. John's, but the same visual layout shows that Sherbrooke and Richmond Hill have very different compositions from one another. 
+
+### Show us the guts
+
+The code for getting Census data, transforming it, and calculating the similarity scores is below. The code for this entire page is, as always, view-able on Github. The UMAP visualization takes advantage of the excellent [umap](https://cran.r-project.org/web/packages/umap/vignettes/umap.html) R package. 
+```{r echo=TRUE, eval=FALSE}
+# Load required packages
+library(cancensus)
+library(dplyr)
+library(tidyr)
+
+# Generate list of Census Subdivisions in Canada with pop >= 100000
+csdlist <- list_census_regions("CA16") %>% 
+  filter(pop >= 10000, level == "CSD") %>% 
+  as_census_region_list()
+
+# Get region code for Canada-wide region
+national_region <- list_census_regions("CA16") %>% filter(level == "C") %>% as_census_region_list()
+
+# Convenience function to tidy up CSD names
+clean_names2 <- function (dfr) {
+  dfr <- dfr %>% mutate(`Region Name` = as.character(`Region Name`))
+  replacement <- dfr %>% mutate(`Region Name` = gsub(" \\(.*\\)", 
+                                                     "", `Region Name`)) %>% pull(`Region Name`)
+  duplicated_rows <- c(which(duplicated(replacement, fromLast = TRUE)), 
+                       which(duplicated(replacement, fromLast = FALSE)))
+  replacement[duplicated_rows] <- dfr$`Region Name`[duplicated_rows]
+  dfr$`Region Name` <- factor(replacement)
+  dfr
+}
+
+# Identify appropriate vector codes 
+# 0-14, 15-29, 30-44, 45-64, 65+
+age_vectors <- c("v_CA16_1", "v_CA16_4", "v_CA16_64", "v_CA16_82","v_CA16_100",
+          "v_CA16_118","v_CA16_136", "v_CA16_154","v_CA16_172","v_CA16_190",
+          "v_CA16_208","v_CA16_226","v_CA16_244")
+
+# Visible minorities vectors
+parent_vector <- "v_CA16_3954"
+minorities <- list_census_vectors("CA16") %>% 
+  filter(vector == "v_CA16_3954") %>% 
+  child_census_vectors(leaves_only = TRUE) %>% 
+  pull(vector)
+minority_vectors <- c(parent_vector, minorities)
+
+# Education vectors - uses only data for population aged 25 and over. 
+# no diploma, high-school, post-secondary certificate, university diploma or higher
+educ_vectors <- c("v_CA16_5096", "v_CA16_5099", "v_CA16_5102", "v_CA16_5105", "v_CA16_5123")
+
+# Immigration status vectors
+imm_vectors <- c("v_CA16_3405","v_CA16_3408","v_CA16_3411","v_CA16_3435")
+
+# Tenure vectors
+ten_vectors <- c("v_CA16_4836","v_CA16_4837","v_CA16_4838","v_CA16_4839")
+
+# Commute vectors
+com_vectors <- c("v_CA16_5792","v_CA16_5795","v_CA16_5798","v_CA16_5801",
+                 "v_CA16_5804","v_CA16_5807")
+
+# Mobility vectors
+#mob_vectors <- c("v_CA16_6692", "v_CA16_6707","v_CA16_6716")
+
+# Coerce all vectors requested together
+demo_vectors <- c(age_vectors, minority_vectors, educ_vectors, imm_vectors, ten_vectors, com_vectors)
+
+# Download census data for national level
+national <- get_census("CA16", level = "C", regions = national_region, vectors = demo_vectors, labels = "short")
+
+# Group vectors where appropriate and calculate proportions
+national_demo <- national %>% 
+  mutate(age_014 = v_CA16_4/v_CA16_1,
+         age_1529 = (v_CA16_64 + v_CA16_64 + v_CA16_82 + v_CA16_100)/v_CA16_1,
+         age_3044 = (v_CA16_118 + v_CA16_136 + v_CA16_154)/v_CA16_1,
+         age_4564 = (v_CA16_172 + v_CA16_190 + v_CA16_208 + v_CA16_226)/v_CA16_1,
+         age_65p = v_CA16_244/v_CA16_1,
+         min_white = v_CA16_3996/v_CA16_3954,
+         min_sasian = v_CA16_3960/v_CA16_3954,
+         min_chinese = v_CA16_3963/v_CA16_3954,
+         min_black = v_CA16_3966/v_CA16_3954,
+         min_filipino = v_CA16_3969/v_CA16_3954,
+         min_latinam = v_CA16_3972/v_CA16_3954,
+         min_arab = v_CA16_3975/v_CA16_3954,
+         min_seasian = v_CA16_3978/v_CA16_3954,
+         min_wasian = v_CA16_3981/v_CA16_3954,
+         min_korean = v_CA16_3984/v_CA16_3954,
+         min_japanese = v_CA16_3987/v_CA16_3954,
+         min_oth = v_CA16_3990/v_CA16_3954,
+         educ_nohs = v_CA16_5099/v_CA16_5096,
+         educ_hs = v_CA16_5102/v_CA16_5096,
+         educ_dip = v_CA16_5105/v_CA16_5096,
+         educ_uni = v_CA16_5123/v_CA16_5096,
+         imm_nat = v_CA16_3408/v_CA16_3405,
+         imm_imm = v_CA16_3411/v_CA16_3405,
+         imm_non = v_CA16_3435/v_CA16_3405,
+         ten_own = v_CA16_4837/v_CA16_4836,
+         ten_rent = v_CA16_4838/v_CA16_4836,
+         ten_band = v_CA16_4839/v_CA16_4836,
+         com_car = (v_CA16_5795 + v_CA16_5798)/v_CA16_5792,
+         com_trans = v_CA16_5801/v_CA16_5792,
+         com_walk = v_CA16_5804/v_CA16_5792,
+         com_bike = v_CA16_5807/v_CA16_5792) %>% 
+  select(GeoUID, `Region Name`, pop = Population, starts_with("age"), starts_with("min"), starts_with("educ"),
+         starts_with("imm"), starts_with("ten"), starts_with("com"))
+
+# Get demographic vectors for all selected csds
+csds <- get_census("CA16", level = "CSD", regions = csdlist, vectors = demo_vectors, labels = "short")
+
+# adjust into groups and calculate proportions - same as above. 
+csds <- csds %>% 
+  mutate(age_014 = v_CA16_4/v_CA16_1,
+         age_1529 = (v_CA16_64 + v_CA16_64 + v_CA16_82 + v_CA16_100)/v_CA16_1,
+         age_3044 = (v_CA16_118 + v_CA16_136 + v_CA16_154)/v_CA16_1,
+         age_4564 = (v_CA16_172 + v_CA16_190 + v_CA16_208 + v_CA16_226)/v_CA16_1,
+         age_65p = v_CA16_244/v_CA16_1,
+         min_white = v_CA16_3996/v_CA16_3954,
+         min_sasian = v_CA16_3960/v_CA16_3954,
+         min_chinese = v_CA16_3963/v_CA16_3954,
+         min_black = v_CA16_3966/v_CA16_3954,
+         min_filipino = v_CA16_3969/v_CA16_3954,
+         min_latinam = v_CA16_3972/v_CA16_3954,
+         min_arab = v_CA16_3975/v_CA16_3954,
+         min_seasian = v_CA16_3978/v_CA16_3954,
+         min_wasian = v_CA16_3981/v_CA16_3954,
+         min_korean = v_CA16_3984/v_CA16_3954,
+         min_japanese = v_CA16_3987/v_CA16_3954,
+         min_oth = v_CA16_3990/v_CA16_3954,
+         educ_nohs = v_CA16_5099/v_CA16_5096,
+         educ_hs = v_CA16_5102/v_CA16_5096,
+         educ_dip = v_CA16_5105/v_CA16_5096,
+         educ_uni = v_CA16_5123/v_CA16_5096,
+         imm_nat = v_CA16_3408/v_CA16_3405,
+         imm_imm = v_CA16_3411/v_CA16_3405,
+         imm_non = v_CA16_3435/v_CA16_3405,
+         ten_own = v_CA16_4837/v_CA16_4836,
+         ten_rent = v_CA16_4838/v_CA16_4836,
+         ten_band = v_CA16_4839/v_CA16_4836,
+         com_car = (v_CA16_5795 + v_CA16_5798)/v_CA16_5792,
+         com_trans = v_CA16_5801/v_CA16_5792,
+         com_walk = v_CA16_5804/v_CA16_5792,
+         com_bike = v_CA16_5807/v_CA16_5792) %>% 
+  select(GeoUID, `Region Name`, pop = Population, starts_with("age"), starts_with("min"), starts_with("educ"),
+         starts_with("imm"), starts_with("ten"), starts_with("com"))
+
+# Finally, calculate pairwise dissimilarity between each CSD and the national rates using a Euclidian distance measurement and then calculate an index value for how closely similar or not CSDs are to national rates.
+diss <- bind_rows(national_demo, csds) %>% 
+  mutate_at(vars(age_014:com_bike), funs((.- first(.))^2)) %>% 
+  tidyr::gather(vars, values, age_014:com_bike) %>% 
+  group_by(`Region Name`, pop) %>% 
+  summarise(index = sqrt(sum(values))) %>% 
+  mutate(sim = (1/(1+index)*100)) %>% 
+  ungroup() %>% 
+  filter(`Region Name` != "Canada") %>% 
+  clean_names2()
+```

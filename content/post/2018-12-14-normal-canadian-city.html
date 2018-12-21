@@ -1,0 +1,4953 @@
+---
+title: 'What is the most "normal" city in Canada?'
+author: ''
+date: '2018-12-21'
+slug: normal-canadian-city
+twitterImg: post/2018-12-14-normal-canadian-city/figure-html/hamilton-1.png
+description: ""
+categories:
+  - blog
+  - analysis
+  - census
+tags:
+  - census
+  - cancensus
+  - r
+draft: yes
+---
+
+<script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
+
+
+<div id="what-does-it-mean-to-be-normal" class="section level3">
+<h3>What does it mean to be “normal”?</h3>
+<p>Consider for a moment the quintessential Canadian city. What does that image in your head look like? Are there outdoor rinks, wheat fields, and abundant Timmies? Does your mental image include a yoga studio, a dispensary, and a third-wave coffee shop? Canadians like to celebrate a self-constructed identity of diversity-<em>the cultural mosaic</em>- that is punctuated with conspicuous Canadiana that binds everything together. Canada is a highly urbanized country–it is a nation of cities, and while every Canadian city has elements that scream “Canada!”, is there a city that can stand above the rest and definitely claim to be the most quintessentially Canadian city of them all?</p>
+<p>One way of approaching a question like this would be to define some kind of criteria that best represents this Canadian essence–but that would be hard and, truthfully, rather icky. The idea of the “normal” place is a common rhetorical approach often used to conjure up an image of a majority-dominant heartland that truly represents the values of a country. You can see this in politics all the time: cities are more diverse and heterogeneous than rural places, and, in many industrialized countries, account for the majority of the population, but are seldom viewed as representative of a country’s characteristics.</p>
+</div>
+<div id="a-more-data-driven-approach" class="section level3">
+<h3>A more data-driven approach</h3>
+<p>So instead of a selecting for some arbitrary characteristics that define what the Canadian “normal” is, let’s take a data-driven approach. Fortunately, this <a href="https://fivethirtyeight.com/features/normal-america-is-not-a-small-town-of-white-people/">FiveThirtyEight</a> article by the economist <a href="http://jedkolko.com">Jed Kolko</a> looking at identifying the most “normal” place in America provides a good template to start. The motivation behind the FiveThirtyEight article is simple: there is a disconnect between what pundits and some politicians view as representative of a “normal America” and what actual demographics say. The most “normal” place in America is not Oshkosh, Wisconsin but New Haven, Connecticut. Kolko’s approach is pretty simple as it relies on a quantitative analysis of demographics across US metros using age, education, and race as key indicators. The demographic mix of each metro area is compared against the demographic mix of the US as a whole using a dissimilarity index across every combination of selected demographic indicators from the American Community Survey.</p>
+<p>We can do something similar using Canadian data. While we lack the crosstabs across Census values to apply the exact same methodology as the <a href="https://fivethirtyeight.com/features/normal-america-is-not-a-small-town-of-white-people/">FiveThirtyEight</a> article, a roughly similar approach can be taken by calculating the proportion or incidence of selected Census demographic or behavioral values for a given place and comparing it to a national benchmark. The cumulative sum of the geometric distance between the values for the national rate and that of the selected place provides an indication of similarity or dissimilarity. The most “normal” city in Canada will be the city that has the most similar demographic and characteristic makeup to the national benchmark.</p>
+<p>The code chunk for this post is at the bottom of the page and the similarity calculations are contained in the last few lines of code.</p>
+</div>
+<div id="the-demographic-mix" class="section level3">
+<h3>The demographic mix</h3>
+<p>While the <a href="https://fivethirtyeight.com/features/normal-america-is-not-a-small-town-of-white-people/">FiveThirtyEight</a> article looks at age, education, and race only, we have the entire range of Canadian Census values to work with. This distinction is important because the result of any similarity calculation like the one in this post will depend on the variables that are selected. Using all available Census variables is not feasible, but we can go beyond age, education, and visible minority groups to also include immigration status, household tenure type, and commute types to capture some additional indicators that define how a city looks and feels. Income variables are not used here for several reasons: one, they are likely to be highly correlated with other variables that are included like education and household tenure; and, two, income can vary across cities, regions, and provinces for many reasons that can be specific to those places. Age and education variables are collapsed into broader groups to streamline things a bit.</p>
+</div>
+<div id="census-subdivisions" class="section level3">
+<h3>Census subdivisions</h3>
+<p>Census subdivisions are a standard <a href="https://www12.statcan.gc.ca/census-recensement/2011/ref/dict/geo012-eng.cfm">Statistics Canada geographic area</a> that represents municipalities or areas deemed to be equivalent such as indigenous reserves. Using Census subdivisions instead of Census Metropolitan areas provides more granularity and more interesting results–there are some very different demographic mixes in the different cities that make up the <a href="https://www.reddit.com/r/dataisbeautiful/comments/8yv8cf/distribution_of_the_top_nonofficial_languages/">Greater Toronto Area</a> that could average out at the metro area. The latest Census has data for 5,148 Census subdivisions, though most of these are areas with very low population. Similarity is calculated here for the 413 subdivisions with population of 10,000 or more.</p>
+</div>
+<div id="the-most-normal-places-in-canada" class="section level3">
+<h3>The most “normal” places in Canada</h3>
+<p>Using geometric distances between demographic and characteristic compositions the most “normal” or most representative municipality in Canada is Hamilton, Ontario. Guelph, London, Winnipeg, and Kitchener round out the bottom five.</p>
+<table class="table table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Municipality
+</th>
+<th style="text-align:right;">
+Population
+</th>
+<th style="text-align:right;">
+Similarity Score
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Hamilton
+</td>
+<td style="text-align:right;">
+536,917
+</td>
+<td style="text-align:right;">
+91.6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Guelph
+</td>
+<td style="text-align:right;">
+131,794
+</td>
+<td style="text-align:right;">
+89.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+London
+</td>
+<td style="text-align:right;">
+383,822
+</td>
+<td style="text-align:right;">
+88.0
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Winnipeg
+</td>
+<td style="text-align:right;">
+705,244
+</td>
+<td style="text-align:right;">
+87.4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kitchener
+</td>
+<td style="text-align:right;">
+233,222
+</td>
+<td style="text-align:right;">
+86.5
+</td>
+</tr>
+</tbody>
+<tfoot>
+<tr>
+<td style="padding: 0; border: 0;" colspan="100%">
+<span style="font-style: italic;">Note: </span>
+</td>
+</tr>
+<tr>
+<td style="padding: 0; border: 0;" colspan="100%">
+<sup></sup> Source: Statistics Canada Census 2016.<br> Similarity score calculated using a combination of<br> demographic and characteristic Census variables as<br> compared with national rates.
+</td>
+</tr>
+</tfoot>
+</table>
+</div>
+<div id="model-of-a-modern-canadian-city" class="section level3">
+<h3>Model of a modern Canadian city</h3>
+<center>
+<img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Hamilton-5145.jpg" alt="Hamilton!" />
+<em>Photograph of downtown Hamilton, Ontario taken from Sam Lawrence Park, Wikipedia CC BY-SA 2.5</em>
+</center>
+<p>Hamilton has almost identical proportions to Canada as a whole for almost every variable looked at in calculating the score. Like Canada overall, the majority of the population falls into either the 45-64 or 15-29 groups that represent the Boomer and Millennial mega-generations. Educational attainment similar with the majority of people living in Canada possessing a post-secondary diploma below a university degree. The individual proportions of visible minority groups is remarkably similar as almost every group has a share of the population that falls within 1% of the national proporton.
+<img src="/post/2018-12-14-normal-canadian-city_files/figure-html/hamilton-1.png" width="100%" />
+Compare this with the city of Vancouver, below, which drastically differs from the national averages in across all categories. Vancouver has fewer children under 15, more university educated people, a far higher incidence of renters and immigrants, and a far lower incidence of commuting by car.
+<img src="/post/2018-12-14-normal-canadian-city_files/figure-html/vancouver-1.png" width="100%" />
+Canada’s major population centres: the GTA, Montreal, and the Lower Mainland all tend to have a higher educational attainment, different commuting patterns, more renters, and much more visible diversity. Because these few metropolitan regions account for so much of the national population, they will skew the national rates to reflect these differences.</p>
+<p>Of the most similar cities on the list, the first 9 municipalities all have larger populations. The smaller towns with high similarity scores, View Royal, BC and L’Île-Perrot, QC are extended suburbs of Victoria and Montreal, respectively. If the objective of something like this is to find the definitive small Canadian town with the demographic mix that best represents the country and is not within the immediate geographic influence of a larger metropolitan area, you have to wait to the 24-th ranked city on the list, Brandon, MB. This is not unexpected as any Canadian average will be significantly weighted by larger metropolitan areas that tend to be more educated and more diverse than smaller cities outside of core metro areas.</p>
+<table class="table table-hover table-condensed" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Municipality
+</th>
+<th style="text-align:right;">
+Population
+</th>
+<th style="text-align:right;">
+Similarity Score
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Châteauguay
+</td>
+<td style="text-align:right;">
+47,906
+</td>
+<td style="text-align:right;">
+82.8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Brandon
+</td>
+<td style="text-align:right;">
+48,859
+</td>
+<td style="text-align:right;">
+81.6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Vaudreuil-Dorion
+</td>
+<td style="text-align:right;">
+38,117
+</td>
+<td style="text-align:right;">
+81.4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Whitehorse
+</td>
+<td style="text-align:right;">
+25,085
+</td>
+<td style="text-align:right;">
+81.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Langford
+</td>
+<td style="text-align:right;">
+35,342
+</td>
+<td style="text-align:right;">
+80.7
+</td>
+</tr>
+</tbody>
+<tfoot>
+<tr>
+<td style="padding: 0; border: 0;" colspan="100%">
+<span style="font-style: italic;">Note: </span>
+</td>
+</tr>
+<tr>
+<td style="padding: 0; border: 0;" colspan="100%">
+<sup></sup> Source: Statistics Canada Census 2016
+</td>
+</tr>
+</tfoot>
+</table>
+</div>
+<div id="find-your-city" class="section level3">
+<h3>Find your city</h3>
+<p>You can scroll the full table below which has the similarity scores for all Canadian municipalities and municipality-like regions with populations above 10,000.</p>
+<div style="border: 1px solid #ddd; padding: 5px; overflow-y: scroll; height:300px; overflow-x: scroll; width:100%; ">
+<table class="table table-hover table-condensed" style="margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Municipality
+</th>
+<th style="text-align:right;">
+Population
+</th>
+<th style="text-align:left;">
+Similarity Score
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Hamilton (C)
+</td>
+<td style="text-align:right;">
+536,917
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(0, 0, 4, 1);">91.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Guelph
+</td>
+<td style="text-align:right;">
+131,794
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(8, 7, 30, 1);">89.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+London
+</td>
+<td style="text-align:right;">
+383,822
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(16, 11, 45, 1);">88.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Winnipeg
+</td>
+<td style="text-align:right;">
+705,244
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(19, 13, 52, 1);">87.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kitchener
+</td>
+<td style="text-align:right;">
+233,222
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(25, 16, 63, 1);">86.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saskatoon
+</td>
+<td style="text-align:right;">
+246,376
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(26, 16, 66, 1);">86.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Laval
+</td>
+<td style="text-align:right;">
+422,993
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(29, 17, 71, 1);">86.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saanich
+</td>
+<td style="text-align:right;">
+114,148
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(29, 17, 71, 1);">85.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Regina
+</td>
+<td style="text-align:right;">
+215,106
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(30, 17, 73, 1);">85.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+View Royal
+</td>
+<td style="text-align:right;">
+10,408
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(33, 17, 78, 1);">85.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+L’Île-Perrot
+</td>
+<td style="text-align:right;">
+10,756
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(45, 17, 97, 1);">84.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Pitt Meadows
+</td>
+<td style="text-align:right;">
+18,573
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(47, 17, 99, 1);">83.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+St. Catharines
+</td>
+<td style="text-align:right;">
+133,113
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(52, 16, 105, 1);">83.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Windsor
+</td>
+<td style="text-align:right;">
+217,188
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(56, 16, 108, 1);">83.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Oshawa
+</td>
+<td style="text-align:right;">
+159,458
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(57, 15, 110, 1);">82.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Châteauguay
+</td>
+<td style="text-align:right;">
+47,906
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(57, 15, 110, 1);">82.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Gatineau
+</td>
+<td style="text-align:right;">
+276,245
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(61, 15, 113, 1);">82.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dorval
+</td>
+<td style="text-align:right;">
+18,980
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(63, 15, 114, 1);">82.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kelowna
+</td>
+<td style="text-align:right;">
+127,380
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(63, 15, 114, 1);">82.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Newmarket
+</td>
+<td style="text-align:right;">
+84,224
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(64, 15, 116, 1);">82.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Nanaimo
+</td>
+<td style="text-align:right;">
+90,504
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(66, 15, 117, 1);">82.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Burlington
+</td>
+<td style="text-align:right;">
+183,314
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(66, 15, 117, 1);">81.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Squamish
+</td>
+<td style="text-align:right;">
+19,512
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(66, 15, 117, 1);">81.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Brandon
+</td>
+<td style="text-align:right;">
+48,859
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(68, 15, 118, 1);">81.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lethbridge
+</td>
+<td style="text-align:right;">
+92,729
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(69, 16, 119, 1);">81.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Vaudreuil-Dorion
+</td>
+<td style="text-align:right;">
+38,117
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(71, 16, 120, 1);">81.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Edmonton
+</td>
+<td style="text-align:right;">
+932,546
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(73, 16, 120, 1);">81.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cambridge
+</td>
+<td style="text-align:right;">
+129,920
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(73, 16, 120, 1);">81.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Whitehorse
+</td>
+<td style="text-align:right;">
+25,085
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(73, 16, 120, 1);">81.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Red Deer
+</td>
+<td style="text-align:right;">
+100,418
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(76, 17, 122, 1);">80.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kingston
+</td>
+<td style="text-align:right;">
+123,798
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(78, 17, 123, 1);">80.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Langford
+</td>
+<td style="text-align:right;">
+35,342
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(78, 17, 123, 1);">80.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Niagara Falls
+</td>
+<td style="text-align:right;">
+88,071
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(79, 18, 123, 1);">80.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Port Coquitlam
+</td>
+<td style="text-align:right;">
+58,612
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(79, 18, 123, 1);">80.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Barrie
+</td>
+<td style="text-align:right;">
+141,434
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(82, 19, 124, 1);">80.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Whitby
+</td>
+<td style="text-align:right;">
+128,377
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(82, 19, 124, 1);">80.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Maple Ridge
+</td>
+<td style="text-align:right;">
+82,256
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(86, 20, 125, 1);">79.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Langley (CY)
+</td>
+<td style="text-align:right;">
+25,888
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(86, 20, 125, 1);">79.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+La Prairie
+</td>
+<td style="text-align:right;">
+24,110
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(87, 21, 126, 1);">79.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+White Rock
+</td>
+<td style="text-align:right;">
+19,952
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(89, 21, 126, 1);">79.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ottawa
+</td>
+<td style="text-align:right;">
+934,243
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(89, 21, 126, 1);">79.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Halifax
+</td>
+<td style="text-align:right;">
+403,131
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(89, 21, 126, 1);">79.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Calgary
+</td>
+<td style="text-align:right;">
+1,239,220
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(92, 22, 127, 1);">79.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Longueuil
+</td>
+<td style="text-align:right;">
+239,700
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(93, 23, 127, 1);">78.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Terrace
+</td>
+<td style="text-align:right;">
+11,643
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(93, 23, 127, 1);">78.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Colwood
+</td>
+<td style="text-align:right;">
+16,859
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(100, 26, 128, 1);">78.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Pointe-Claire
+</td>
+<td style="text-align:right;">
+31,380
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(100, 26, 128, 1);">78.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kamloops
+</td>
+<td style="text-align:right;">
+90,280
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(100, 26, 128, 1);">78.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Langley (DM)
+</td>
+<td style="text-align:right;">
+117,285
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(100, 26, 128, 1);">78.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Waterloo
+</td>
+<td style="text-align:right;">
+104,986
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(104, 28, 129, 1);">77.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sarnia
+</td>
+<td style="text-align:right;">
+71,594
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(104, 28, 129, 1);">77.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Peterborough
+</td>
+<td style="text-align:right;">
+81,032
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(106, 28, 129, 1);">77.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Brantford
+</td>
+<td style="text-align:right;">
+97,496
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(109, 29, 129, 1);">77.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Delta
+</td>
+<td style="text-align:right;">
+102,238
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(110, 30, 129, 1);">77.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Courtenay
+</td>
+<td style="text-align:right;">
+25,599
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(110, 30, 129, 1);">77.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Canmore
+</td>
+<td style="text-align:right;">
+13,992
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(110, 30, 129, 1);">77.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Deux-Montagnes
+</td>
+<td style="text-align:right;">
+17,496
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(110, 30, 129, 1);">76.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Thorold
+</td>
+<td style="text-align:right;">
+18,801
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(110, 30, 129, 1);">76.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Thunder Bay
+</td>
+<td style="text-align:right;">
+107,909
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(110, 30, 129, 1);">76.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Port Moody
+</td>
+<td style="text-align:right;">
+33,551
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(110, 30, 129, 1);">76.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+North Battleford
+</td>
+<td style="text-align:right;">
+14,315
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(112, 31, 129, 1);">76.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Central Saanich
+</td>
+<td style="text-align:right;">
+16,814
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(112, 31, 129, 1);">76.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Stratford
+</td>
+<td style="text-align:right;">
+31,465
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(112, 31, 129, 1);">76.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Prince George
+</td>
+<td style="text-align:right;">
+74,003
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(112, 31, 129, 1);">76.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Steinbach
+</td>
+<td style="text-align:right;">
+15,829
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(115, 32, 129, 1);">76.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Boisbriand
+</td>
+<td style="text-align:right;">
+26,884
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(115, 32, 129, 1);">76.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bradford West Gwillimbury
+</td>
+<td style="text-align:right;">
+35,325
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(117, 33, 129, 1);">76.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Moncton
+</td>
+<td style="text-align:right;">
+71,889
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(118, 33, 129, 1);">76.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lloydminster (Part) (CY)
+</td>
+<td style="text-align:right;">
+19,645
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(118, 33, 129, 1);">76.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Fredericton
+</td>
+<td style="text-align:right;">
+58,220
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(118, 33, 129, 1);">76.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Collingwood
+</td>
+<td style="text-align:right;">
+21,793
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(120, 34, 129, 1);">75.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+North Cowichan
+</td>
+<td style="text-align:right;">
+29,676
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(120, 34, 129, 1);">75.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Repentigny
+</td>
+<td style="text-align:right;">
+84,285
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(120, 34, 129, 1);">75.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saltspring Island
+</td>
+<td style="text-align:right;">
+10,557
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(120, 34, 129, 1);">75.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Penticton
+</td>
+<td style="text-align:right;">
+33,761
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(120, 34, 129, 1);">75.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Camrose
+</td>
+<td style="text-align:right;">
+18,742
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(121, 34, 130, 1);">75.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+St. John’s
+</td>
+<td style="text-align:right;">
+108,860
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(121, 34, 130, 1);">75.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sechelt
+</td>
+<td style="text-align:right;">
+10,216
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(121, 34, 130, 1);">75.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Vernon
+</td>
+<td style="text-align:right;">
+40,116
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(123, 35, 130, 1);">75.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saint-Eustache
+</td>
+<td style="text-align:right;">
+44,008
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(124, 35, 130, 1);">75.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lacombe
+</td>
+<td style="text-align:right;">
+13,057
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(124, 35, 130, 1);">75.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+High River
+</td>
+<td style="text-align:right;">
+13,584
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(124, 35, 130, 1);">75.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Yellowknife
+</td>
+<td style="text-align:right;">
+19,569
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(128, 37, 130, 1);">75.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sooke
+</td>
+<td style="text-align:right;">
+13,001
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(128, 37, 130, 1);">75.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Chilliwack
+</td>
+<td style="text-align:right;">
+83,788
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(128, 37, 130, 1);">75.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Comox
+</td>
+<td style="text-align:right;">
+14,028
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(129, 37, 129, 1);">74.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sault Ste. Marie
+</td>
+<td style="text-align:right;">
+73,368
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(129, 37, 129, 1);">74.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Terrebonne
+</td>
+<td style="text-align:right;">
+111,575
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(131, 38, 129, 1);">74.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Orangeville
+</td>
+<td style="text-align:right;">
+28,900
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(131, 38, 129, 1);">74.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cold Lake
+</td>
+<td style="text-align:right;">
+14,961
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(131, 38, 129, 1);">74.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Aurora
+</td>
+<td style="text-align:right;">
+55,445
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(131, 38, 129, 1);">74.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Prince Rupert
+</td>
+<td style="text-align:right;">
+12,220
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(131, 38, 129, 1);">74.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+King
+</td>
+<td style="text-align:right;">
+24,512
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(131, 38, 129, 1);">74.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sainte-Catherine
+</td>
+<td style="text-align:right;">
+17,047
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(131, 38, 129, 1);">74.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saint-Constant
+</td>
+<td style="text-align:right;">
+27,359
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(132, 38, 129, 1);">74.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Greater Sudbury
+</td>
+<td style="text-align:right;">
+161,531
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(132, 38, 129, 1);">74.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Wood Buffalo
+</td>
+<td style="text-align:right;">
+71,589
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(132, 38, 129, 1);">74.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cobourg
+</td>
+<td style="text-align:right;">
+19,440
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(132, 38, 129, 1);">74.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Yorkton
+</td>
+<td style="text-align:right;">
+16,343
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(132, 38, 129, 1);">74.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Belleville
+</td>
+<td style="text-align:right;">
+50,716
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(132, 38, 129, 1);">74.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Swift Current
+</td>
+<td style="text-align:right;">
+16,604
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(134, 39, 129, 1);">74.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Weyburn
+</td>
+<td style="text-align:right;">
+10,870
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(134, 39, 129, 1);">74.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Pincourt
+</td>
+<td style="text-align:right;">
+14,558
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(134, 39, 129, 1);">74.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Campbell River
+</td>
+<td style="text-align:right;">
+32,588
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(134, 39, 129, 1);">74.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cranbrook
+</td>
+<td style="text-align:right;">
+20,047
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(134, 39, 129, 1);">74.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mission
+</td>
+<td style="text-align:right;">
+38,833
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(136, 39, 129, 1);">74.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Abbotsford
+</td>
+<td style="text-align:right;">
+141,397
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(136, 39, 129, 1);">74.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Leduc
+</td>
+<td style="text-align:right;">
+29,993
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(136, 39, 129, 1);">74.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+North Vancouver (DM)
+</td>
+<td style="text-align:right;">
+85,935
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(136, 39, 129, 1);">74.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Medicine Hat
+</td>
+<td style="text-align:right;">
+63,260
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(136, 39, 129, 1);">74.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Prince Albert
+</td>
+<td style="text-align:right;">
+35,926
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(137, 40, 129, 1);">73.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Carleton Place
+</td>
+<td style="text-align:right;">
+10,644
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(137, 40, 129, 1);">73.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lake Country
+</td>
+<td style="text-align:right;">
+12,922
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(137, 40, 129, 1);">73.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Grande Prairie
+</td>
+<td style="text-align:right;">
+63,166
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(137, 40, 129, 1);">73.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+St. Albert
+</td>
+<td style="text-align:right;">
+65,589
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(137, 40, 129, 1);">73.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Halton Hills
+</td>
+<td style="text-align:right;">
+61,161
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(137, 40, 129, 1);">73.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Wetaskiwin
+</td>
+<td style="text-align:right;">
+12,655
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(137, 40, 129, 1);">73.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Moose Jaw
+</td>
+<td style="text-align:right;">
+33,890
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(139, 41, 129, 1);">73.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Welland
+</td>
+<td style="text-align:right;">
+52,293
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(139, 41, 129, 1);">73.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Orillia
+</td>
+<td style="text-align:right;">
+31,166
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(139, 41, 129, 1);">73.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+North Bay
+</td>
+<td style="text-align:right;">
+51,553
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(139, 41, 129, 1);">73.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Estevan
+</td>
+<td style="text-align:right;">
+11,483
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(139, 41, 129, 1);">73.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kincardine
+</td>
+<td style="text-align:right;">
+11,389
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(140, 41, 129, 1);">73.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saugeen Shores
+</td>
+<td style="text-align:right;">
+13,715
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(140, 41, 129, 1);">73.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Charlottetown
+</td>
+<td style="text-align:right;">
+36,094
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(142, 42, 129, 1);">73.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Fort St. John
+</td>
+<td style="text-align:right;">
+20,155
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(142, 42, 129, 1);">73.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dawson Creek
+</td>
+<td style="text-align:right;">
+12,178
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(142, 42, 129, 1);">73.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lloydminster (Part) (CY)
+</td>
+<td style="text-align:right;">
+11,765
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(142, 42, 129, 1);">73.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Chambly
+</td>
+<td style="text-align:right;">
+29,120
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(144, 42, 129, 1);">73.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Salmon Arm
+</td>
+<td style="text-align:right;">
+17,706
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(144, 42, 129, 1);">73.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Fort Saskatchewan
+</td>
+<td style="text-align:right;">
+24,149
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(144, 42, 129, 1);">73.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Okotoks
+</td>
+<td style="text-align:right;">
+28,881
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(145, 43, 129, 1);">73.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dollard-Des Ormeaux
+</td>
+<td style="text-align:right;">
+48,899
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(145, 43, 129, 1);">73.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Woodstock
+</td>
+<td style="text-align:right;">
+40,902
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(145, 43, 129, 1);">73.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Airdrie
+</td>
+<td style="text-align:right;">
+61,581
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(147, 43, 128, 1);">73.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Powell River
+</td>
+<td style="text-align:right;">
+13,157
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(147, 43, 128, 1);">72.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Nelson
+</td>
+<td style="text-align:right;">
+10,572
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(147, 43, 128, 1);">72.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+West Kelowna
+</td>
+<td style="text-align:right;">
+32,655
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(147, 43, 128, 1);">72.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saint John
+</td>
+<td style="text-align:right;">
+67,575
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(147, 43, 128, 1);">72.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+St. Thomas
+</td>
+<td style="text-align:right;">
+38,909
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(148, 44, 128, 1);">72.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+East Gwillimbury
+</td>
+<td style="text-align:right;">
+23,991
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(148, 44, 128, 1);">72.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Grimsby
+</td>
+<td style="text-align:right;">
+27,314
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(148, 44, 128, 1);">72.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Port Hope
+</td>
+<td style="text-align:right;">
+16,753
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(148, 44, 128, 1);">72.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Blainville
+</td>
+<td style="text-align:right;">
+56,863
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(148, 44, 128, 1);">72.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sherbrooke
+</td>
+<td style="text-align:right;">
+161,323
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(148, 44, 128, 1);">72.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Québec
+</td>
+<td style="text-align:right;">
+531,902
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(150, 44, 128, 1);">72.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sidney
+</td>
+<td style="text-align:right;">
+11,672
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(150, 44, 128, 1);">72.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dieppe
+</td>
+<td style="text-align:right;">
+25,384
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(150, 44, 128, 1);">72.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Caledon
+</td>
+<td style="text-align:right;">
+66,502
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(153, 45, 128, 1);">72.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Strathmore
+</td>
+<td style="text-align:right;">
+13,756
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(153, 45, 128, 1);">72.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Fort Erie
+</td>
+<td style="text-align:right;">
+30,710
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(153, 45, 128, 1);">72.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Uxbridge
+</td>
+<td style="text-align:right;">
+21,176
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(153, 45, 128, 1);">72.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Stony Plain
+</td>
+<td style="text-align:right;">
+17,189
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(153, 45, 128, 1);">72.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Port Alberni
+</td>
+<td style="text-align:right;">
+17,678
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(153, 45, 128, 1);">72.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Williams Lake
+</td>
+<td style="text-align:right;">
+10,753
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(153, 45, 128, 1);">72.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Midland
+</td>
+<td style="text-align:right;">
+16,864
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(153, 45, 128, 1);">72.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Strathroy-Caradoc
+</td>
+<td style="text-align:right;">
+20,867
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(155, 46, 127, 1);">72.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Brockville
+</td>
+<td style="text-align:right;">
+21,346
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(155, 46, 127, 1);">72.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cochrane
+</td>
+<td style="text-align:right;">
+25,853
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(155, 46, 127, 1);">71.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Chatham-Kent
+</td>
+<td style="text-align:right;">
+101,647
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(155, 46, 127, 1);">71.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Centre Wellington
+</td>
+<td style="text-align:right;">
+28,191
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(155, 46, 127, 1);">71.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Spruce Grove
+</td>
+<td style="text-align:right;">
+34,066
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(156, 46, 127, 1);">71.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Beloeil
+</td>
+<td style="text-align:right;">
+22,458
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(156, 46, 127, 1);">71.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Woolwich
+</td>
+<td style="text-align:right;">
+25,006
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(156, 46, 127, 1);">71.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saint-Jean-sur-Richelieu
+</td>
+<td style="text-align:right;">
+95,114
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(158, 47, 127, 1);">71.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kenora
+</td>
+<td style="text-align:right;">
+15,096
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(158, 47, 127, 1);">71.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Esquimalt
+</td>
+<td style="text-align:right;">
+17,655
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(158, 47, 127, 1);">71.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sainte-Adèle
+</td>
+<td style="text-align:right;">
+12,919
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(158, 47, 127, 1);">71.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+L’Ancienne-Lorette
+</td>
+<td style="text-align:right;">
+16,543
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(158, 47, 127, 1);">71.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kings, Subd. B
+</td>
+<td style="text-align:right;">
+11,858
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(158, 47, 127, 1);">71.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Summerland
+</td>
+<td style="text-align:right;">
+11,615
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(158, 47, 127, 1);">71.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Tecumseh
+</td>
+<td style="text-align:right;">
+23,229
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(158, 47, 127, 1);">71.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+New Tecumseth
+</td>
+<td style="text-align:right;">
+34,242
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(160, 47, 127, 1);">71.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Whistler
+</td>
+<td style="text-align:right;">
+11,854
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(160, 47, 127, 1);">71.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Clarington
+</td>
+<td style="text-align:right;">
+92,013
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(160, 47, 127, 1);">71.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Timmins
+</td>
+<td style="text-align:right;">
+41,788
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(160, 47, 127, 1);">71.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Portage la Prairie
+</td>
+<td style="text-align:right;">
+13,304
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(161, 48, 126, 1);">71.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Owen Sound
+</td>
+<td style="text-align:right;">
+21,341
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(161, 48, 126, 1);">71.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+L’Assomption
+</td>
+<td style="text-align:right;">
+22,429
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(161, 48, 126, 1);">71.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mercier
+</td>
+<td style="text-align:right;">
+13,115
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(163, 48, 126, 1);">71.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mascouche
+</td>
+<td style="text-align:right;">
+46,692
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(163, 48, 126, 1);">71.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lévis
+</td>
+<td style="text-align:right;">
+143,414
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(163, 48, 126, 1);">71.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Riverview
+</td>
+<td style="text-align:right;">
+19,667
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(163, 48, 126, 1);">71.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lincoln
+</td>
+<td style="text-align:right;">
+23,787
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(163, 48, 126, 1);">71.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Whitchurch-Stouffville
+</td>
+<td style="text-align:right;">
+45,837
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(163, 48, 126, 1);">71.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Georgina
+</td>
+<td style="text-align:right;">
+45,418
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(165, 49, 126, 1);">71.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Meaford
+</td>
+<td style="text-align:right;">
+10,991
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(165, 49, 126, 1);">71.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saint-Sauveur
+</td>
+<td style="text-align:right;">
+10,231
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(165, 49, 126, 1);">70.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Pickering
+</td>
+<td style="text-align:right;">
+91,771
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(166, 49, 125, 1);">70.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lethbridge County
+</td>
+<td style="text-align:right;">
+10,353
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(166, 49, 125, 1);">70.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Varennes
+</td>
+<td style="text-align:right;">
+21,257
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(166, 49, 125, 1);">70.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Rouyn-Noranda
+</td>
+<td style="text-align:right;">
+42,334
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(168, 50, 125, 1);">70.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Gander
+</td>
+<td style="text-align:right;">
+11,688
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(168, 50, 125, 1);">70.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Port Colborne
+</td>
+<td style="text-align:right;">
+18,306
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(168, 50, 125, 1);">70.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Corner Brook
+</td>
+<td style="text-align:right;">
+19,806
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(168, 50, 125, 1);">70.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Parksville
+</td>
+<td style="text-align:right;">
+12,514
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(168, 50, 125, 1);">70.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Clarence-Rockland
+</td>
+<td style="text-align:right;">
+24,512
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(168, 50, 125, 1);">70.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Edmundston
+</td>
+<td style="text-align:right;">
+16,580
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(168, 50, 125, 1);">70.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sainte-Marie
+</td>
+<td style="text-align:right;">
+13,565
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(168, 50, 125, 1);">70.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Candiac
+</td>
+<td style="text-align:right;">
+21,047
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(168, 50, 125, 1);">70.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Strathcona County
+</td>
+<td style="text-align:right;">
+98,044
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(168, 50, 125, 1);">70.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Tillsonburg
+</td>
+<td style="text-align:right;">
+15,872
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(168, 50, 125, 1);">70.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Niagara-on-the-Lake
+</td>
+<td style="text-align:right;">
+17,511
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(170, 51, 125, 1);">70.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sainte-Thérèse
+</td>
+<td style="text-align:right;">
+25,989
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(170, 51, 125, 1);">70.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Marieville
+</td>
+<td style="text-align:right;">
+10,725
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(170, 51, 125, 1);">70.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cape Breton
+</td>
+<td style="text-align:right;">
+94,285
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(171, 51, 124, 1);">70.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kingsville
+</td>
+<td style="text-align:right;">
+21,552
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(171, 51, 124, 1);">70.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Whitecourt
+</td>
+<td style="text-align:right;">
+10,204
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(171, 51, 124, 1);">70.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mount Pearl
+</td>
+<td style="text-align:right;">
+22,957
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(171, 51, 124, 1);">70.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mississippi Mills
+</td>
+<td style="text-align:right;">
+13,163
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(171, 51, 124, 1);">70.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Trois-Rivières
+</td>
+<td style="text-align:right;">
+134,413
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(171, 51, 124, 1);">70.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Leamington
+</td>
+<td style="text-align:right;">
+27,595
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(171, 51, 124, 1);">70.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Rimouski
+</td>
+<td style="text-align:right;">
+48,664
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(171, 51, 124, 1);">70.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bracebridge
+</td>
+<td style="text-align:right;">
+16,010
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(173, 52, 124, 1);">70.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Rocky View County
+</td>
+<td style="text-align:right;">
+39,407
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(173, 52, 124, 1);">70.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mirabel
+</td>
+<td style="text-align:right;">
+50,513
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(173, 52, 124, 1);">70.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Brossard
+</td>
+<td style="text-align:right;">
+85,721
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(173, 52, 124, 1);">70.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Victoriaville
+</td>
+<td style="text-align:right;">
+46,130
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(173, 52, 124, 1);">70.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Oakville
+</td>
+<td style="text-align:right;">
+193,832
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(173, 52, 124, 1);">70.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Huntsville
+</td>
+<td style="text-align:right;">
+19,816
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(173, 52, 124, 1);">70.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Norfolk County
+</td>
+<td style="text-align:right;">
+64,044
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(173, 52, 124, 1);">70.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Loyalist
+</td>
+<td style="text-align:right;">
+16,971
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(173, 52, 124, 1);">70.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Beaumont
+</td>
+<td style="text-align:right;">
+17,396
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(173, 52, 124, 1);">70.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Wilmot
+</td>
+<td style="text-align:right;">
+20,545
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(174, 52, 123, 1);">70.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Brooks
+</td>
+<td style="text-align:right;">
+14,451
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(174, 52, 123, 1);">69.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Miramichi
+</td>
+<td style="text-align:right;">
+17,537
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(174, 52, 123, 1);">69.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sept-Îles
+</td>
+<td style="text-align:right;">
+25,400
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(174, 52, 123, 1);">69.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Quinte West
+</td>
+<td style="text-align:right;">
+43,577
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(174, 52, 123, 1);">69.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Petawawa
+</td>
+<td style="text-align:right;">
+17,187
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(174, 52, 123, 1);">69.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Val-d’Or
+</td>
+<td style="text-align:right;">
+32,491
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(174, 52, 123, 1);">69.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Grand Falls-Windsor
+</td>
+<td style="text-align:right;">
+14,171
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(174, 52, 123, 1);">69.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Russell
+</td>
+<td style="text-align:right;">
+16,520
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(174, 52, 123, 1);">69.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+South Huron
+</td>
+<td style="text-align:right;">
+10,096
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(174, 52, 123, 1);">69.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sylvan Lake
+</td>
+<td style="text-align:right;">
+14,816
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(176, 53, 123, 1);">69.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Scugog
+</td>
+<td style="text-align:right;">
+21,617
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(176, 53, 123, 1);">69.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+North Saanich
+</td>
+<td style="text-align:right;">
+11,249
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(176, 53, 123, 1);">69.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sainte-Julie
+</td>
+<td style="text-align:right;">
+29,881
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(176, 53, 123, 1);">69.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Essa
+</td>
+<td style="text-align:right;">
+21,083
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(176, 53, 123, 1);">69.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Greater Napanee
+</td>
+<td style="text-align:right;">
+15,892
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(176, 53, 123, 1);">69.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+New Westminster
+</td>
+<td style="text-align:right;">
+70,996
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(176, 53, 123, 1);">69.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kings, Subd. A
+</td>
+<td style="text-align:right;">
+22,234
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(176, 53, 123, 1);">69.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ingersoll
+</td>
+<td style="text-align:right;">
+12,757
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(176, 53, 123, 1);">69.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Magog
+</td>
+<td style="text-align:right;">
+26,669
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(178, 53, 123, 1);">69.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Rawdon
+</td>
+<td style="text-align:right;">
+11,057
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(178, 53, 123, 1);">69.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Colchester, Subd. B
+</td>
+<td style="text-align:right;">
+19,534
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(178, 53, 123, 1);">69.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Foothills No. 31
+</td>
+<td style="text-align:right;">
+22,766
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(178, 53, 123, 1);">69.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Coldstream
+</td>
+<td style="text-align:right;">
+10,648
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(178, 53, 123, 1);">69.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Rosemère
+</td>
+<td style="text-align:right;">
+13,958
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(179, 54, 122, 1);">69.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Rothesay
+</td>
+<td style="text-align:right;">
+11,659
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(179, 54, 122, 1);">69.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Baie-Comeau
+</td>
+<td style="text-align:right;">
+21,536
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(179, 54, 122, 1);">69.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Gravenhurst
+</td>
+<td style="text-align:right;">
+12,311
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(179, 54, 122, 1);">69.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Prince Edward County
+</td>
+<td style="text-align:right;">
+24,735
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(179, 54, 122, 1);">69.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+North Dundas
+</td>
+<td style="text-align:right;">
+11,278
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(179, 54, 122, 1);">69.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Granby
+</td>
+<td style="text-align:right;">
+66,222
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(179, 54, 122, 1);">69.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Amherstburg
+</td>
+<td style="text-align:right;">
+21,936
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(179, 54, 122, 1);">69.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Selkirk
+</td>
+<td style="text-align:right;">
+10,278
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(179, 54, 122, 1);">69.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Erin
+</td>
+<td style="text-align:right;">
+11,439
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(179, 54, 122, 1);">69.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Brant
+</td>
+<td style="text-align:right;">
+36,707
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(179, 54, 122, 1);">69.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Innisfil
+</td>
+<td style="text-align:right;">
+36,566
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(179, 54, 122, 1);">69.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Pembroke
+</td>
+<td style="text-align:right;">
+13,882
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(179, 54, 122, 1);">69.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saint-Hyacinthe
+</td>
+<td style="text-align:right;">
+55,648
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(179, 54, 122, 1);">69.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mont-Saint-Hilaire
+</td>
+<td style="text-align:right;">
+18,585
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(179, 54, 122, 1);">69.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+North Perth
+</td>
+<td style="text-align:right;">
+13,130
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(181, 54, 122, 1);">69.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saguenay
+</td>
+<td style="text-align:right;">
+145,949
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(181, 54, 122, 1);">69.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Guelph/Eramosa
+</td>
+<td style="text-align:right;">
+12,854
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(181, 54, 122, 1);">69.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Beauharnois
+</td>
+<td style="text-align:right;">
+12,884
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(181, 54, 122, 1);">69.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Summerside
+</td>
+<td style="text-align:right;">
+14,829
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(181, 54, 122, 1);">69.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+North Dumfries
+</td>
+<td style="text-align:right;">
+10,215
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(181, 54, 122, 1);">69.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Amos
+</td>
+<td style="text-align:right;">
+12,823
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(181, 54, 122, 1);">69.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Chestermere
+</td>
+<td style="text-align:right;">
+19,887
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(183, 55, 121, 1);">69.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saint-Jérôme
+</td>
+<td style="text-align:right;">
+74,346
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(183, 55, 121, 1);">69.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saint-Georges
+</td>
+<td style="text-align:right;">
+32,513
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(183, 55, 121, 1);">69.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Drummondville
+</td>
+<td style="text-align:right;">
+75,423
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(184, 55, 121, 1);">68.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Pelham
+</td>
+<td style="text-align:right;">
+17,110
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(184, 55, 121, 1);">68.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bathurst
+</td>
+<td style="text-align:right;">
+11,897
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(184, 55, 121, 1);">68.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+North Glengarry
+</td>
+<td style="text-align:right;">
+10,109
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(184, 55, 121, 1);">68.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saint-Félicien
+</td>
+<td style="text-align:right;">
+10,238
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(184, 55, 121, 1);">68.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+West Nipissing
+</td>
+<td style="text-align:right;">
+14,364
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(184, 55, 121, 1);">68.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Brighton
+</td>
+<td style="text-align:right;">
+11,844
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(186, 56, 120, 1);">68.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+The Nation
+</td>
+<td style="text-align:right;">
+12,808
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(186, 56, 120, 1);">68.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Matane
+</td>
+<td style="text-align:right;">
+14,311
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(186, 56, 120, 1);">68.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Alma
+</td>
+<td style="text-align:right;">
+30,776
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(186, 56, 120, 1);">68.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sainte-Agathe-des-Monts
+</td>
+<td style="text-align:right;">
+10,223
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(186, 56, 120, 1);">68.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+LaSalle
+</td>
+<td style="text-align:right;">
+30,180
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(186, 56, 120, 1);">68.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Brock
+</td>
+<td style="text-align:right;">
+11,642
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(186, 56, 120, 1);">68.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sorel-Tracy
+</td>
+<td style="text-align:right;">
+34,755
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(186, 56, 120, 1);">68.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bécancour
+</td>
+<td style="text-align:right;">
+13,031
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(188, 57, 120, 1);">68.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+North Vancouver (CY)
+</td>
+<td style="text-align:right;">
+52,898
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(188, 57, 120, 1);">68.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lambton Shores
+</td>
+<td style="text-align:right;">
+10,631
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(188, 57, 120, 1);">68.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sainte-Anne-des-Plaines
+</td>
+<td style="text-align:right;">
+14,421
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(188, 57, 120, 1);">68.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cornwall
+</td>
+<td style="text-align:right;">
+46,589
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(188, 57, 120, 1);">68.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+North Grenville
+</td>
+<td style="text-align:right;">
+16,451
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(189, 57, 119, 1);">68.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Trent Hills
+</td>
+<td style="text-align:right;">
+12,900
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(189, 57, 119, 1);">68.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Haldimand County
+</td>
+<td style="text-align:right;">
+45,608
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(189, 57, 119, 1);">68.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saint-Basile-le-Grand
+</td>
+<td style="text-align:right;">
+17,059
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(189, 57, 119, 1);">68.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Winkler
+</td>
+<td style="text-align:right;">
+12,591
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(189, 57, 119, 1);">68.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Rivière-du-Loup
+</td>
+<td style="text-align:right;">
+19,507
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(189, 57, 119, 1);">68.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sturgeon County
+</td>
+<td style="text-align:right;">
+20,495
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(189, 57, 119, 1);">68.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Roberval
+</td>
+<td style="text-align:right;">
+10,046
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(189, 57, 119, 1);">68.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Norwich
+</td>
+<td style="text-align:right;">
+11,001
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(191, 58, 119, 1);">68.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lakeshore
+</td>
+<td style="text-align:right;">
+36,611
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(191, 58, 119, 1);">68.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Essex
+</td>
+<td style="text-align:right;">
+20,427
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(192, 58, 118, 1);">68.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Wellington North
+</td>
+<td style="text-align:right;">
+11,914
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(192, 58, 118, 1);">68.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Gaspé
+</td>
+<td style="text-align:right;">
+14,568
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(192, 58, 118, 1);">68.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sainte-Marthe-sur-le-Lac
+</td>
+<td style="text-align:right;">
+18,074
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(192, 58, 118, 1);">67.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Springwater
+</td>
+<td style="text-align:right;">
+19,059
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(192, 58, 118, 1);">67.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+South Glengarry
+</td>
+<td style="text-align:right;">
+13,150
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(194, 59, 117, 1);">67.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Notre-Dame-de-l’Île-Perrot
+</td>
+<td style="text-align:right;">
+10,654
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(194, 59, 117, 1);">67.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+La Tuque
+</td>
+<td style="text-align:right;">
+11,001
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(194, 59, 117, 1);">67.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kawartha Lakes
+</td>
+<td style="text-align:right;">
+75,423
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(194, 59, 117, 1);">67.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dolbeau-Mistassini
+</td>
+<td style="text-align:right;">
+14,250
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(194, 59, 117, 1);">67.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Elliot Lake
+</td>
+<td style="text-align:right;">
+10,741
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(194, 59, 117, 1);">67.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Montmagny
+</td>
+<td style="text-align:right;">
+11,255
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(194, 59, 117, 1);">67.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Selwyn
+</td>
+<td style="text-align:right;">
+17,060
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(196, 60, 117, 1);">67.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Clearview
+</td>
+<td style="text-align:right;">
+14,151
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(196, 60, 117, 1);">67.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Central Elgin
+</td>
+<td style="text-align:right;">
+12,607
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(196, 60, 117, 1);">67.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Thetford Mines
+</td>
+<td style="text-align:right;">
+25,403
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(196, 60, 117, 1);">67.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Middlesex Centre
+</td>
+<td style="text-align:right;">
+17,262
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(196, 60, 117, 1);">67.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Colchester, Subd. C
+</td>
+<td style="text-align:right;">
+13,098
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(196, 60, 117, 1);">67.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+South Dundas
+</td>
+<td style="text-align:right;">
+10,833
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(196, 60, 117, 1);">67.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+East Hants
+</td>
+<td style="text-align:right;">
+22,453
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(196, 60, 117, 1);">67.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lacombe County
+</td>
+<td style="text-align:right;">
+10,343
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(196, 60, 117, 1);">67.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+St. Clair
+</td>
+<td style="text-align:right;">
+14,086
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(196, 60, 117, 1);">67.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Oak Bay
+</td>
+<td style="text-align:right;">
+18,094
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(197, 60, 116, 1);">67.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Thames Centre
+</td>
+<td style="text-align:right;">
+13,191
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(197, 60, 116, 1);">67.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saint-Lazare
+</td>
+<td style="text-align:right;">
+19,889
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(197, 60, 116, 1);">67.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mont-Laurier
+</td>
+<td style="text-align:right;">
+14,116
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(197, 60, 116, 1);">67.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+West Grey
+</td>
+<td style="text-align:right;">
+12,518
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(197, 60, 116, 1);">67.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Milton
+</td>
+<td style="text-align:right;">
+110,128
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(197, 60, 116, 1);">67.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Boucherville
+</td>
+<td style="text-align:right;">
+41,671
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(197, 60, 116, 1);">67.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Truro
+</td>
+<td style="text-align:right;">
+12,261
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(199, 61, 115, 1);">67.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Chester
+</td>
+<td style="text-align:right;">
+10,310
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(199, 61, 115, 1);">67.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Wasaga Beach
+</td>
+<td style="text-align:right;">
+20,675
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(199, 61, 115, 1);">67.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Conception Bay South
+</td>
+<td style="text-align:right;">
+26,199
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(199, 61, 115, 1);">67.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Shawinigan
+</td>
+<td style="text-align:right;">
+49,349
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(199, 61, 115, 1);">67.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Salaberry-de-Valleyfield
+</td>
+<td style="text-align:right;">
+40,745
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(199, 61, 115, 1);">67.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Leduc County
+</td>
+<td style="text-align:right;">
+13,780
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(199, 61, 115, 1);">67.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Coquitlam
+</td>
+<td style="text-align:right;">
+139,284
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(200, 62, 115, 1);">67.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saint-Bruno-de-Montarville
+</td>
+<td style="text-align:right;">
+26,394
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(200, 62, 115, 1);">67.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saint-Charles-Borromée
+</td>
+<td style="text-align:right;">
+13,791
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(200, 62, 115, 1);">67.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+West Lincoln
+</td>
+<td style="text-align:right;">
+14,500
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(200, 62, 115, 1);">67.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mountain View County
+</td>
+<td style="text-align:right;">
+13,074
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(200, 62, 115, 1);">67.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Prévost
+</td>
+<td style="text-align:right;">
+13,002
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(204, 63, 113, 1);">66.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cowansville
+</td>
+<td style="text-align:right;">
+13,656
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(204, 63, 113, 1);">66.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+West Hants
+</td>
+<td style="text-align:right;">
+15,368
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(204, 63, 113, 1);">66.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saint-Amable
+</td>
+<td style="text-align:right;">
+12,167
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(205, 64, 113, 1);">66.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Paradise
+</td>
+<td style="text-align:right;">
+21,389
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(205, 64, 113, 1);">66.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saint-Raymond
+</td>
+<td style="text-align:right;">
+10,221
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(205, 64, 113, 1);">66.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lavaltrie
+</td>
+<td style="text-align:right;">
+13,657
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(205, 64, 113, 1);">66.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Adjala-Tosorontio
+</td>
+<td style="text-align:right;">
+10,975
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(207, 64, 112, 1);">66.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Tiny
+</td>
+<td style="text-align:right;">
+11,787
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(207, 64, 112, 1);">66.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Vaughan
+</td>
+<td style="text-align:right;">
+306,233
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(207, 64, 112, 1);">66.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Val-des-Monts
+</td>
+<td style="text-align:right;">
+11,582
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(207, 64, 112, 1);">66.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kirkland
+</td>
+<td style="text-align:right;">
+20,151
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(208, 65, 111, 1);">66.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Severn
+</td>
+<td style="text-align:right;">
+13,477
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(208, 65, 111, 1);">66.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Queens
+</td>
+<td style="text-align:right;">
+10,307
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(208, 65, 111, 1);">66.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Warman
+</td>
+<td style="text-align:right;">
+11,020
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(210, 66, 111, 1);">66.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sainte-Sophie
+</td>
+<td style="text-align:right;">
+15,690
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(210, 66, 111, 1);">66.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Les Îles-de-la-Madeleine
+</td>
+<td style="text-align:right;">
+12,010
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(210, 66, 111, 1);">66.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Taché
+</td>
+<td style="text-align:right;">
+11,568
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(211, 67, 110, 1);">65.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Wetaskiwin County No. 10
+</td>
+<td style="text-align:right;">
+11,181
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(211, 67, 110, 1);">65.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Red Deer County
+</td>
+<td style="text-align:right;">
+19,541
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(211, 67, 110, 1);">65.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cantley
+</td>
+<td style="text-align:right;">
+10,699
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(211, 67, 110, 1);">65.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+South Stormont
+</td>
+<td style="text-align:right;">
+13,110
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(211, 67, 110, 1);">65.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Oro-Medonte
+</td>
+<td style="text-align:right;">
+21,036
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(213, 68, 109, 1);">65.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saint-Lin–Laurentides
+</td>
+<td style="text-align:right;">
+20,786
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(213, 68, 109, 1);">65.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saint-Lambert
+</td>
+<td style="text-align:right;">
+21,861
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(214, 69, 108, 1);">65.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Perth East
+</td>
+<td style="text-align:right;">
+12,261
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(214, 69, 108, 1);">65.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Yellowhead County
+</td>
+<td style="text-align:right;">
+10,995
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(214, 69, 108, 1);">65.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Parkland County
+</td>
+<td style="text-align:right;">
+32,097
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(214, 69, 108, 1);">65.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Quispamsis
+</td>
+<td style="text-align:right;">
+18,245
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(216, 69, 108, 1);">65.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Rideau Lakes
+</td>
+<td style="text-align:right;">
+10,326
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(216, 69, 108, 1);">65.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Georgian Bluffs
+</td>
+<td style="text-align:right;">
+10,479
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(216, 69, 108, 1);">65.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+South Frontenac
+</td>
+<td style="text-align:right;">
+18,646
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(217, 70, 107, 1);">65.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Tay
+</td>
+<td style="text-align:right;">
+10,033
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(217, 70, 107, 1);">65.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Hamilton (TP)
+</td>
+<td style="text-align:right;">
+10,942
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(217, 70, 107, 1);">65.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saint-Colomban
+</td>
+<td style="text-align:right;">
+16,019
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(217, 70, 107, 1);">65.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Joliette
+</td>
+<td style="text-align:right;">
+20,484
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(219, 71, 106, 1);">64.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ajax
+</td>
+<td style="text-align:right;">
+119,677
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(219, 71, 106, 1);">64.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lunenburg
+</td>
+<td style="text-align:right;">
+24,863
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(222, 73, 104, 1);">64.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Hanover
+</td>
+<td style="text-align:right;">
+15,733
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(223, 74, 104, 1);">64.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saint-Augustin-de-Desmaures
+</td>
+<td style="text-align:right;">
+18,820
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(223, 74, 104, 1);">64.4</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Beaconsfield
+</td>
+<td style="text-align:right;">
+19,324
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(223, 74, 104, 1);">64.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Springfield
+</td>
+<td style="text-align:right;">
+15,342
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(223, 74, 104, 1);">64.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+St. Andrews
+</td>
+<td style="text-align:right;">
+11,913
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(224, 76, 103, 1);">64.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Clearwater County
+</td>
+<td style="text-align:right;">
+11,947
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(224, 76, 103, 1);">64.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Grande Prairie County No. 1
+</td>
+<td style="text-align:right;">
+22,303
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(224, 76, 103, 1);">64.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Surrey
+</td>
+<td style="text-align:right;">
+517,887
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(226, 77, 102, 1);">64.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+West Vancouver
+</td>
+<td style="text-align:right;">
+42,473
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(226, 77, 102, 1);">64.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lachute
+</td>
+<td style="text-align:right;">
+12,862
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(227, 78, 101, 1);">63.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+St. Clements
+</td>
+<td style="text-align:right;">
+10,876
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(227, 78, 101, 1);">63.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Wellesley
+</td>
+<td style="text-align:right;">
+11,260
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(227, 78, 101, 1);">63.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Côte-Saint-Luc
+</td>
+<td style="text-align:right;">
+32,448
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(227, 78, 101, 1);">63.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bonnyville No. 87
+</td>
+<td style="text-align:right;">
+13,575
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(227, 78, 101, 1);">63.8</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Hawkesbury
+</td>
+<td style="text-align:right;">
+10,263
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(229, 80, 100, 1);">63.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Tracadie
+</td>
+<td style="text-align:right;">
+16,114
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(229, 80, 100, 1);">63.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lac Ste. Anne County
+</td>
+<td style="text-align:right;">
+10,899
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(229, 80, 100, 1);">63.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Victoria
+</td>
+<td style="text-align:right;">
+85,792
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(232, 83, 98, 1);">63.1</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mapleton
+</td>
+<td style="text-align:right;">
+10,527
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(233, 84, 98, 1);">63.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mont-Royal
+</td>
+<td style="text-align:right;">
+20,276
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(233, 84, 98, 1);">63.0</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mississauga
+</td>
+<td style="text-align:right;">
+721,599
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(241, 96, 93, 1);">61.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Montréal
+</td>
+<td style="text-align:right;">
+1,704,694
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(245, 107, 92, 1);">60.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Toronto
+</td>
+<td style="text-align:right;">
+2,731,571
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(248, 116, 92, 1);">59.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Westmount
+</td>
+<td style="text-align:right;">
+20,312
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(249, 120, 93, 1);">59.2</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Vancouver
+</td>
+<td style="text-align:right;">
+631,486
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(251, 131, 95, 1);">58.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Burnaby
+</td>
+<td style="text-align:right;">
+232,755
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(251, 135, 97, 1);">57.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Richmond Hill
+</td>
+<td style="text-align:right;">
+195,022
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(253, 148, 103, 1);">56.6</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mackenzie County
+</td>
+<td style="text-align:right;">
+11,171
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(254, 159, 109, 1);">55.5</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Brampton
+</td>
+<td style="text-align:right;">
+593,638
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(254, 163, 111, 1);">55.3</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Markham
+</td>
+<td style="text-align:right;">
+328,966
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(254, 198, 138, 1);">51.9</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Richmond
+</td>
+<td style="text-align:right;">
+198,309
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(254, 200, 140, 1);">51.7</span>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Greater Vancouver A
+</td>
+<td style="text-align:right;">
+16,133
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: rgba(252, 253, 191, 1);">46.6</span>
+</td>
+</tr>
+</tbody>
+<tfoot>
+<tr>
+<td style="padding: 0; border: 0;" colspan="100%">
+<span style="font-style: italic;">Note: </span>
+</td>
+</tr>
+<tr>
+<td style="padding: 0; border: 0;" colspan="100%">
+<sup></sup> Source: Statistics Canada Census 2016.
+</td>
+</tr>
+</tfoot>
+</table>
+</div>
+</div>
+<div id="mirror-images---a-detour" class="section level3">
+<h3>Mirror images - a detour</h3>
+<p>There are many dimensions we can use to measure similarity across cities and, by extension, many assumptions to consider when doing so. The similarity numbers used here reflect assumptions about both which dimensions should be included or excluded and the method through which we evaluate similarity. A different selection of variables or dimensions would likely lead to a different result. Even the way that variables are aggregated here could affect the results. This is all to say that this post is not trying to be a definitive study of city similarity and that it is affected by the choices made by the author in terms of what to measure–and how. This caveat applies to both this post and to the source FiveThirtyEight post. New Haven is the most “normal” city in America (based on that article’s author’s choice of relevant variables and methodology). It might still be the most “normal” given a different set of input variables, but it might also not be.</p>
+<p>Just as using a different set of variables could lead to different results, a different distance measure for similarity or a different measurement methodology could lead to different results as well. There are many different ways to measure something like this.</p>
+<p>One approach to something like this is to use algorithms that map high-dimensional data into lower dimensional space to visually display similarity between many high-dimensional objects at the same time. In an older post, I wrote about <a href="https://www.dshkol.com/2018/mirror-images-clustering-cities-demographics/">identifying clusters of Canadian cities based on similarity in either visible minority group, education, or occupation</a>. That post used an application of the <a href="">t-SNE</a> algorithm for visualizing closeness for high-dimensional data. The upside of that approach versus something like the geometric similarity index used in this post is that it shows relationships between all selected cities instead of one city at a time.</p>
+<p>Something similar can be done with the multi-dimensional data used in calculating the similarity indices above. The <a href="https://arxiv.org/abs/1802.03426">unifold manifold approximation and projection</a> (UMAP) algorithm is another method that is increasingly used in lieu of t-SNE for dimensional reduction and visualization in lower dimensional space. UMAP has some advantages over t-SNE in that it tends to be computationally faster and, more importantly for us, tends to do a better job in preserving global structure in lower-dimensional embeddings. Typically in t-SNE embeddings objects close together are similar across their many dimensions, but objects far from one another are not necessarily dissimilar, which can be counter-intuitive for someone looking at the resulting visualization.</p>
+<p>The below visualization shows a UMAP embedding using the same variables as in the similarity index for all Census subdivisions with populations above 100,000. In this visualization, the national demographic and characteristic mix is embedded in the middle and the CSDs with the most similar mixes should be located closest to that point. Notably, this approach produces some differences in results. Hamilton, while still very similar, is no longer the most “normal” CSD. That distinction falls to Windsor, Ontario, with Saanich, BC also in close proximity. There is a pretty good overlap in the cities identified by this approach and the similarity indices above which is a good sign that we can consider that group of cities as representative of a “normal” Canada–if at least for this combination of demographic and characteristic variables. UMAP embeddings have an element of randomness to them and the exact layout will be different every time it is generated, but there should be consistency in the <em>approximate</em> placement of individual points if there is an actual structure to the data.
+<img src="/post/2018-12-14-normal-canadian-city_files/figure-html/unnamed-chunk-5-1.png" width="100%" />
+The advantage of this approach is it shows both the similarity and dissimilarity of these CSDs to the national mix, but it also can be interpreted to show similarity and dissimilarity of these CSDs from one another. Richmond and Richmond Hill have high similarity to another one, as do Sherbrooke and St. John’s, but the same visual layout shows that Sherbrooke and Richmond Hill have very different compositions from one another.</p>
+</div>
+<div id="show-us-the-guts" class="section level3">
+<h3>Show us the guts</h3>
+<p>The code for getting Census data, transforming it, and calculating the similarity scores is below. The code for this entire page is, as always, view-able on Github. The UMAP visualization takes advantage of the excellent <a href="https://cran.r-project.org/web/packages/umap/vignettes/umap.html">umap</a> R package.</p>
+<pre class="r"><code># Load required packages
+library(cancensus)
+library(dplyr)
+library(tidyr)
+
+# Generate list of Census Subdivisions in Canada with pop &gt;= 100000
+csdlist &lt;- list_census_regions(&quot;CA16&quot;) %&gt;% 
+  filter(pop &gt;= 10000, level == &quot;CSD&quot;) %&gt;% 
+  as_census_region_list()
+
+# Get region code for Canada-wide region
+national_region &lt;- list_census_regions(&quot;CA16&quot;) %&gt;% filter(level == &quot;C&quot;) %&gt;% as_census_region_list()
+
+# Convenience function to tidy up CSD names
+clean_names2 &lt;- function (dfr) {
+  dfr &lt;- dfr %&gt;% mutate(`Region Name` = as.character(`Region Name`))
+  replacement &lt;- dfr %&gt;% mutate(`Region Name` = gsub(&quot; \\(.*\\)&quot;, 
+                                                     &quot;&quot;, `Region Name`)) %&gt;% pull(`Region Name`)
+  duplicated_rows &lt;- c(which(duplicated(replacement, fromLast = TRUE)), 
+                       which(duplicated(replacement, fromLast = FALSE)))
+  replacement[duplicated_rows] &lt;- dfr$`Region Name`[duplicated_rows]
+  dfr$`Region Name` &lt;- factor(replacement)
+  dfr
+}
+
+# Identify appropriate vector codes 
+# 0-14, 15-29, 30-44, 45-64, 65+
+age_vectors &lt;- c(&quot;v_CA16_1&quot;, &quot;v_CA16_4&quot;, &quot;v_CA16_64&quot;, &quot;v_CA16_82&quot;,&quot;v_CA16_100&quot;,
+          &quot;v_CA16_118&quot;,&quot;v_CA16_136&quot;, &quot;v_CA16_154&quot;,&quot;v_CA16_172&quot;,&quot;v_CA16_190&quot;,
+          &quot;v_CA16_208&quot;,&quot;v_CA16_226&quot;,&quot;v_CA16_244&quot;)
+
+# Visible minorities vectors
+parent_vector &lt;- &quot;v_CA16_3954&quot;
+minorities &lt;- list_census_vectors(&quot;CA16&quot;) %&gt;% 
+  filter(vector == &quot;v_CA16_3954&quot;) %&gt;% 
+  child_census_vectors(leaves_only = TRUE) %&gt;% 
+  pull(vector)
+minority_vectors &lt;- c(parent_vector, minorities)
+
+# Education vectors - uses only data for population aged 25 and over. 
+# no diploma, high-school, post-secondary certificate, university diploma or higher
+educ_vectors &lt;- c(&quot;v_CA16_5096&quot;, &quot;v_CA16_5099&quot;, &quot;v_CA16_5102&quot;, &quot;v_CA16_5105&quot;, &quot;v_CA16_5123&quot;)
+
+# Immigration status vectors
+imm_vectors &lt;- c(&quot;v_CA16_3405&quot;,&quot;v_CA16_3408&quot;,&quot;v_CA16_3411&quot;,&quot;v_CA16_3435&quot;)
+
+# Tenure vectors
+ten_vectors &lt;- c(&quot;v_CA16_4836&quot;,&quot;v_CA16_4837&quot;,&quot;v_CA16_4838&quot;,&quot;v_CA16_4839&quot;)
+
+# Commute vectors
+com_vectors &lt;- c(&quot;v_CA16_5792&quot;,&quot;v_CA16_5795&quot;,&quot;v_CA16_5798&quot;,&quot;v_CA16_5801&quot;,
+                 &quot;v_CA16_5804&quot;,&quot;v_CA16_5807&quot;)
+
+# Mobility vectors
+#mob_vectors &lt;- c(&quot;v_CA16_6692&quot;, &quot;v_CA16_6707&quot;,&quot;v_CA16_6716&quot;)
+
+# Coerce all vectors requested together
+demo_vectors &lt;- c(age_vectors, minority_vectors, educ_vectors, imm_vectors, ten_vectors, com_vectors)
+
+# Download census data for national level
+national &lt;- get_census(&quot;CA16&quot;, level = &quot;C&quot;, regions = national_region, vectors = demo_vectors, labels = &quot;short&quot;)
+
+# Group vectors where appropriate and calculate proportions
+national_demo &lt;- national %&gt;% 
+  mutate(age_014 = v_CA16_4/v_CA16_1,
+         age_1529 = (v_CA16_64 + v_CA16_64 + v_CA16_82 + v_CA16_100)/v_CA16_1,
+         age_3044 = (v_CA16_118 + v_CA16_136 + v_CA16_154)/v_CA16_1,
+         age_4564 = (v_CA16_172 + v_CA16_190 + v_CA16_208 + v_CA16_226)/v_CA16_1,
+         age_65p = v_CA16_244/v_CA16_1,
+         min_white = v_CA16_3996/v_CA16_3954,
+         min_sasian = v_CA16_3960/v_CA16_3954,
+         min_chinese = v_CA16_3963/v_CA16_3954,
+         min_black = v_CA16_3966/v_CA16_3954,
+         min_filipino = v_CA16_3969/v_CA16_3954,
+         min_latinam = v_CA16_3972/v_CA16_3954,
+         min_arab = v_CA16_3975/v_CA16_3954,
+         min_seasian = v_CA16_3978/v_CA16_3954,
+         min_wasian = v_CA16_3981/v_CA16_3954,
+         min_korean = v_CA16_3984/v_CA16_3954,
+         min_japanese = v_CA16_3987/v_CA16_3954,
+         min_oth = v_CA16_3990/v_CA16_3954,
+         educ_nohs = v_CA16_5099/v_CA16_5096,
+         educ_hs = v_CA16_5102/v_CA16_5096,
+         educ_dip = v_CA16_5105/v_CA16_5096,
+         educ_uni = v_CA16_5123/v_CA16_5096,
+         imm_nat = v_CA16_3408/v_CA16_3405,
+         imm_imm = v_CA16_3411/v_CA16_3405,
+         imm_non = v_CA16_3435/v_CA16_3405,
+         ten_own = v_CA16_4837/v_CA16_4836,
+         ten_rent = v_CA16_4838/v_CA16_4836,
+         ten_band = v_CA16_4839/v_CA16_4836,
+         com_car = (v_CA16_5795 + v_CA16_5798)/v_CA16_5792,
+         com_trans = v_CA16_5801/v_CA16_5792,
+         com_walk = v_CA16_5804/v_CA16_5792,
+         com_bike = v_CA16_5807/v_CA16_5792) %&gt;% 
+  select(GeoUID, `Region Name`, pop = Population, starts_with(&quot;age&quot;), starts_with(&quot;min&quot;), starts_with(&quot;educ&quot;),
+         starts_with(&quot;imm&quot;), starts_with(&quot;ten&quot;), starts_with(&quot;com&quot;))
+
+# Get demographic vectors for all selected csds
+csds &lt;- get_census(&quot;CA16&quot;, level = &quot;CSD&quot;, regions = csdlist, vectors = demo_vectors, labels = &quot;short&quot;)
+
+# adjust into groups and calculate proportions - same as above. 
+csds &lt;- csds %&gt;% 
+  mutate(age_014 = v_CA16_4/v_CA16_1,
+         age_1529 = (v_CA16_64 + v_CA16_64 + v_CA16_82 + v_CA16_100)/v_CA16_1,
+         age_3044 = (v_CA16_118 + v_CA16_136 + v_CA16_154)/v_CA16_1,
+         age_4564 = (v_CA16_172 + v_CA16_190 + v_CA16_208 + v_CA16_226)/v_CA16_1,
+         age_65p = v_CA16_244/v_CA16_1,
+         min_white = v_CA16_3996/v_CA16_3954,
+         min_sasian = v_CA16_3960/v_CA16_3954,
+         min_chinese = v_CA16_3963/v_CA16_3954,
+         min_black = v_CA16_3966/v_CA16_3954,
+         min_filipino = v_CA16_3969/v_CA16_3954,
+         min_latinam = v_CA16_3972/v_CA16_3954,
+         min_arab = v_CA16_3975/v_CA16_3954,
+         min_seasian = v_CA16_3978/v_CA16_3954,
+         min_wasian = v_CA16_3981/v_CA16_3954,
+         min_korean = v_CA16_3984/v_CA16_3954,
+         min_japanese = v_CA16_3987/v_CA16_3954,
+         min_oth = v_CA16_3990/v_CA16_3954,
+         educ_nohs = v_CA16_5099/v_CA16_5096,
+         educ_hs = v_CA16_5102/v_CA16_5096,
+         educ_dip = v_CA16_5105/v_CA16_5096,
+         educ_uni = v_CA16_5123/v_CA16_5096,
+         imm_nat = v_CA16_3408/v_CA16_3405,
+         imm_imm = v_CA16_3411/v_CA16_3405,
+         imm_non = v_CA16_3435/v_CA16_3405,
+         ten_own = v_CA16_4837/v_CA16_4836,
+         ten_rent = v_CA16_4838/v_CA16_4836,
+         ten_band = v_CA16_4839/v_CA16_4836,
+         com_car = (v_CA16_5795 + v_CA16_5798)/v_CA16_5792,
+         com_trans = v_CA16_5801/v_CA16_5792,
+         com_walk = v_CA16_5804/v_CA16_5792,
+         com_bike = v_CA16_5807/v_CA16_5792) %&gt;% 
+  select(GeoUID, `Region Name`, pop = Population, starts_with(&quot;age&quot;), starts_with(&quot;min&quot;), starts_with(&quot;educ&quot;),
+         starts_with(&quot;imm&quot;), starts_with(&quot;ten&quot;), starts_with(&quot;com&quot;))
+
+# Finally, calculate pairwise dissimilarity between each CSD and the national rates using a Euclidian distance measurement and then calculate an index value for how closely similar or not CSDs are to national rates.
+diss &lt;- bind_rows(national_demo, csds) %&gt;% 
+  mutate_at(vars(age_014:com_bike), funs((.- first(.))^2)) %&gt;% 
+  tidyr::gather(vars, values, age_014:com_bike) %&gt;% 
+  group_by(`Region Name`, pop) %&gt;% 
+  summarise(index = sqrt(sum(values))) %&gt;% 
+  mutate(sim = (1/(1+index)*100)) %&gt;% 
+  ungroup() %&gt;% 
+  filter(`Region Name` != &quot;Canada&quot;) %&gt;% 
+  clean_names2()</code></pre>
+</div>
