@@ -1,71 +1,46 @@
-baseurl = "https://dshkol.com"
-languageCode = "en"
-title = "Dmitry Shkolnik"
-theme = "kiss"
-pygmentsCodefences = true
-pygmentsUseClasses = true
-pygmentsStyle = "monokailight"
-copyright = "&copy; <a href=\"https://github.com/dshkol\">Dmitry Shkolnik</a> 2020"
+baseurl = "https://www.dshkol.com/"
+publishDir = "public"
+title = "Scratchpad"
+theme = "ghostwriter"
+languageCode = "en-us"
+copyright = "Dmitry Shkolnik"
 disqusShortname = "dshkol"
 googleAnalytics = "UA-107390160-1"
-Paginate = 8 # Number of posts per page
-enableRobotsTXT = true
+ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 
-[params.rss] # Adding this tag enables RSS feed
-includeContent = true # Includes whole content in rss
-authorName = "Dmitry Shkolnik" # Author full name
-authorEmail = "shkolnikd@gmail.com" # Author email
 
-[params.assets]
-customCSS = ["css/custom.css"]
+[Author]
+    name = "Dmitry Shkolnik"
 
-[params.info]
-adsense = "" # Adsense ID (ID only, without ca-pub-)
-enableSocial = true # Adds OpenGraph and Twitter cards
-homeTitle = "Scratchpad" # Title for home page
-poweredby = true # Adds powered by hugo and kiss below Copyright
-related = true # Includes related articles at the bottom of the article
-codeCopy = false # Add copy button above code blocks
-taxonomiesCount = true # Add taxonomies count
+[Taxonomies]
+    tag = "tags"
 
-[params.features]
-disqusOnDemand = true  # Load Disqus comments on click
+[Params]
+    intro = true
+    headline = "Scratchpad"
+    description = ""
+    github = "https://github.com/dshkol"
+    linkedin = "https://linkedin.com/in/dmitryshkolnik/"
+    twitter = "https://twitter.com/dshkol"
+    email = "shkolnikd@gmail.com"
+    opengraph = true
+    shareTwitter = true
+    shareFacebook = true
+    shareGooglePlus = true
+    shareLinkedIn = true
+    dateFormat = "Mon, Jan 2, 2006"
+    highlightJsUrl = ""
+    highlightJsLocalUrl = ""
 
-[params.opengraph.facebook]
-admins = [] # array of Facebook IDs
-appID = ""
-pageID = ""
+[Permalinks]
+    post = "/:year/:slug/"
 
-[params.opengraph.twitter]
-page = "@dshkol" # Twitter Page username. If not set, params.social.twitter will be used.
-
-[params.social]
-twitter = "dshkol"
-github = "dshkol"
-email = "shkolnikd@gmail.com"
-linkedin = "dmitryshkolnik"
-facebook = ""
-instagram = ""
-codepen = ""
-rss = "index.xml" # Add this to show RSS button in social.
-
-[params.social.config]
-platforms = ["github","twitter","instagram","email","codepen","linkedin"]
-
-[params.matomoAnalytics]
-siteID = 1
-rootURL = "//matomo.example.com/"
-
-[params.fathomAnalytics]
-rootURL = "//fathom.example.com/"
-
-[taxonomies]
-tag ="tags"
-
-[blackfriday]
-hrefTargetBlank = true
-
-[params.sections_left]
-"/page/about" = "About"
-"/page/code" = "Code"
-
+[[menu.main]]
+    name = "Posts"
+    url = "/"
+    weight = 1
+    
+[[menu.main]]
+    name = "About"
+    url = "/page/about/"
+    weight = 2
