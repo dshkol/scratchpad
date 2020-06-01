@@ -1,0 +1,12 @@
+[social.base]
+codepen = 'https://codepen.io/'
+email =  'mailto:'
+facebook = 'https://facebook.com/'
+github = 'https://github.com/'
+instagram = 'https://instagram.com/'
+linkedin = 'https://linkedin.com/in/'
+twitter = 'https://twitter.com/'
+youtube = 'https://youtube.com/user/'
+gitlab = 'https://gitlab.com/'
+rss = '/'
+about = '/'
