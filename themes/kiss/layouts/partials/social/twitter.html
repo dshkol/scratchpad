@@ -1,4 +1,9 @@
+{{- if .Params.image -}}
 <meta name='twitter:card' content='summary{{- if .Params.image -}}_large_image{{- end -}}'>
+{{- end -}}
+{{- if .Params.twitterImg -}}
+<meta name='twitter:card' content='summary{{- if .Params.twitterImg -}}_large_image{{- end -}}'>
+{{- end -}}
 {{- if .Site.Params.opengraph.twitter.page -}}
   <meta name='twitter:site' content='@{{- .Site.Params.opengraph.twitter.page -}}'>
 {{- else -}}

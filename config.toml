@@ -37,7 +37,7 @@ appID = ""
 pageID = ""
 
 [params.opengraph.twitter]
-page = "@dshkol" # Twitter Page username. If not set, params.social.twitter will be used.
+page = "dshkol" # Twitter Page username. If not set, params.social.twitter will be used.
 
 [params.social]
 twitter = "dshkol"
