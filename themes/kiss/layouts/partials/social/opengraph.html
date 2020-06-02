@@ -14,9 +14,7 @@
     <meta property='og:image' content='{{ . | absURL }}'>
 {{- else -}}
 {{- with .Site.Params.Social.email -}}
-    <meta property='og:image' content='https://www.gravatar.com/avatar/
-        {{- . | md5 -}}
-        ?s=256'>
+    <meta property='og:image' content='https://www.dshkol.com/apple-touch-icon.png'>
 {{- end -}}
 
 {{- with .Params.audios -}}
