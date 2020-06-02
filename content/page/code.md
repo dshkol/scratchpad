@@ -7,7 +7,8 @@ author = "Dmitry Shkolnik"
 
 [Reference Page](https://mountainmath.github.io/cancensus/index.html) | [Github](https://github.com/mountainMath/cancensus)
 
-![](https://raw.githubusercontent.com/mountainMath/cancensus/master/images/cancensus-sticker.png){ width=25% }
+<img src="https://raw.githubusercontent.com/mountainMath/cancensus/master/images/cancensus-sticker.png" alt="cancensus"
+	title="" width="225" height="225" />
 
 [![Build Status](https://travis-ci.org/mountainMath/cancensus.svg?branch=master)](https://travis-ci.org/mountainMath/cancensus)[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/cancensus)](https://cran.r-project.org/package=cancensus)[![CRAN_Downloads_Badge](https://cranlogs.r-pkg.org/badges/cancensus)](https://cranlogs.r-pkg.org/badges/cancensus)
 
@@ -22,7 +23,8 @@ author = "Dmitry Shkolnik"
 
 [Reference Page](https://mountainmath.github.io/cansim/index.html) | [Github](https://github.com/mountainMath/cansim)
 
-![](https://raw.githubusercontent.com/mountainMath/cansim/master/images/cansim-sticker.png){ width=25% }
+<img src="https://raw.githubusercontent.com/mountainMath/cansim/master/images/cansim-sticker.png" alt="cansim"
+	title="" width="225" height="225" />
 
 [![Build Status](https://travis-ci.org/mountainMath/cansim.svg?branch=master)](https://travis-ci.org/mountainMath/cansim)[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/cansim)](https://cran.r-project.org/package=cansim)[![CRAN_Downloads_Badge](https://cranlogs.r-pkg.org/badges/cansim)](https://cranlogs.r-pkg.org/badges/cansim)
 
