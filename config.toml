@@ -69,3 +69,6 @@ hrefTargetBlank = true
 "/page/about" = "About"
 "/page/code" = "Code"
 
+[markup]
+  defaultMarkdownHandler = "blackfriday"
+
