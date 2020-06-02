@@ -1,13 +1,13 @@
 +++
 title = "Code"
-author = ""
+author = "Dmitry Shkolnik"
 +++
 
 ### cancensus 
 
-<a href="https://mountainmath.github.io/cancensus/index.html"><img src="https://raw.githubusercontent.com/mountainMath/cancensus/master/images/cancensus-sticker.png" alt="cancensus logo" align="left" width = "25%" height = "25%"/></a>
-
 [Reference Page](https://mountainmath.github.io/cancensus/index.html) | [Github](https://github.com/mountainMath/cancensus)
+
+<a href="https://mountainmath.github.io/cancensus/index.html"><img src="https://raw.githubusercontent.com/mountainMath/cancensus/master/images/cancensus-sticker.png" alt="cancensus logo" align="right" width = "25%" height = "25%"/></a>
 
 [![Build Status](https://travis-ci.org/mountainMath/cancensus.svg?branch=master)](https://travis-ci.org/mountainMath/cancensus)[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/cancensus)](https://cran.r-project.org/package=cancensus)[![CRAN_Downloads_Badge](https://cranlogs.r-pkg.org/badges/cancensus)](https://cranlogs.r-pkg.org/badges/cancensus)
 
@@ -20,9 +20,9 @@ author = ""
 
 ### cansim
 
-<a href="https://mountainmath.github.io/cansim/index.html"><img src="https://raw.githubusercontent.com/mountainMath/cansim/master/images/cansim-sticker.png" alt="cansim logo" align="left" width = "25%" height = "25%"/></a>
-
 [Reference Page](https://mountainmath.github.io/cansim/index.html) | [Github](https://github.com/mountainMath/cansim)
+
+<a href="https://mountainmath.github.io/cansim/index.html"><img src="https://raw.githubusercontent.com/mountainMath/cansim/master/images/cansim-sticker.png" alt="cansim logo" align="right" width = "25%" height = "25%"/></a>
 
 [![Build Status](https://travis-ci.org/mountainMath/cansim.svg?branch=master)](https://travis-ci.org/mountainMath/cansim)[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/cansim)](https://cran.r-project.org/package=cansim)[![CRAN_Downloads_Badge](https://cranlogs.r-pkg.org/badges/cansim)](https://cranlogs.r-pkg.org/badges/cansim)
 
@@ -37,7 +37,7 @@ An R package to retrieve and work with public Statistics Canada data tables. Thi
 
 ### airportr
 
-[Reference Page](https://dshkol.github.io/airpotr/index.html) | [Github](https://github.com/dshkol/airpotr)
+[Reference Page](https://dshkol.github.io/airportr/index.html) | [Github](https://github.com/dshkol/airportr)
 
 [![Build Status](https://travis-ci.org/dshkol/airportr.svg?branch=master)](https://travis-ci.org/dshkol/airportr)[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/airportr)](https://cran.r-project.org/package=airportr)[![CRAN_Downloads_Badge](https://cranlogs.r-pkg.org/badges/airportr)](https://cranlogs.r-pkg.org/badges/airportr)
 
