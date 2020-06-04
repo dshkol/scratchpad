@@ -119,7 +119,7 @@ ggplot(toronto10_ct) +
   map_theme + scale_fill_viridis_c(&quot;&quot;, guide = FALSE, option = &quot;magma&quot;) + 
   coord_sf(datum = NA) + 
   scale_colour_viridis_c(&quot;&quot;, guide = FALSE, option = &quot;magma&quot;)</code></pre>
-<p><img src="/post/2017-10-21-small-multiples-with-maps_files/figure-html/plots-1.png" width="672" /></p>
+<p><img src="/2017/2017-10-21-small-multiples-with-maps_files/figure-html/plots-1.png" width="672" /></p>
 <p>This map highlights that different languages are not distributed uniformly across the Toronto metropolitan area. Sure, some like Spanish are pretty evenly distributed, but others show a clear concentration in some specific areas.</p>
 <p>Using <code>facet_wrap</code> is convenient not just because it is a concise approach, but because it ensures that your scales and dimensions are consistent across each panel. The downside to using <code>facet_wrap</code> is that it can be pretty difficult to customize individual panels. An alternative approach to small multiples is to create each plot individually (with required customization) and then arrange the plots together using the functions in the <code>grid</code> and <code>gridExtra</code> packages.</p>
 </div>
@@ -160,7 +160,7 @@ for(i in 1:length(language_list)) {
 <p>With the objects stored in a list, we use the <code>gridExtra</code> package to arrange the graphical objects to our liking.</p>
 <pre class="r"><code>library(gridExtra)
 do.call(&quot;grid.arrange&quot;, c(plotlist, ncol=3)) </code></pre>
-<p><img src="/post/2017-10-21-small-multiples-with-maps_files/figure-html/arrange_grobs-1.png" width="672" /></p>
+<p><img src="/2017/2017-10-21-small-multiples-with-maps_files/figure-html/arrange_grobs-1.png" width="672" /></p>
 <p>Note how the titles are coloured. That type of customization is easier when generating each map individually. If I was working on a small multiple plot for publication, I would appreciate the additional flexibility and customizability that’s offered through this approach, but it’s definitely more work to implement.</p>
 <p>So to summarize…</p>
 <p>The advantages to using facets for small multiples:</p>
