@@ -129,8 +129,8 @@ mapdeck(style = mapdeck_style("dark"),
     layer = "polygon_layer",
     fill_colour = "no_food_stalls",
     fill_opacity =0.75, 
-    tooltip = "tooltip",
-    auto_highlight = TRUE,
+    #tooltip = "tooltip",
+    #auto_highlight = TRUE,
     update_view = FALSE
   ) %>% 
   add_scatterplot(
@@ -138,7 +138,7 @@ mapdeck(style = mapdeck_style("dark"),
     radius = 50,
     fill_colour = "#f57b42",
     layer_id = "scatter_layer",
-    tooltip = "clean_desc", 
+    #tooltip = "clean_desc", 
     update_view = FALSE
   )
 
@@ -302,6 +302,8 @@ library(geohashTools)
 
 # Create geohash grid
 grid7 <- gh_covering(sg_map, precision = 7, minimal = TRUE)
+grid6 <- gh_covering(sg_map, precision = 6, minimal = TRUE)
+grid5 <- gh_covering(sg_map, precision = 5, minimal = TRUE)
 ```
 
 Let's take a look at what this grid looks like zoomed in over the southern city core.
@@ -324,6 +326,10 @@ hawker30_grid <- grid7 %>%
   group_by(ID) %>% 
   summarise(no_food_centres = n(),
             no_food_stalls = sum(no_food_stalls))
+
+
+
+
 ```
 
 The next step involves taking the geohashes with isochrone intersections and combining them back with the remaining geohashes that did not have any intersections. 
