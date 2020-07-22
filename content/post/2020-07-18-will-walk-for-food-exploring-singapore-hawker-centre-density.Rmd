@@ -1,7 +1,8 @@
 ---
-title: 'Will walk for food: exploring Singapore hawker centre density'
+title: "Will walk for food: exploring Singapore's hawker food density"
 author: Dmitry Shkolnik
 date: '2020-07-22'
+summary: How many hawker centres and stalls are a short walk away from me at any given location in Singapore? An interactive map, and a step-by-step guide of how it was made. 
 slug: will-walk-for-food-exploring-singapore-hawker-centre-density
 twitterImg: post/2020-07-18-will-walk-for-food-exploring-singapore-hawker-centre-density_files/meta_card_pic.png
 image: post/2020-07-18-will-walk-for-food-exploring-singapore-hawker-centre-density_files/meta_card_pic.png
@@ -25,7 +26,7 @@ This interactive map shows how many hawker centres and hawker centre stalls ther
 
 A few caveats: people seldom walk 30 minutes to get anywhere in Singapore -- it's too hot. Also, the data here is based on the data for government run hawker centres using data from data.gov.sg. While extensive - there are 114 hawker centres comprising around 6400 individual food stalls, this does not include the countless stalls and kopitiams ("coffee shops") scattered around the island under residential housing blocks and commercial towers. The actual count of hawkers and hawker-like stalls in the country must be close to 10,000 -- if not more. 
 
-The map below is interactive, zoomable, and provides detail for each location on mouseover. This might take a few seconds to load, especially on older devices. 
+The map below is interactive, zoomable, and provides detail for each location on mouseover. This might take a few seconds to load, especially on older devices. A full-screen version is available at https://www.dshkol.com/hawker-accessibility-map.html. 
 
 ```{r mapdeck_render, echo=FALSE, fig.align = 'center', out.width='100%', message=FALSE, warning=FALSE}
 # Get hawker centres data
