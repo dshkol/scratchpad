@@ -82,11 +82,12 @@ get_isochorones <- function(shed = 30, i) {
 }
 
 # Iterate
-hawker15 <- map2_df(15, c(1:length(hawkers$id)), get_isochorones)
+#hawker15 <- map2_df(15, c(1:length(hawkers$id)), get_isochorones)
 hawker30 <- map2_df(30, c(1:length(hawkers$id)), get_isochorones)
 
 # Create geohash grid
 grid7 <- gh_covering(sg_map, precision = 7, minimal = TRUE)
+grid6 <- gh_covering(sg_map, precision = 6, minimal = TRUE)
 
 # Intersect geohashes and isochrones and tabulate intersecting details
 hawker30_grid <- grid7 %>% 
@@ -95,9 +96,15 @@ hawker30_grid <- grid7 %>%
   summarise(no_food_centres = n(),
             no_food_stalls = sum(no_food_stalls))
 
+empty_grid6 <- grid6[lengths(grid6 %>% 
+  st_intersects(hawker30_grid, sparse = TRUE)) == 0,]
+empty_grid7 <- grid7[lengths(grid7 %>% st_covered_by(empty_grid6, sparse = TRUE)) == 0,]
+empty_grid7 <- empty_grid7[lengths(empty_grid7 %>% st_covered_by(hawker30_grid, sparse = TRUE)) == 0,]
+
 # Combine the intersecting geohashes and the non-intersecting ones together
-hawker30_grid <- do.call(rbind,list(grid7 %>% 
-  filter(!ID %in% hawker30_grid$ID) %>% 
+hawker30_grid <- do.call(rbind,list(empty_grid7 %>% 
+  mutate(no_food_centres = 0, no_food_stalls = 0),
+  empty_grid6 %>% 
   mutate(no_food_centres = 0, no_food_stalls = 0),
   hawker30_grid))
 
@@ -293,17 +300,16 @@ ggplot() +
 
 ### Creating a spatial reference with geohashTools
 
-We can subdivide the geography we are working with to have a spatial index as a frame of reference. There are a number of different spatial indexing libraries out in the wild and it would make for a good post on its own. I tend to use [geohashes](https://en.wikipedia.org/wiki/Geohash) because it makes for nice grids that don't have much distortion at Singapore latitudes. There is an R package [geohashTools](https://michaelchirico.github.io/geohashTools/index.html) written by my colleague [Michael Chirico](https://twitter.com/michael_chirico) and that I've made some small contributions to. Geohashes are hierarchical and have different precision levels represented by the string length of each encoded geohash. Here we use an encoding of length 7, which represents about the size of a large residential building compound.
+We can subdivide the geography we are working with to have a spatial index as a frame of reference. There are a number of different spatial indexing libraries out in the wild and it would make for a good post on its own. I tend to use [geohashes](https://en.wikipedia.org/wiki/Geohash) because it makes for nice grids that don't have much distortion at Singapore latitudes. There is an R package [geohashTools](https://michaelchirico.github.io/geohashTools/index.html) written by my colleague [Michael Chirico](https://twitter.com/michael_chirico) and that I've made some small contributions to. Geohashes are hierarchical and have different precision levels represented by the string length of each encoded geohash. Here we use an encoding of length 7, which represents about the size of a large residential building compound. We also create a grid with encoding length 6 to aggregate empty areas into. 
 
 We then lay a geohash grid over it using the `gh_covering` function. The argument `minimal = TRUE` clips the geohash grid only to intersecting areas. In this example, it just means we avoid water and Malaysia. 
 
 ```{r message=FALSE, warning=FALSE}
 library(geohashTools)
 
-# Create geohash grid
+# Create geohash grid at geohash6 and geohash7 level.
 grid7 <- gh_covering(sg_map, precision = 7, minimal = TRUE)
 grid6 <- gh_covering(sg_map, precision = 6, minimal = TRUE)
-grid5 <- gh_covering(sg_map, precision = 5, minimal = TRUE)
 ```
 
 Let's take a look at what this grid looks like zoomed in over the southern city core.
@@ -326,18 +332,39 @@ hawker30_grid <- grid7 %>%
   group_by(ID) %>% 
   summarise(no_food_centres = n(),
             no_food_stalls = sum(no_food_stalls))
-
-
-
-
 ```
 
-The next step involves taking the geohashes with isochrone intersections and combining them back with the remaining geohashes that did not have any intersections. 
+The downside is that this creates a large number polygons (~35k), which might cause some performance issues down the line. And as we can see, many of these polygons contain no useful information. One way we can work around this is to take advantage of geohashes inherent nesting structure and aggregate up the empty ones into larger geohashes where appropriate. This is done using a series of `sf::st_covered_by` across multiple grid layers, but in principle could also be done using just the characteristics of the string hashes that encode each geohash.
+
+```{r hierarchy_grid, message = FALSE, warning = FALSE}
+empty_grid6 <- grid6[lengths(grid6 %>% 
+  st_intersects(hawker30_grid, sparse = TRUE)) == 0,]
+
+empty_grid7 <- grid7[lengths(grid7 %>% st_covered_by(empty_grid6, sparse = TRUE)) == 0,]
+
+empty_grid7 <- empty_grid7[lengths(empty_grid7 %>% st_covered_by(hawker30_grid, sparse = TRUE)) == 0,]
+
+# Visualize what this looks like
+ggplot() + 
+  geom_sf(data = sg_map, fill = "black", colour = "black") + 
+  geom_sf(data = empty_grid6, fill = "white", colour = "grey20") + 
+  geom_sf(data = empty_grid7, fill = "orange", colour = NA) + 
+  geom_sf(data = hawker30_grid, fill = "navy", colour = NA)
+```
+
+```{r}
+1-(length(empty_grid7$ID) + 
+  length(empty_grid6$ID) + 
+  length(hawker30_grid$ID))/length(grid7$ID)
+```
+
+We can see that this process reduced the number of polygons by almost half. The next step involves taking the geohashes with isochrone intersections and combining them back with the remaining geohashes that did not have any intersections that we just created above. 
 
 ```{r hawker_grid_plot, message=FALSE, warning=FALSE}
 # Combine the intersecting geohashes and the non-intersecting ones together
-hawker30_grid <- do.call(rbind,list(grid7 %>% 
-  filter(!ID %in% hawker30_grid$ID) %>% 
+hawker30_grid <- do.call(rbind,list(empty_grid7 %>% 
+  mutate(no_food_centres = 0, no_food_stalls = 0),
+  empty_grid6 %>% 
   mutate(no_food_centres = 0, no_food_stalls = 0),
   hawker30_grid))
 
@@ -351,7 +378,7 @@ ggplot() +
 
 ### Making things interactive with mapdeck
 
-Mapdeck is my favourite R package for making interactive web visualizations. Created by [David Cooley](https://twitter.com/symbolixAU), it uses Uber's open-source [deck.gl](https://deck.gl/) WebGL Javascript library for rendering spatial data alongside Mapbox's tiling service. 
+Mapdeck is my one of my favourite R packages for making interactive web visualizations. Created by [David Cooley](https://twitter.com/symbolixAU), it uses Uber's open-source [deck.gl](https://deck.gl/) WebGL Javascript library for rendering spatial data alongside Mapbox's tiling service. 
 
 As `mapdeck` uses tiles from Mapbox, it also requires a Mapbox API key, but you can use the same one specified for `mapboxapi`. 
 
@@ -386,7 +413,7 @@ mapdeck(style = mapdeck_style("dark"),
     fill_colour = "no_food_stalls",
     fill_opacity =0.75, 
     tooltip = "tooltip",
-    auto_highlight = TRUE,
+    auto_highlight = FALSE,
     update_view = FALSE
   ) %>% 
   add_scatterplot(
