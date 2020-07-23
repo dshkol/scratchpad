@@ -24,9 +24,9 @@ With the current situation in the world being what it is and any chance of enter
 
 This interactive map shows how many hawker centres and hawker centre stalls there are within a 30 minute walk of any point in Singapore. The map is rendered in `deck.gl` using the `mapdeck` R package. Data for walking isochrones comes from mapbox and generated for each hawker centre using the brand new `mapboxapi` package. Spatial indexing is done using the `geohashTools` package. All code including this page is written in R and is documented step-by-step at the bottom of the page (scroll on, if interested.)
 
-A few caveats: people seldom walk 30 minutes to get anywhere in Singapore -- it's too hot. Also, the data here is based on the data for government run hawker centres using data from data.gov.sg. While extensive - there are 114 hawker centres comprising around 6400 individual food stalls, this does not include the countless stalls and kopitiams ("coffee shops") scattered around the island under residential housing blocks and commercial towers. The actual count of hawkers and hawker-like stalls in the country must be close to 10,000 -- if not more. 
+A few caveats: people seldom walk 30 minutes to get anywhere in Singapore -- it's too hot. Also, the data here is based on the data for government run hawker centres using data from data.gov.sg. While extensive - there are 114 hawker centres comprising around 6400 individual food stalls, this does not include the countless stalls and [kopitiams](https://www.quora.com/What-is-the-difference-between-a-kopitiam-and-a-hawker-centre) ("coffee shops") scattered around the island under residential housing blocks and commercial towers. The actual count of hawkers and hawker-like stalls in the country must be close to 10,000 -- if not more. 
 
-The map below is interactive, zoomable, and provides detail for each location on mouseover. This might take a few seconds to load, especially on older devices. A full-screen version is available at https://www.dshkol.com/hawker-accessibility-map.html. 
+The map below is interactive, zoomable, and provides detail for each location on mouseover. This might take a few seconds to load, especially on older devices. A full-screen version is available at https://www.dshkol.com/hawker-accessibility-map.html which will take about 15-20s to fully render, depending on device. 
 
 ```{r mapdeck_render, echo=FALSE, fig.align = 'center', out.width='100%', message=FALSE, warning=FALSE}
 # Get hawker centres data
@@ -163,17 +163,19 @@ Hawker centres are complexes, mostly indoor although some are partially outdoors
 ![Evenings at Golden Mile Food Centre](/post/2020-07-18-will-walk-for-food-exploring-singapore-hawker-centre-density_files/DSCF5473.JPG)
 
 This is an easy way to start a fight but my own top favourites are: 
+
 - Old Airport Road Food Centre
 - Golden Mile Food Centre
 - Maxwell Food Centre
 - Chinatown Complex
 - Zion Riverside
 
+
 # How this is made: step-by-step code breakdown
 
 ### Getting and processing the data
 
-All data for this project comes from https://data.gov.sg/. Hawker centre geography and details are from the most recently updated [public data](https://data.gov.sg/dataset/hawker-centres?resource_id=8a6c2f75-5511-4e03-b8f2-23ce67d30b28). Singapore geography is from the [electroal boundary files](https://data.gov.sg/dataset/electoral-boundary_2020). I usually find this dataset more useful than the national map one because it excludes all the minor outlying islands that can distort maps of Singapore. Both datasets are rehosted on my own github gist to make it easier to reproduce repeatedly.  
+All data for this project comes from https://data.gov.sg/. Hawker centre geography and details are from the most recently updated [public data](https://data.gov.sg/dataset/hawker-centres?resource_id=8a6c2f75-5511-4e03-b8f2-23ce67d30b28). Singapore geography is from the [electoral boundary files](https://data.gov.sg/dataset/electoral-boundary_2020). I usually find this dataset more useful than the national map one because it excludes all the minor outlying islands that can distort maps of Singapore. Both datasets are rehosted on my own github gist to make it easier to reproduce repeatedly.  
 ```{r message=FALSE, warning=FALSE}
 # Get hawker centres spatial data
 library(sf)
