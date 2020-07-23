@@ -150,7 +150,7 @@ md <- mapdeck(style = mapdeck_style("dark"),
     update_view = FALSE
   )
 
-widgetframe::frameWidget(md)
+widgetframe::frameWidget(md, width = "150%", height = "50%")
 ```
 
 
