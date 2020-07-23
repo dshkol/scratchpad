@@ -129,7 +129,7 @@ hawkers <- hawkers %>%
 #save.image("hawker_map_post_workspace")
 
 # Render in mapdeck
-mapdeck(style = mapdeck_style("dark"), 
+md <- mapdeck(style = mapdeck_style("dark"), 
         zoom = 11.5,
         location =  c(103.8228077,1.3014751)) %>% 
   add_polygon(
@@ -149,6 +149,8 @@ mapdeck(style = mapdeck_style("dark"),
     tooltip = "clean_desc", 
     update_view = FALSE
   )
+
+widgetframe::frameWidget(md)
 ```
 
 
@@ -404,26 +406,31 @@ Finally, the code below will produce the map at the top of the page, using the c
 ```{r eval=, message=FALSE, warning=FALSE, eval = FALSE}
 library(mapdeck)
 # Render in mapdeck
-mapdeck(style = mapdeck_style("dark"), 
-        zoom = 11.5,
-        location =  c(103.8228077,1.3014751)) %>% 
+md <- mapdeck(
+  style = mapdeck_style("dark"),
+  zoom = 11.5,
+  location =  c(103.8228077, 1.3014751)
+) %>%
   add_polygon(
     data = hawker30_grid,
     layer = "polygon_layer",
     fill_colour = "no_food_stalls",
-    fill_opacity =0.75, 
+    fill_opacity = 0.75,
     tooltip = "tooltip",
     auto_highlight = FALSE,
     update_view = FALSE
-  ) %>% 
+  ) %>%
   add_scatterplot(
     data = hawkers,
     radius = 50,
     fill_colour = "#f57b42",
     layer_id = "scatter_layer",
-    tooltip = "clean_desc", 
+    tooltip = "clean_desc",
     update_view = FALSE
   )
+
+# Then wrap output in widgetframe::frameWidget() - https://github.com/SymbolixAU/mapdeck/issues/257
+widgetframe::frameWidget(md)
 ```
 
 And there you have it. Deck is great for fast and responsive web visualizations with a large number of geographic features, and the `mapdeck` package makes it very easy to work with. As always, this post is entirely on github and should be fully reproducible. If you have any questions, please contact me. If you have hawker stall recommendations, please comment. And if you found this interesting, please share on social media.
