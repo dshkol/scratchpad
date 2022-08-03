@@ -5,7 +5,7 @@ theme = "kiss"
 pygmentsCodefences = true
 pygmentsUseClasses = true
 pygmentsStyle = "monokailight"
-copyright = "&copy; <a href=\"https://github.com/dshkol\">Dmitry Shkolnik</a> 2020"
+copyright = "&copy; <a href=\"https://github.com/dshkol\">Dmitry Shkolnik</a> 2022"
 disqusShortname = "dshkol"
 googleAnalytics = "UA-107390160-1"
 Paginate = 8 # Number of posts per page
@@ -70,5 +70,5 @@ hrefTargetBlank = true
 "/page/code" = "Code"
 
 [markup]
-  defaultMarkdownHandler = "blackfriday"
+  defaultMarkdownHandler = "goldmark"
 
