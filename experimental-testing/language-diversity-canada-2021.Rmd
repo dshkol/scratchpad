@@ -1,0 +1,495 @@
+---
+title: "Language Diversity in Canada - 2021 Census Update"
+author: "Dmitry Shkolnik"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    highlight: tango
+    fig_width: 10
+    fig_height: 8
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  warning = FALSE, 
+  message = FALSE,
+  fig.align = "center",
+  cache = TRUE
+)
+```
+
+## Introduction
+
+This analysis replicates the 2017 "Language Diversity in Canada" blog post using 2021 Census data. We'll explore linguistic diversity patterns across Canadian metropolitan areas using the Language Diversity Index (LDI) and examine how these patterns may have shifted between 2016 and 2021.
+
+## The Language Diversity Index
+
+The Language Diversity Index, introduced by Greenberg (1956), calculates the probability that any two speakers in a population will speak different languages:
+
+$$
+LDI = 1 - \sum (P_i)^2
+$$
+
+Where $P_i$ is the proportion of speakers of language $i$. A higher LDI indicates greater linguistic diversity, with a theoretical maximum of 1.
+
+## Setup and Data Acquisition
+
+```{r initialize, results='hide'}
+# Load required libraries
+library(cancensus)
+library(dplyr)
+library(ggplot2)
+library(sf)
+library(knitr)
+library(DT)
+
+# Set dataset for 2021 Census
+dataset <- "CA21"
+```
+
+## Finding 2021 Language Vectors
+
+Let's identify the equivalent language vectors in the 2021 census data:
+
+```{r explore_vectors}
+# Search for language vectors in 2021 census
+language_search <- find_census_vectors("language spoken most often", dataset = dataset, type = "total")
+
+# Display the results
+kable(language_search[1:10, c("vector", "type", "label")], 
+      caption = "Top 10 Language-related Vectors in 2021 Census")
+```
+
+```{r select_language_vectors}
+# Find the main language vector for 2021
+language_total <- find_census_vectors("Total - Language spoken most often at home", 
+                                    dataset = dataset, type = "total") %>%
+  filter(grepl("Total.*Language spoken most often at home.*population", label, ignore.case = TRUE)) %>%
+  slice(1)
+
+print(paste("Main language vector:", language_total$vector, "-", language_total$label))
+
+# Get all child vectors (specific languages)
+if(nrow(language_total) > 0) {
+  language_children <- child_census_vectors(language_total$vector)
+  
+  # Filter out aggregates and keep only specific languages
+  language_children <- language_children %>%
+    filter(
+      !grepl("Multiple responses", label),
+      !grepl("Single responses", label), 
+      !grepl("Official languages", label),
+      !grepl("Non-official languages", label)
+    ) %>%
+    slice_head(n = 50)  # Limit to 50 specific languages for performance
+  
+  # Combine total and children vectors
+  language_vectors <- bind_rows(language_total, language_children) %>%
+    pull(vector)
+  
+  cat("Found", length(language_vectors), "language vectors for analysis\n")
+} else {
+  stop("Could not find main language vector. Check vector search.")
+}
+```
+
+## Testing Data Retrieval
+
+Let's test with a small region first to ensure our approach works:
+
+```{r test_data_retrieval}
+# Test with Toronto CMA first
+test_regions <- list(CMA = "35535")  # Toronto CMA code
+
+# Check if we have language vectors
+if(exists("language_vectors") && length(language_vectors) > 0) {
+  cat("Testing with", min(10, length(language_vectors)), "vectors...\n")
+  
+  test_data <- get_census(
+    dataset = dataset,
+    regions = test_regions,
+    vectors = language_vectors[1:min(10, length(language_vectors))],
+    level = "CMA",
+    quiet = TRUE
+  )
+  
+  # Check if data retrieval worked
+  if(nrow(test_data) > 0) {
+    cat("✓ Data retrieval successful for Toronto CMA\n")
+    cat("Retrieved", nrow(test_data), "rows with", ncol(test_data), "columns\n")
+  } else {
+    cat("❌ Data retrieval returned no rows\n")
+  }
+} else {
+  cat("❌ Language vectors not found - check previous chunk\n")
+}
+```
+
+```{r get_all_cmas}
+# Get list of all CMAs for analysis
+cma_list <- list_census_regions(dataset = dataset) %>%
+  filter(level == "CMA", pop > 100000)  # Focus on larger metropolitan areas
+
+cat("Analyzing", nrow(cma_list), "major metropolitan areas\n")
+kable(head(cma_list, 10), caption = "Major Canadian Metropolitan Areas (Sample)")
+```
+
+## Full Data Retrieval
+
+```{r full_data_retrieval}
+# Get language data for all major CMAs
+if(exists("cma_list") && nrow(cma_list) > 0 && exists("language_vectors") && length(language_vectors) > 0) {
+  cat("Retrieving data for", nrow(cma_list), "CMAs with", length(language_vectors), "language vectors...\n")
+  
+  # Retrieve data for all CMAs
+  language_data <- get_census(
+    dataset = dataset,
+    regions = list(CMA = cma_list$region),
+    vectors = language_vectors,
+    level = "CMA",
+    labels = "short",
+    quiet = TRUE
+  )
+  
+  cat("✓ Retrieved data for", nrow(language_data), "metropolitan areas\n")
+  cat("✓ With", length(language_vectors), "language categories\n")
+} else {
+  stop("❌ Missing required data: cma_list or language_vectors")
+}
+```
+
+## Calculate Language Diversity Index
+
+```{r calculate_ldi}
+# Function to calculate Language Diversity Index
+calculate_ldi <- function(proportions) {
+  # Remove any NA values and ensure proportions sum to 1
+  proportions <- proportions[!is.na(proportions)]
+  proportions <- proportions[proportions > 0]
+  
+  if(length(proportions) == 0) return(NA)
+  
+  # Normalize to ensure sum = 1
+  proportions <- proportions / sum(proportions)
+  
+  # Calculate LDI = 1 - sum(pi^2)
+  ldi <- 1 - sum(proportions^2)
+  return(ldi)
+}
+
+# Prepare data for LDI calculation
+# We need to extract the language count columns and calculate proportions
+language_cols <- language_data %>%
+  select(starts_with("v_CA21_")) %>%
+  select(-any_of(c("v_CA21_1", "v_CA21_2"))) %>%  # Remove total population columns if present
+  names()
+
+# Calculate total language speakers for each CMA (should be first vector - total)
+total_col <- language_vectors[1]
+
+ldi_results <- language_data %>%
+  select(GeoUID, name = `Region Name`, all_of(language_cols)) %>%
+  rowwise() %>%
+  mutate(
+    # Calculate proportions for each language
+    total_speakers = get(total_col),
+    # Get proportions for all languages except the total
+    language_proportions = list(
+      c_across(all_of(language_cols[-1])) / total_speakers
+    ),
+    # Calculate LDI
+    ldi = calculate_ldi(unlist(language_proportions))
+  ) %>%
+  ungroup() %>%
+  select(GeoUID, name, total_speakers, ldi) %>%
+  arrange(desc(ldi))
+
+# Display results
+cat("Language Diversity Index calculated for", nrow(ldi_results), "metropolitan areas\n")
+```
+
+## Results Visualization
+
+```{r results_table}
+# Create results table
+top_diverse <- ldi_results %>%
+  filter(!is.na(ldi)) %>%
+  mutate(
+    rank = row_number(),
+    ldi_rounded = round(ldi, 4),
+    total_speakers_formatted = scales::comma(total_speakers)
+  ) %>%
+  select(
+    Rank = rank,
+    `Metropolitan Area` = name,
+    `Language Diversity Index` = ldi_rounded,
+    `Total Speakers` = total_speakers_formatted
+  )
+
+# Display top 15 most diverse CMAs
+kable(head(top_diverse, 15), 
+      caption = "Top 15 Most Linguistically Diverse Canadian Metropolitan Areas (2021)")
+```
+
+```{r ldi_plot}
+# Install required packages if needed
+if(!require(ggalt)) install.packages("ggalt")
+if(!require(ggrepel)) install.packages("ggrepel") 
+if(!require(viridis)) install.packages("viridis")
+
+library(ggalt)
+library(ggrepel)
+library(viridis)
+
+# Create lollipop chart visualization (top 15 to match original)
+top_15 <- ldi_results %>%
+  filter(!is.na(ldi)) %>%
+  slice_head(n = 15) %>%
+  mutate(name_clean = gsub(" \\(.*\\)", "", name))
+
+# Lollipop chart with original styling
+lollipop_plot <- ggplot(top_15, aes(y = reorder(name_clean, ldi), x = ldi)) + 
+  geom_lollipop(point.colour = "darkred", point.size = 4, horizontal = TRUE) +
+  scale_x_continuous("Language Diversity Index") + 
+  expand_limits(x = 1.0) + 
+  theme_minimal() + 
+  theme(panel.grid.major.y = element_blank()) + 
+  theme(axis.line.y = element_line(color = "#2b2b2b", size = 0.15)) + 
+  theme(axis.text.y = element_text(margin = margin(r = 0, l = 0))) + 
+  theme(plot.margin = unit(rep(30, 4), "pt")) + 
+  theme(plot.title = element_text(face = "bold", hjust = 0.5)) + 
+  theme(plot.subtitle = element_text(hjust = 0.5)) + 
+  theme(plot.caption = element_text(size = 8, margin = margin(t = 10))) + 
+  labs(
+    y = NULL,
+    title = "Language Diversity Index",
+    subtitle = "Fifteen most diverse CMAs by language diversity (2021 Census)",
+    caption = "Dmitry Shkolnik @dshkol\nCensus 2021 data from Statistics Canada retrieved through cancensus R package\nLinguistic diversity calculated using the method introduced in Greenberg (1956)\nand generated based off Census data for language spoken most often at home."
+  )
+
+lollipop_plot
+```
+
+## Summary Statistics
+
+```{r summary_stats}
+# Generate summary statistics
+summary_stats <- ldi_results %>%
+  filter(!is.na(ldi)) %>%
+  summarise(
+    n_cmas = n(),
+    mean_ldi = mean(ldi),
+    median_ldi = median(ldi),
+    min_ldi = min(ldi),
+    max_ldi = max(ldi),
+    sd_ldi = sd(ldi)
+  )
+
+cat("Summary Statistics for Language Diversity Index (2021):\n")
+cat("Number of CMAs analyzed:", summary_stats$n_cmas, "\n")
+cat("Mean LDI:", round(summary_stats$mean_ldi, 4), "\n")
+cat("Median LDI:", round(summary_stats$median_ldi, 4), "\n")
+cat("Range:", round(summary_stats$min_ldi, 4), "to", round(summary_stats$max_ldi, 4), "\n")
+cat("Standard Deviation:", round(summary_stats$sd_ldi, 4), "\n")
+```
+
+## Comparison with Major Cities
+
+```{r major_cities_comparison}
+# Focus on Canada's largest metropolitan areas
+major_cities <- c("Toronto", "Montréal", "Vancouver", "Calgary", "Edmonton", "Ottawa - Gatineau")
+
+major_cities_ldi <- ldi_results %>%
+  filter(grepl(paste(major_cities, collapse = "|"), name, ignore.case = TRUE)) %>%
+  arrange(desc(ldi)) %>%
+  mutate(rank_overall = match(name, top_diverse$`Metropolitan Area`))
+
+kable(major_cities_ldi %>%
+        select(`Metropolitan Area` = name, 
+               `LDI` = ldi, 
+               `Overall Rank` = rank_overall), 
+      caption = "Language Diversity in Canada's Major Metropolitan Areas",
+      digits = 4)
+```
+
+## Population vs Linguistic Diversity
+
+Let's explore the relationship between metropolitan area population size and linguistic diversity:
+
+```{r population_diversity_plot}
+# Create scatter plot with labeled points
+plot_theme <- theme_minimal() + 
+  theme(plot.title = element_text(face = "bold", hjust = 0.5)) + 
+  theme(plot.subtitle = element_text(hjust = 0.5)) + 
+  theme(plot.caption = element_text(size = 8, margin = margin(t = 10)))
+
+# Identify key points for labeling
+labeled_points <- c("Toronto", "Vancouver", "Montréal", "Ottawa - Gatineau", "Calgary", "Edmonton", "Winnipeg", "Hamilton")
+label_data <- ldi_results %>% 
+  filter(grepl(paste(labeled_points, collapse = "|"), name, ignore.case = TRUE)) %>%
+  mutate(name_clean = gsub(" \\(.*\\)", "", name))
+
+# Scatter plot with log population
+ggplot(ldi_results %>% mutate(name_clean = gsub(" \\(.*\\)", "", name)), 
+       aes(x = ldi, y = log(total_speakers))) + 
+  geom_point(alpha = 0.6, size = 2) + 
+  geom_label_repel(data = label_data,
+    aes(x = ldi, y = log(total_speakers), label = name_clean),
+    size = 2.5,
+    color = 'white', 
+    fill = "darkgrey",
+    box.padding = unit(0.35, "lines"),
+    point.padding = unit(0.5, "lines"),
+    segment.color = 'grey50') + 
+  scale_x_continuous("Language Diversity Index") +
+  scale_y_continuous("Log Population") +
+  plot_theme + 
+  labs(title = "Language Diversity vs Population Size",
+       subtitle = "Canadian Metropolitan Areas (2021 Census)",
+       caption = "Dmitry Shkolnik @dshkol\nCensus 2021 data from Statistics Canada retrieved through cancensus R package\nLinguistic diversity calculated using the method introduced in Greenberg (1956)")
+```
+
+```{r population_diversity_smooth}
+# Add trend line with confidence interval
+ggplot(ldi_results, aes(x = ldi, y = log(total_speakers))) + 
+  geom_point(alpha = 0.6, size = 2) + 
+  geom_smooth(method = 'lm', colour = "darkred", alpha = 0.1) + 
+  scale_x_continuous("Language Diversity Index") +
+  scale_y_continuous("Log Population") +
+  plot_theme + 
+  labs(title = "Language Diversity vs Population Size",
+       subtitle = "Canadian Metropolitan Areas with trend line (2021 Census)",
+       caption = "Dmitry Shkolnik @dshkol\nCensus 2021 data from Statistics Canada retrieved through cancensus R package\nLinguistic diversity calculated using the method introduced in Greenberg (1956)")
+```
+
+## Spatial Analysis: Language Diversity within Metropolitan Areas
+
+Let's examine the spatial distribution of language diversity within Canada's largest metropolitan areas at a finer geographic resolution:
+
+```{r spatial_setup}
+# Get spatial data for Toronto at Census Tract level for detailed analysis
+if(!require(sf)) install.packages("sf")
+library(sf)
+
+# Select Toronto for detailed spatial analysis
+toronto_region <- list(CMA = "35535")  # Toronto CMA code
+
+cat("Retrieving spatial data for Toronto at Census Tract level...\n")
+
+# Get Toronto census tract data with geometry
+toronto_spatial <- get_census(
+  dataset = dataset,
+  regions = toronto_region,
+  vectors = language_vectors,
+  level = "CT",  # Census Tract level for good detail
+  geo_format = "sf",
+  labels = "short",
+  quiet = TRUE
+)
+
+# Calculate LDI for each census tract
+toronto_spatial_clean <- toronto_spatial %>%
+  st_drop_geometry()
+
+# Calculate LDI for Toronto CTs
+toronto_ldi_spatial <- toronto_spatial_clean %>%
+  select(GeoUID, all_of(language_cols)) %>%
+  rowwise() %>%
+  mutate(
+    total_speakers = get(total_col),
+    language_counts = list(
+      c_across(all_of(setdiff(language_cols, total_col)))
+    ),
+    ldi = calculate_ldi(unlist(language_counts) / total_speakers)
+  ) %>%
+  ungroup() %>%
+  select(GeoUID, ldi)
+
+# Join back to spatial data
+toronto_map_data <- toronto_spatial %>%
+  left_join(toronto_ldi_spatial, by = "GeoUID") %>%
+  filter(!is.na(ldi))
+
+cat("Prepared spatial data for", nrow(toronto_map_data), "census tracts\n")
+```
+
+```{r toronto_map}
+# Create Toronto language diversity map
+map_theme <- theme_void() + 
+  theme(plot.title = element_text(face = "bold", hjust = 0.5)) + 
+  theme(plot.subtitle = element_text(hjust = 0.5)) + 
+  theme(plot.caption = element_text(size = 8, margin = margin(t = 10), hjust = 0.95)) +
+  theme(legend.position = "bottom")
+
+toronto_map <- ggplot(toronto_map_data) + 
+  geom_sf(aes(fill = ldi), colour = NA) + 
+  scale_fill_viridis_c("Language Diversity Index", option = "magma", direction = 1) +
+  map_theme + 
+  coord_sf(datum = NA) +
+  guides(fill = guide_colourbar(title.position = "top", barwidth = 20, barheight = 0.5)) +
+  labs(
+    title = "Language Diversity Index",
+    subtitle = "Toronto Census Metropolitan Area (Census Tract level, 2021)",
+    caption = "Dmitry Shkolnik @dshkol\nCensus 2021 data from Statistics Canada retrieved through cancensus R package\nLinguistic diversity calculated using the method introduced in Greenberg (1956)\nGenerated based on Census data for language spoken most often at home."
+  )
+
+toronto_map
+```
+
+```{r spatial_summary}
+# Summary of spatial patterns
+spatial_summary <- toronto_map_data %>%
+  st_drop_geometry() %>%
+  summarise(
+    n_tracts = n(),
+    mean_ldi = mean(ldi, na.rm = TRUE),
+    median_ldi = median(ldi, na.rm = TRUE),
+    min_ldi = min(ldi, na.rm = TRUE),
+    max_ldi = max(ldi, na.rm = TRUE),
+    sd_ldi = sd(ldi, na.rm = TRUE)
+  )
+
+cat("Toronto CMA Spatial Analysis Summary:\n")
+cat("Number of Census Tracts:", spatial_summary$n_tracts, "\n")
+cat("Mean LDI:", round(spatial_summary$mean_ldi, 4), "\n")
+cat("Range:", round(spatial_summary$min_ldi, 4), "to", round(spatial_summary$max_ldi, 4), "\n")
+cat("Standard Deviation:", round(spatial_summary$sd_ldi, 4), "\n")
+cat("\nThis reveals significant spatial heterogeneity in language diversity within the Toronto metropolitan area.\n")
+```
+
+## Conclusions
+
+```{r conclusions}
+# Get the most diverse CMA
+most_diverse <- ldi_results %>% 
+  filter(!is.na(ldi)) %>% 
+  slice_max(ldi, n = 1)
+
+cat("Based on 2021 Census data:\n")
+cat("• Most linguistically diverse Canadian metropolitan area:", most_diverse$name, "\n")
+cat("• LDI Score:", round(most_diverse$ldi, 4), "\n")
+cat("• This represents a", round(most_diverse$ldi * 100, 1), "% probability that two randomly selected residents speak different mother tongues\n")
+
+# Toronto ranking
+toronto_rank <- which(grepl("Toronto", top_diverse$`Metropolitan Area`))
+if(length(toronto_rank) > 0) {
+  cat("• Toronto ranks #", toronto_rank, "in linguistic diversity\n")
+}
+```
+
+## Technical Notes
+
+This analysis uses the 2021 Census data accessed through the `cancensus` R package. The Language Diversity Index calculation follows Greenberg's (1956) methodology. The analysis focuses on mother tongue data to measure linguistic diversity as a proxy for population diversity.
+
+Key differences from the original 2017 analysis:
+- Uses 2021 Census dataset (CA21) instead of 2016 (CA16)
+- Updated vector identification methods for 2021 data structure
+- Refined data processing to handle 2021 census data format
+
+```{r session_info}
+# Document session info for reproducibility
+sessionInfo()
+```
