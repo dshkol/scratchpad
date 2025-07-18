@@ -2,6 +2,7 @@ baseurl = "https://dshkol.com"
 languageCode = "en"
 title = "Dmitry Shkolnik"
 theme = "kiss"
+buildFuture = true
 pygmentsCodefences = true
 pygmentsUseClasses = true
 pygmentsStyle = "monokailight"
