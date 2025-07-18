@@ -71,8 +71,10 @@ tag ="tags"
 hrefTargetBlank = true
 
 [params.sections_left]
-"/page/about" = "About"
+"/post/" = "Blog"
+"/page/projects" = "Projects"
 "/page/code" = "Code"
+"/page/about" = "About"
 
 [markup]
   defaultMarkdownHandler = "goldmark"
