@@ -1,7 +1,7 @@
 ---
 title: "Census Monkey Typewriter: US Census-derived blogging with Claude Code"
 author: "Dmitry Shkolnik"
-date: '2025-07-18'
+date: '2025-07-17'
 summary: "Exploring experimental demographic analyses generated using AI and US Census data - a collection of novel spatial and social patterns discovered through computational research."
 slug: census-monkey-typewriter
 categories:
