@@ -5,7 +5,6 @@
     {{- $pctx := . -}}
     {{- if .IsHome -}}{{ $pctx = .Site }}{{- end -}}
     {{- $pages := $pctx.RegularPages -}}
-    {{- $pages := where $pages "Section" "ne" "census-monkey-typewriter" -}}
     {{ $paginator := .Paginate (where $pages "Params.hidden" "ne" true) }}
     {{ range sort .Paginator.Pages }}
     <article>
