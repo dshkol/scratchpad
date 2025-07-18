@@ -12,7 +12,7 @@
 {{- partial "social/opengraph" . -}}
 {{ end }}
 {{ if .Site.Params.rss }}
-<link href="{{ .Site.RSSLink }}" rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" />
+<link href="{{ (.Site.Home.OutputFormats.Get "rss").Permalink }}" rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" />
 {{ end }}
 <link rel="stylesheet" href="{{ "css/style.css" | relURL }}"/>
 {{- range .Site.Params.Assets.customCSS -}}

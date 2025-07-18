@@ -6,10 +6,15 @@ pygmentsCodefences = true
 pygmentsUseClasses = true
 pygmentsStyle = "monokailight"
 copyright = "&copy; <a href=\"https://github.com/dshkol\">Dmitry Shkolnik</a> 2022"
-disqusShortname = "dshkol"
-googleAnalytics = "UA-107390160-1"
-Paginate = 8 # Number of posts per page
+[services.disqus]
+shortname = "dshkol"
+[services.googleAnalytics]
+id = "UA-107390160-1"
+[pagination]
+pagerSize = 8 # Number of posts per page
 enableRobotsTXT = true
+ignoreErrors = ["error-remote-getjson"]
+ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_cache$"]
 
 [params.rss] # Adding this tag enables RSS feed
 includeContent = true # Includes whole content in rss
@@ -71,4 +76,7 @@ hrefTargetBlank = true
 
 [markup]
   defaultMarkdownHandler = "goldmark"
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
 
