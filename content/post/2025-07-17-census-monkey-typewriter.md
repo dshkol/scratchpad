@@ -1,5 +1,5 @@
 ---
-title: "A thousand agents writing "
+title: "A million monkeys doing data blogging - agentic social science with Claude Code and friends"
 author: "Dmitry Shkolnik"
 date: '2025-07-21'
 summary: "An experiment in using LLMs to automate social science writing. Here's what I learned about LLM-assisted social science blogging."
@@ -17,7 +17,7 @@ tags:
 
 _“Let us imagine a million monkeys typing ten hours a day at random. There is almost no doubt that one of them would write exactly the complete works of Bossuet; if not, at least a good psalm, and if not, at least a few lines.”_ - Émile Borel — Mécanique Statistique et Irréversibilité (1913)
 
-Census Monkey Typewriter is an experiment to see how easy it would be to set up some kind of semi-automated and semi-supervised social science research and writing in the style of blog posts and circa 2019-era 'data journalism'. The goal was to create a process for an agent or a series of agents to run an analysis workflow end-to-end, from hypothesis creation to analysis plan to execution with narrative building, critique, and effective visual communication. Admittedly, the project was also intended as a parody of data blogging with the non-sense hypothesis dial turned up but after a few weeks of iteration the results have been pretty interesting, and I've learned a lot about how to approach this kind of problem going forward, and there's a few ideas I want to keep exploring in the near future. 
+[Census Monkey Typewriter](https://github.com/dshkol/census-monkey-typewriter) is an experiment to see how easy it would be to set up some kind of semi-automated and semi-supervised social science research and writing in the style of blog posts and circa 2019-era 'data journalism'. The goal was to create a process for an agent or a series of agents to run an analysis workflow end-to-end, from hypothesis creation to analysis plan to execution with narrative building, critique, and effective visual communication. Admittedly, the project was also intended as a parody of data blogging with the non-sense hypothesis dial turned up but after a few weeks of iteration the results have been pretty interesting, and I've learned a lot about how to approach this kind of problem going forward, and there's a few ideas I want to keep exploring in the near future. 
 
 ## System overview at a high-level
 
@@ -127,7 +127,13 @@ I provide some feedback:
 
 Up to now it's unlikely to have encountered code for a bivariate choropleth in ggplot2 but I expect this will be sufficient context for it to learn and add to its toolkit going forward. 
 
-Here's the result of the [second shot](). Still a few issues. I provide more feedback:
+`* gesticulating`
+
+...
+
+`* germinating` 
+
+Still a few issues. I provide more feedback:
 
 ```text
 > Feedback on your second shot here: why is the 'geographic patterns revealed' section buried in the causation section? Shouldn't it come right after the table in the section 'geographic patterns of 
@@ -291,7 +297,7 @@ That's a substantial amount of learning from relatively few feedback prompts on 
        1467 +  
 ```
 
-The final result is [here]() and the full session log is [here](https://gist.github.com/dshkol/09d4db4ed28c73026103246bdaf52656). 
+The final result is [here]((/census-monkey-typewriter/analyses/linguistic-entropy.html)) and the full session log is [here](https://gist.github.com/dshkol/09d4db4ed28c73026103246bdaf52656). 
 
 ## Iterative context refinement
 
