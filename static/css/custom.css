@@ -1,0 +1,18 @@
+/* Fix excessive spacing between markdown sections */
+.content h1:not(:first-child),
+.content h2:not(:first-child),
+.content h3:not(:first-child),
+.content h4:not(:first-child),
+.content h5:not(:first-child),
+.content h6:not(:first-child) {
+  margin-top: 2em !important; /* Reduced from 80px to 2em (~32px) */
+}
+
+/* Ensure reasonable spacing for consecutive headings */
+.content h1+h2:not(:first-child),
+.content h2+h3:not(:first-child),
+.content h3+h4:not(:first-child),
+.content h4+h5:not(:first-child),
+.content h5+h6:not(:first-child) {
+  margin-top: 1.5em !important; /* Reduced from 20px to 1.5em */
+}
