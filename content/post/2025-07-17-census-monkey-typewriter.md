@@ -297,7 +297,7 @@ That's a substantial amount of learning from relatively few feedback prompts on 
        1467 +  
 ```
 
-The final result is [here]((/census-monkey-typewriter/analyses/linguistic-entropy.html)) and the full session log is [here](https://gist.github.com/dshkol/09d4db4ed28c73026103246bdaf52656). 
+The final result is [here](/census-monkey-typewriter/analyses/linguistic-entropy.html) and the full session log is [here](https://gist.github.com/dshkol/09d4db4ed28c73026103246bdaf52656). 
 
 ## Iterative context refinement
 
@@ -314,37 +314,55 @@ As it stands now, the system needs fundamental improvements to be more than a cu
 
 ## The Analyses
 
-Here's what came out of this experiment - ten analyses that made it through the full pipeline:
+Here's what came out of this experiment - analyses that made it through the full pipeline:
 
-### 1. [The Linguistic Archipelago: When Language Isolation Drives Success](/census-monkey-typewriter/analyses/linguistic-archipelago.html)
-Border counties where Spanish dominance correlates with higher incomes, challenging integration assumptions.
-
-### 2. [Seasonal Demographic Pulse: The Rhythm of American Migration](/census-monkey-typewriter/analyses/seasonal-demographic-pulse.html)
-Mapping the dramatic population swings in seasonal migration hotspots.
-
-### 3. [Empty Nester Housing Inefficiency: When Big Houses Meet Small Households](/census-monkey-typewriter/analyses/empty-nester-housing-inefficiency.html)
-Geographic clustering of housing/household size mismatches and their economic implications.
-
-### 4. [The Fertility Frontier: Where Large Families Still Thrive](/census-monkey-typewriter/analyses/fertility-frontier.html)
-Identifying modern high-fertility clusters beyond traditional religious communities.
-
-### 5. [Geographic NIMBY Detection: The Spatial Signature of Housing Resistance](/census-monkey-typewriter/analyses/geographic-nimby-detection.html)
-Using demographic proxies to map development resistance patterns.
-
-### 6. [The Grandparent Dividend: Multi-Generational Households and Economic Advantage](/census-monkey-typewriter/analyses/grandparent-dividend.html)
-How co-resident grandparents affect household economics across different geographies.
-
-### 7. [The Loneliness Gradient: Mapping Social Isolation in American Communities](/census-monkey-typewriter/analyses/loneliness-gradient.html)
-Single-person household concentrations as a proxy for social isolation.
-
-### 8. [Tech Hub Hollowing: The Demographic Paradox of Innovation Centers](/census-monkey-typewriter/analyses/tech-hub-hollowing.html)
+### 1. [Tech Hub Hollowing: The Demographic Paradox of Innovation Centers](/census-monkey-typewriter/analyses/tech-hub-hollowing.html)
 Tracking how tech booms create their own demographic undermining.
 
-### 9. [Dead Language Archipelago: The Fading Linguistic Landscape](/census-monkey-typewriter/analyses/dead-language-archipelago.R)
-Failed attempt at mapping heritage language decline (kept as a methodological lesson).
+### 2. [Language Diversity Fuels Economic Innovation: Evidence from American Counties](/census-monkey-typewriter/analyses/linguistic-entropy.html)
+Testing whether linguistic diversity measured through Shannon entropy correlates with economic dynamism at the county level.
 
-### 10. [Infrastructure Inequality Gradient: The Digital Divide's Hidden Geography](/census-monkey-typewriter/analyses/infrastructure-inequality-gradient.html)
+### 3. [The Linguistic Archipelago: When Language Isolation Drives Success](/census-monkey-typewriter/analyses/linguistic-archipelago.html)
+Border counties where Spanish dominance correlates with higher incomes, challenging integration assumptions.
+
+### 4. [Temporal Demographic Momentum: The Mathematics of Population Change](/census-monkey-typewriter/analyses/temporal-demographic-momentum-v2.html)
+Exploring how demographic momentum creates predictable population trajectories despite changing fertility patterns.
+
+### 5. [Seasonal Demographic Pulse: The Rhythm of American Migration](/census-monkey-typewriter/analyses/seasonal-demographic-pulse-v2.html)
+Mapping the dramatic population swings in seasonal migration hotspots with enhanced methodology.
+
+### 6. [Bimodal Commute: When Geography Creates Two Different Cities](/census-monkey-typewriter/analyses/bimodal-commute.html)
+Identifying metropolitan areas where commute patterns reveal fundamentally different urban experiences.
+
+### 7. [Empty Nester Housing Inefficiency: When Big Houses Meet Small Households](/census-monkey-typewriter/analyses/empty-nester-housing-inefficiency.html)
+Geographic clustering of housing/household size mismatches and their economic implications.
+
+### 8. [The Fertility Frontier: Where Large Families Still Thrive](/census-monkey-typewriter/analyses/fertility-frontier.html)
+Identifying modern high-fertility clusters beyond traditional religious communities.
+
+### 9. [Geographic NIMBY Detection: The Spatial Signature of Housing Resistance](/census-monkey-typewriter/analyses/geographic-nimby-detection.html)
+Using demographic proxies to map development resistance patterns.
+
+### 10. [The Grandparent Dividend: Multi-Generational Households and Economic Advantage](/census-monkey-typewriter/analyses/grandparent-dividend.html)
+How co-resident grandparents affect household economics across different geographies.
+
+### 11. [Infrastructure Inequality Gradient: The Digital Divide's Hidden Geography](/census-monkey-typewriter/analyses/infrastructure-inequality-gradient.html)
 Broadband access patterns that cut across traditional geographic categories.
 
-### 11. [Language Diversity Fuels Economic Innovation: Evidence from American Counties](/census-monkey-typewriter/analyses/linguistic-entropy.html)
-Testing whether linguistic diversity measured through Shannon entropy correlates with economic dynamism at the county level.
+### 12. [The 3 AM Population: Night Owls and Geographic Settlement Patterns](/census-monkey-typewriter/analyses/3am-population.html)
+Mapping communities where late-night activity reveals unique demographic and economic patterns.
+
+### 13. [Age Structure Archipelago: When Demographics Create Geographic Islands](/census-monkey-typewriter/analyses/age-structure-singularity-enhanced.html)
+Identifying counties with extreme age concentrations that create distinct demographic islands.
+
+### 14. [Monoculture Coast: The Geography of Ethnic Concentration](/census-monkey-typewriter/analyses/monoculture-coast.html)
+Tracking where single ancestry groups achieve geographic dominance and the patterns this creates.
+
+### 15. [Vertical City: The Rise of High-Density Living](/census-monkey-typewriter/analyses/vertical-city.html)
+Mapping America's transition toward vertical living and its demographic implications.
+
+### 16. [Vowel Valley, Consonant County: The Phonetic Geography of America](/census-monkey-typewriter/analyses/vowel-valley-consonant-county.html)
+A whimsical exploration of whether place names' phonetic patterns correlate with demographic characteristics.
+
+### 17. [Dead Language Archipelago: The Fading Linguistic Landscape](/census-monkey-typewriter/analyses/dead-language-archipelago.R)
+Failed attempt at mapping heritage language decline (kept as a methodological lesson).
