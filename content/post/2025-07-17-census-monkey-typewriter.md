@@ -297,7 +297,7 @@ That's a substantial amount of learning from relatively few feedback prompts on 
        1467 +  
 ```
 
-The final result is [here](/census-monkey-typewriter/analyses/linguistic-entropy.html) and the full session log is [here](https://gist.github.com/dshkol/09d4db4ed28c73026103246bdaf52656). 
+The final result is [here](/analyses/2025-07-20-linguistic-entropy/) and the full session log is [here](https://gist.github.com/dshkol/09d4db4ed28c73026103246bdaf52656). 
 
 ## Iterative context refinement
 
@@ -316,10 +316,10 @@ As it stands now, the system needs fundamental improvements to be more than a cu
 
 Here's what came out of this experiment - analyses that made it through the full pipeline:
 
-### 1. [Tech Hub Hollowing: The Demographic Paradox of Innovation Centers](/census-monkey-typewriter/analyses/tech-hub-hollowing.html)
+### 1. [Tech Hub Hollowing: The Demographic Paradox of Innovation Centers](/analyses/2025-07-20-tech-hub-hollowing/)
 Tracking how tech booms create their own demographic undermining.
 
-### 2. [Language Diversity Fuels Economic Innovation: Evidence from American Counties](/census-monkey-typewriter/analyses/linguistic-entropy.html)
+### 2. [Language Diversity Fuels Economic Innovation: Evidence from American Counties](/analyses/2025-07-20-linguistic-entropy/)
 Testing whether linguistic diversity measured through Shannon entropy correlates with economic dynamism at the county level.
 
 ### 3. [The Linguistic Archipelago: When Language Isolation Drives Success](/census-monkey-typewriter/analyses/linguistic-archipelago.html)
