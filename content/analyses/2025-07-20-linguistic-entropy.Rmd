@@ -185,9 +185,7 @@ Finally, talent attraction becomes self-reinforcing. Companies and institutions 
 
 ### Geographic Patterns Revealed
 
-```{r bivariate-map, echo=FALSE, fig.width=16, fig.height=10, fig.cap="Bivariate choropleth showing the joint distribution of linguistic diversity and median income across US counties"}
-knitr::include_graphics("/analyses/linguistic-entropy-figures/linguistic_diversity_bivariate_map.png")
-```
+![Bivariate choropleth showing the joint distribution of linguistic diversity and median income across US counties](/analyses/linguistic-entropy-figures/linguistic_diversity_bivariate_map.png)
 
 The bivariate choropleth map reveals striking geographic patterns in the diversity-prosperity relationship. Dark blue counties—indicating both high linguistic diversity and high income—concentrate in predictable locations: California's tech corridor, the New York metropolitan area, the Washington D.C. region, and other major urban centers. However, the map also reveals less obvious patterns that strengthen the economic interpretation.
 
