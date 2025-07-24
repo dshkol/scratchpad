@@ -281,19 +281,19 @@ The map reveals the geographic distribution of second-tier tech hubs across the 
 
 ### Tech Concentration and Workforce Diversity
 
-![](../../static/analyses/tech-hub-hollowing-figures/tech_share_diversity.png)
+![](/analyses/tech-hub-hollowing-figures/tech_share_diversity.png)
 
 The scatter plot shows a positive relationship between tech concentration and workforce diversity. Tech hubs (red points) cluster in the upper right quadrant with both high tech concentration and high diversity. Individual metro labels identify the specific tech hub metros, with Portland and Phoenix leading in diversity while Boulder and Provo show the highest tech concentration.
 
 ### Housing Burden by Metro Type
 
-![](../../static/analyses/tech-hub-hollowing-figures/housing_burden_trends.png)
+![](/analyses/tech-hub-hollowing-figures/housing_burden_trends.png)
 
 Tech hubs show higher median housing burden, but the distributions overlap substantially. Housing affordability pressures exist across metro types.
 
 ### Worker Composition Across Metro Types
 
-![](../../static/analyses/tech-hub-hollowing-figures/worker_composition_tech_hubs.png)
+![](/analyses/tech-hub-hollowing-figures/worker_composition_tech_hubs.png)
 
 Tech hubs maintain comparable shares of service and essential workers relative to their tech workforce. The distributions show balanced labor markets rather than tech monocultures.
 
