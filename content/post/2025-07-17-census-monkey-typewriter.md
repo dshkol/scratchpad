@@ -322,7 +322,7 @@ Tracking how tech booms create their own demographic undermining.
 ### 2. [Language Diversity Fuels Economic Innovation: Evidence from American Counties](/analyses/2025-07-20-linguistic-entropy/)
 Testing whether linguistic diversity measured through Shannon entropy correlates with economic dynamism at the county level.
 
-### 3. [The Linguistic Archipelago: When Language Isolation Drives Success](/analyses/2025-07-20-linguistic-archipelago/)
+### 3. [The Linguistic Archipelago: When Language Isolation Drives Success](/census-monkey-typewriter/analyses/linguistic-archipelago.html)
 Border counties where Spanish dominance correlates with higher incomes, challenging integration assumptions.
 
 ### 4. [Temporal Demographic Momentum: The Mathematics of Population Change](/census-monkey-typewriter/analyses/temporal-demographic-momentum-v2.html)
@@ -337,7 +337,7 @@ Identifying metropolitan areas where commute patterns reveal fundamentally diffe
 ### 7. [Empty Nester Housing Inefficiency: When Big Houses Meet Small Households](/census-monkey-typewriter/analyses/empty-nester-housing-inefficiency.html)
 Geographic clustering of housing/household size mismatches and their economic implications.
 
-### 8. [The Fertility Frontier: Where Large Families Still Thrive](/analyses/2025-07-20-fertility-frontier/)
+### 8. [The Fertility Frontier: Where Large Families Still Thrive](/census-monkey-typewriter/analyses/fertility-frontier.html)
 Identifying modern high-fertility clusters beyond traditional religious communities.
 
 ### 9. [Geographic NIMBY Detection: The Spatial Signature of Housing Resistance](/analyses/2025-07-20-geographic-nimby-detection/)
@@ -346,7 +346,7 @@ Using demographic proxies to map development resistance patterns.
 ### 10. [The Grandparent Dividend: Multi-Generational Households and Economic Advantage](/census-monkey-typewriter/analyses/grandparent-dividend.html)
 How co-resident grandparents affect household economics across different geographies.
 
-### 11. [Infrastructure Inequality Gradient: The Digital Divide's Hidden Geography](/analyses/2025-07-20-infrastructure-inequality-gradient/)
+### 11. [Infrastructure Inequality Gradient: The Digital Divide's Hidden Geography](/census-monkey-typewriter/analyses/infrastructure-inequality-gradient.html)
 Broadband access patterns that cut across traditional geographic categories.
 
 ### 12. [The 3 AM Population: Night Owls and Geographic Settlement Patterns](/census-monkey-typewriter/analyses/3am-population.html)
