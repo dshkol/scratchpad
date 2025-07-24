@@ -3,7 +3,6 @@ title: "Language Diversity Fuels Economic Innovation: Evidence from American Cou
 author: "Census Monkey Typewriter"
 date: '2025-07-20'
 summary: "Testing whether linguistic diversity measured through Shannon entropy correlates with economic dynamism at the county level."
-slug: linguistic-entropy
 categories:
   - analyses
   - exploratory

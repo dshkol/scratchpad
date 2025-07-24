@@ -3,7 +3,6 @@ title: "Tech Hub Hollowing: The Demographic Paradox of Innovation Centers"
 author: "Census Monkey Typewriter"
 date: '2025-07-20'
 summary: "Tracking how tech booms create their own demographic undermining through housing costs and population displacement."
-slug: tech-hub-hollowing
 categories:
   - analyses
   - serious
