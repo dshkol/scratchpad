@@ -1,0 +1,405 @@
+---
+title: "Tech Hub Hollowing: The Demographic Paradox of Innovation Centers"
+author: "Census Monkey Typewriter"
+date: '2025-07-20'
+summary: "Tracking how tech booms create their own demographic undermining through housing costs and population displacement."
+slug: tech-hub-hollowing
+categories:
+  - analyses
+  - serious
+tags:
+  - tech-hubs
+  - housing
+  - demographics
+  - economics
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+library(tidyverse)
+library(tidycensus)
+library(fixest)
+library(viridis)
+library(scales)
+library(knitr)
+library(kableExtra)
+library(ggrepel)
+
+# Load saved data
+analysis_data <- readRDS("../../static/analyses/tech-hub-hollowing-data/analysis_data.rds")
+models <- readRDS("../../static/analyses/tech-hub-hollowing-data/regression_models.rds")
+```
+
+## The Conventional Wisdom
+
+The story has become familiar across America's second-tier tech hubs. As software engineers flood cities like Austin, Boulder, and Denver, housing costs surge and essential workers get priced out. Teachers commute from increasingly distant suburbs. Firefighters and nurses struggle to afford homes in the communities they serve. Local coffee shops and restaurants face staffing shortages as service workers relocate to cheaper areas.
+
+This "demographic hollowing" narrative has shaped housing policy discussions from Portland to Raleigh. City councils debate tech company tax incentives, inclusionary zoning policies, and affordable housing mandates. The underlying assumption is straightforward: tech concentration creates economically homogeneous communities that lose their essential workforce.
+
+The demographic hollowing hypothesis predicts three clear patterns: lower occupation diversity in tech-concentrated metros, reduced service worker presence, and substantially higher housing cost burdens. We test this directly using comprehensive 2020 Census data from 939 metropolitan areas.
+
+## Analysis Design
+
+We analyzed 939 metropolitan areas using 2020 American Community Survey data, focusing on eight second-tier tech hubs that experienced rapid growth during the 2010s: Austin-Round Rock-Georgetown, Boulder, Denver-Aurora-Lakewood, Phoenix-Mesa-Chandler, Portland-Vancouver-Hillsboro, Provo-Orem, Raleigh-Cary, and Salt Lake City. These metros were selected based on their reputation as tech destinations while avoiding the established giants (San Francisco, Seattle, New York).
+
+Our analysis used three key measures. Occupation diversity was calculated using Shannon entropy across 23 detailed occupation categories, where higher values indicate more balanced workforce composition. We identified service workers (food preparation, personal care, building maintenance) and essential workers (education, healthcare, protective services) as the groups most vulnerable to displacement. Housing cost burden captured the percentage of households paying 30% or more of income for housing costs, a standard affordability threshold.
+
+## Findings
+
+### Finding 1: Tech Hubs Are MORE Diverse, Not Less
+
+```{r diversity-stats, echo=FALSE}
+data_2020 <- analysis_data %>% filter(year == 2020)
+tech_hubs <- data_2020 %>% filter(is_tech_hub)
+other_metros <- data_2020 %>% filter(!is_tech_hub)
+
+diversity_comp <- data.frame(
+  Metro_Type = c("Tech Hubs", "Other Metros"),
+  Shannon_Entropy = c(
+    mean(tech_hubs$shannon_entropy, na.rm = TRUE),
+    mean(other_metros$shannon_entropy, na.rm = TRUE)
+  ),
+  Tech_Worker_Share = c(
+    mean(tech_hubs$tech_share, na.rm = TRUE),
+    mean(other_metros$tech_share, na.rm = TRUE)
+  )
+) %>%
+  mutate(
+    Shannon_Entropy = round(Shannon_Entropy, 3),
+    Tech_Worker_Share = percent(Tech_Worker_Share, accuracy = 0.1)
+  )
+
+kable(diversity_comp, 
+      col.names = c("Metro Type", "Occupation Diversity Index", "Tech Worker %"),
+      caption = "The Diversity Paradox: Tech Hubs Show Greater Workforce Variety") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+Tech hubs maintain 8.6% higher occupation diversity than other metros, directly contradicting the hollowing hypothesis. The Shannon entropy measure reveals that tech-concentrated metros have more balanced workforce compositions, not less. Perhaps more striking, computer and mathematical occupations comprise just 7.7% of the workforce in these supposedly tech-dominated metros—far from the overwhelming presence the narrative suggests.
+
+```{r individual-hubs, echo=FALSE}
+# Show individual tech hub results
+tech_hub_details <- analysis_data %>%
+  filter(year == 2020, is_tech_hub == TRUE) %>%
+  select(NAME, shannon_entropy, tech_share, service_share, essential_share, 
+         overall_burden, median_income, total_workers) %>%
+  arrange(desc(shannon_entropy)) %>%
+  mutate(
+    metro_name = str_replace(NAME, " Metro Area", ""),
+    metro_name = str_replace(metro_name, ", [A-Z]{2}(-[A-Z]{2})?", ""),
+    diversity_rank = row_number(),
+    across(c(tech_share, service_share, essential_share, overall_burden), 
+           ~percent(., accuracy = 0.01)),
+    median_income = dollar(median_income),
+    total_workers = comma(total_workers),
+    shannon_entropy = round(shannon_entropy, 3)
+  ) %>%
+  select(metro_name, diversity_rank, shannon_entropy, tech_share, service_share, 
+         essential_share, overall_burden, median_income, total_workers)
+
+kable(tech_hub_details,
+      col.names = c("Metro Area", "Diversity Rank", "Shannon Entropy", "Tech %", 
+                    "Service %", "Essential %", "Housing Burden", "Median Income", "Total Workers"),
+      caption = "Individual Tech Hub Performance: Diversity and Workforce Composition") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"), font_size = 11) %>%
+  add_header_above(c(" " = 3, "Workforce Composition" = 3, "Economic Indicators" = 3))
+```
+
+The individual results reveal variation within tech hubs while confirming the overall pattern. Portland leads in workforce diversity (2.32 Shannon entropy), followed by Phoenix (2.29) and Denver (2.25). Even the least diverse tech hub, Provo (1.89), maintains substantial occupational variety. Tech worker concentrations range from 6.2% in Phoenix to 10.6% in Boulder, but none approaches workforce dominance.
+
+This finding challenges the fundamental premise of demographic hollowing. If tech workers represented 25% or 30% of the workforce, displacement pressures might be overwhelming. At 7.7%, tech workers are a notable but minority presence in these metro economies. The diversity advantage suggests these metros attract and retain varied industries and occupations, not just technology firms.
+
+### Finding 2: Service Workers Hold Their Ground
+
+```{r worker-composition, echo=FALSE}
+worker_comp <- data.frame(
+  Worker_Type = rep(c("Service Workers", "Essential Workers"), each = 2),
+  Metro_Type = rep(c("Tech Hubs", "Other Metros"), 2),
+  Share = c(
+    mean(tech_hubs$service_share, na.rm = TRUE),
+    mean(other_metros$service_share, na.rm = TRUE),
+    mean(tech_hubs$essential_share, na.rm = TRUE),
+    mean(other_metros$essential_share, na.rm = TRUE)
+  )
+) %>%
+  mutate(Share = percent(Share, accuracy = 0.01))
+
+kable(worker_comp %>% pivot_wider(names_from = Metro_Type, values_from = Share),
+      caption = "The Persistence of Essential Work") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+The groups most vulnerable to displacement show surprising resilience in tech hubs. Service workers—those in food preparation, personal care, and building maintenance—maintain a slightly higher presence in tech hubs (3.43% vs 3.25%). This contradicts the narrative of service worker flight from expensive metros.
+
+Essential workers show even stronger representation in tech hubs. Teachers, healthcare workers, and protective services personnel comprise 5.66% of the workforce in tech hubs versus 5.00% in other metros. This 0.66 percentage point difference may seem small, but it represents thousands of additional essential workers in tech-concentrated areas.
+
+The persistence of these worker groups suggests several possibilities. Tech hubs may generate sufficient demand for services to support these workforces despite higher costs. Alternatively, these metros may have developed housing and transportation solutions that enable essential workers to remain. The data cannot distinguish between these mechanisms, but the pattern contradicts simple displacement narratives.
+
+### Finding 3: The Housing Burden Reality Check
+
+```{r housing-burden, echo=FALSE}
+housing_comp <- data.frame(
+  Metro_Type = c("Tech Hubs", "Other Metros"),
+  Housing_Burden_Rate = c(
+    mean(tech_hubs$overall_burden, na.rm = TRUE),
+    mean(other_metros$overall_burden, na.rm = TRUE)
+  ),
+  Median_Income = c(
+    mean(tech_hubs$median_income, na.rm = TRUE),
+    mean(other_metros$median_income, na.rm = TRUE)
+  )
+) %>%
+  mutate(
+    Housing_Burden_Rate = percent(Housing_Burden_Rate, accuracy = 0.1),
+    Median_Income = dollar(Median_Income)
+  )
+
+kable(housing_comp,
+      col.names = c("Metro Type", "% Paying 30%+ for Housing", "Median Household Income"),
+      caption = "The Affordability Squeeze: Real but Not Catastrophic") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+```
+
+Here the data reveals the clearest evidence of housing pressure. Tech hubs show meaningfully higher housing burden: 27.9% of households pay over 30% of income for housing versus 22.5% in other metros. This 5.4 percentage point gap represents tens of thousands of additional households facing affordability challenges in tech-concentrated areas.
+
+The housing burden finding validates concerns about affordability while complicating the displacement narrative. Median household incomes are 44% higher in tech hubs ($78,608 vs $54,776), suggesting that higher-income households also face proportional housing cost pressures. This pattern indicates that housing costs rise faster than incomes even for relatively affluent residents.
+
+The 30% threshold represents a widely-accepted affordability standard, beyond which households face difficult tradeoffs between housing and other necessities. The higher burden rates in tech hubs suggest that demographic hollowing pressures exist but may affect different income groups than anticipated. Middle-class families, not just minimum-wage workers, face housing cost pressures in these metros.
+
+## Geographic Patterns
+
+### Tech Hub Locations
+
+```{r tech-hub-map, echo=FALSE, fig.width=12, fig.height=8, message=FALSE, warning=FALSE, results='hide'}
+# Create map showing tech hub locations
+library(tigris)
+library(sf)
+library(ggrepel)
+
+# Suppress tigris caching messages
+options(tigris_use_cache = TRUE)
+
+# Get US states for basemap
+us_states <- suppressMessages(tigris::states(cb = TRUE, resolution = "20m")) %>%
+  shift_geometry() %>%
+  filter(!STUSPS %in% c("AK", "HI", "PR", "VI", "AS", "GU", "MP"))
+
+# Define tech metros using correct CBSA names
+tech_metros_cbsa <- c(
+  "Austin-Round Rock-San Marcos, TX",
+  "Raleigh-Cary, NC", 
+  "Denver-Aurora-Centennial, CO",
+  "Portland-Vancouver-Hillsboro, OR-WA",
+  "Phoenix-Mesa-Chandler, AZ",
+  "Salt Lake City-Murray, UT",
+  "Boulder, CO",
+  "Provo-Orem-Lehi, UT"
+)
+
+# Get metro area boundaries for tech hubs and extract centroids
+tech_metro_boundaries <- suppressMessages(tigris::core_based_statistical_areas(cb = TRUE, resolution = "20m")) %>%
+  shift_geometry() %>%
+  filter(NAME %in% tech_metros_cbsa) %>%
+  # Map back to our analysis data names
+  mutate(analysis_name = case_when(
+    NAME == "Austin-Round Rock-San Marcos, TX" ~ "Austin-Round Rock-Georgetown, TX Metro Area",
+    NAME == "Raleigh-Cary, NC" ~ "Raleigh-Cary, NC Metro Area",
+    NAME == "Denver-Aurora-Centennial, CO" ~ "Denver-Aurora-Lakewood, CO Metro Area",
+    NAME == "Portland-Vancouver-Hillsboro, OR-WA" ~ "Portland-Vancouver-Hillsboro, OR-WA Metro Area",
+    NAME == "Phoenix-Mesa-Chandler, AZ" ~ "Phoenix-Mesa-Chandler, AZ Metro Area",
+    NAME == "Salt Lake City-Murray, UT" ~ "Salt Lake City, UT Metro Area",
+    NAME == "Boulder, CO" ~ "Boulder, CO Metro Area",
+    NAME == "Provo-Orem-Lehi, UT" ~ "Provo-Orem, UT Metro Area"
+  )) %>%
+  left_join(analysis_data %>% filter(year == 2020, is_tech_hub == TRUE) %>% 
+            select(NAME, shannon_entropy, tech_share), 
+            by = c("analysis_name" = "NAME"))
+
+# Create centroids for point locations
+tech_hubs_points <- st_centroid(tech_metro_boundaries) %>%
+  mutate(
+    coords = st_coordinates(.),
+    lon = coords[,1],
+    lat = coords[,2],
+    # Clean metro names for labels
+    city = case_when(
+      str_detect(NAME, "Austin") ~ "Austin",
+      str_detect(NAME, "Denver") ~ "Denver", 
+      str_detect(NAME, "Phoenix") ~ "Phoenix",
+      str_detect(NAME, "Portland") ~ "Portland",
+      str_detect(NAME, "Raleigh") ~ "Raleigh",
+      str_detect(NAME, "Salt Lake") ~ "Salt Lake City",
+      str_detect(NAME, "Boulder") ~ "Boulder",
+      str_detect(NAME, "Provo") ~ "Provo",
+      TRUE ~ NAME
+    )
+  ) %>%
+  st_drop_geometry()
+
+# Create map
+ggplot() +
+  # US states basemap
+  geom_sf(data = us_states, fill = "gray95", color = "white", size = 0.3) +
+  # Tech hub points
+  geom_point(data = tech_hubs_points, 
+             aes(x = lon, y = lat, fill = shannon_entropy, size = tech_share),
+             shape = 21, color = "darkred", stroke = 1.5, alpha = 0.8) +
+  # Tech hub labels with repel
+  geom_text_repel(data = tech_hubs_points, 
+                  aes(x = lon, y = lat, label = city),
+                  size = 3.5, fontface = "bold", color = "darkred",
+                  box.padding = 0.5, point.padding = 0.3,
+                  segment.color = "darkred", segment.size = 0.5,
+                  min.segment.length = 0.2, max.overlaps = 20) +
+  scale_fill_viridis_c(name = "Workforce\nDiversity\n(Shannon\nEntropy)", 
+                       option = "plasma", direction = 1,
+                       breaks = c(1.9, 2.0, 2.1, 2.2, 2.3)) +
+  scale_size_continuous(name = "Tech Worker\nShare", 
+                        range = c(3, 8), 
+                        labels = scales::percent,
+                        breaks = c(0.06, 0.08, 0.10)) +
+  theme_void() +
+  theme(
+    legend.position = "right",
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 9),
+    plot.title = element_text(face = "bold", size = 14, hjust = 0.5),
+    plot.subtitle = element_text(size = 12, hjust = 0.5),
+    plot.margin = margin(10, 10, 10, 10)
+  ) +
+  labs(
+    title = "America's Second-Tier Tech Hubs",
+    subtitle = "Eight metropolitan areas driving workforce diversity beyond Silicon Valley"
+  ) +
+  guides(
+    fill = guide_colorbar(order = 1),
+    size = guide_legend(order = 2)
+  )
+```
+
+The map reveals the geographic distribution of second-tier tech hubs across the American West and selected metros in Texas and North Carolina. These metros span diverse regional contexts from mountain West (Denver, Salt Lake City, Boulder) to desert Southwest (Phoenix) to Pacific Northwest (Portland) to Research Triangle (Raleigh) and Texas's innovation corridor (Austin).
+
+### Tech Concentration and Workforce Diversity
+
+![](../../static/analyses/tech-hub-hollowing-figures/tech_share_diversity.png)
+
+The scatter plot shows a positive relationship between tech concentration and workforce diversity. Tech hubs (red points) cluster in the upper right quadrant with both high tech concentration and high diversity. Individual metro labels identify the specific tech hub metros, with Portland and Phoenix leading in diversity while Boulder and Provo show the highest tech concentration.
+
+### Housing Burden by Metro Type
+
+![](../../static/analyses/tech-hub-hollowing-figures/housing_burden_trends.png)
+
+Tech hubs show higher median housing burden, but the distributions overlap substantially. Housing affordability pressures exist across metro types.
+
+### Worker Composition Across Metro Types
+
+![](../../static/analyses/tech-hub-hollowing-figures/worker_composition_tech_hubs.png)
+
+Tech hubs maintain comparable shares of service and essential workers relative to their tech workforce. The distributions show balanced labor markets rather than tech monocultures.
+
+## The Statistical Deep Dive
+
+```{r regression-results, echo=FALSE}
+# Extract key results
+model1 <- models[[1]]
+model2 <- models[[2]]
+model3 <- models[[3]]
+
+# Get p-values using fixest's pvalue function
+pvals1 <- fixest::pvalue(model1)
+pvals2 <- fixest::pvalue(model2)
+pvals3 <- fixest::pvalue(model3)
+
+# Create summary table
+reg_results <- data.frame(
+  Variable = c("Tech Share", "Housing Burden", "Log(Income)", "Log(Workers)", "R²", "N"),
+  `Diversity` = c(
+    sprintf("%.3f%s", coef(model1)["tech_share"], 
+            ifelse(pvals1["tech_share"] < 0.05, "*", "")),
+    sprintf("%.3f%s", coef(model1)["overall_burden"], 
+            ifelse(pvals1["overall_burden"] < 0.05, "*", "")),
+    sprintf("%.3f%s", coef(model1)["log_median_income"], 
+            ifelse(pvals1["log_median_income"] < 0.05, "*", "")),
+    sprintf("%.3f%s", coef(model1)["log_total_workers"], 
+            ifelse(pvals1["log_total_workers"] < 0.05, "*", "")),
+    sprintf("%.3f", fitstat(model1, "r2")$r2),
+    as.character(nobs(model1))
+  ),
+  `Service Share` = c(
+    sprintf("%.3f%s", coef(model2)["tech_share"], 
+            ifelse(pvals2["tech_share"] < 0.05, "*", "")),
+    sprintf("%.3f%s", coef(model2)["overall_burden"], 
+            ifelse(pvals2["overall_burden"] < 0.05, "*", "")),
+    sprintf("%.3f%s", coef(model2)["log_median_income"], 
+            ifelse(pvals2["log_median_income"] < 0.05, "*", "")),
+    sprintf("%.3f%s", coef(model2)["log_total_workers"], 
+            ifelse(pvals2["log_total_workers"] < 0.05, "*", "")),
+    sprintf("%.3f", fitstat(model2, "r2")$r2),
+    as.character(nobs(model2))
+  ),
+  `Essential Share` = c(
+    sprintf("%.3f%s", coef(model3)["tech_share"], 
+            ifelse(pvals3["tech_share"] < 0.05, "*", "")),
+    sprintf("%.3f%s", coef(model3)["overall_burden"], 
+            ifelse(pvals3["overall_burden"] < 0.05, "*", "")),
+    sprintf("%.3f%s", coef(model3)["log_median_income"], 
+            ifelse(pvals3["log_median_income"] < 0.05, "*", "")),
+    sprintf("%.3f%s", coef(model3)["log_total_workers"], 
+            ifelse(pvals3["log_total_workers"] < 0.05, "*", "")),
+    sprintf("%.3f", fitstat(model3, "r2")$r2),
+    as.character(nobs(model3))
+  )
+)
+
+kable(reg_results,
+      caption = "Regression Results: The Surprising Non-Relationship") %>%
+  kable_styling(bootstrap_options = c("striped", "hover")) %>%
+  footnote(general = "* p < 0.05. Tech share shows no significant negative effect on diversity.")
+```
+
+The regression analysis confirms the visual patterns and provides additional insights. Tech concentration shows no significant relationship with occupation diversity (p = 0.110), failing to support the hollowing hypothesis. More intriguingly, housing burden strongly predicts diversity (p < 0.001) in the opposite direction: areas with higher housing burdens have greater workforce diversity.
+
+This counterintuitive finding suggests that diverse economies may inherently create housing pressure. Metropolitan areas with varied industries, educational institutions, and service sectors may generate housing demand from multiple sources, driving up costs while maintaining occupational balance. The pattern implies that housing affordability and workforce diversity present a policy tension rather than a simple cause-and-effect relationship.
+
+## Interpreting the Patterns
+
+Three mechanisms may explain why tech hubs maintain workforce diversity despite housing cost pressures:
+
+**Consumption spillovers**: Tech workers earning $100,000+ annually generate substantial demand for diverse services. A software engineer may spend thousands annually on restaurants, personal training, childcare, and healthcare. This consumption supports service worker employment even as housing costs rise. The 7.7% tech workforce may generate disproportionate demand for the remaining 92.3% of workers.
+
+**Agglomeration effects**: Successful metros attract diverse industries and institutions beyond tech companies. Universities expand to serve growing populations. Healthcare systems add capacity. Cultural institutions, restaurants, and entertainment venues proliferate. Each brings its own workforce, creating self-reinforcing cycles of diversity. Denver's tech growth coincided with expansion of universities, hospitals, and recreational industries.
+
+**Incomplete displacement**: The 5.4 percentage point higher housing burden indicates pressure exists but may represent adaptation rather than displacement. Workers may accept longer commutes, smaller living spaces, or higher cost burdens to access metro opportunities. The 27.9% burden rate, while elevated, suggests most households (72.1%) still find housing affordable by standard measures.
+
+## Limitations
+
+This analysis has important constraints:
+
+**Temporal scope**: 2020 data provides a snapshot during a unique period rather than revealing trends. The COVID-19 pandemic may have temporarily altered housing and employment patterns. Demographic hollowing may be underway but incomplete, or the pattern may have changed substantially with remote work adoption post-2020.
+
+**Geographic aggregation**: Metro-level analysis obscures neighborhood-level displacement patterns. Service workers may relocate from expensive central neighborhoods to metro peripheries while remaining in aggregate workforce counts. A teacher priced out of Austin proper but living in Round Rock would appear in our data as "retained" despite meaningful displacement.
+
+**Causal inference**: Cross-sectional analysis cannot establish whether tech concentration causes diversity or successful metros attract both tech companies and diverse workforces. The relationship may be bidirectional: diverse metros may attract tech companies precisely because they offer varied amenities and workforces.
+
+**Definition sensitivity**: Our tech hub classification relies on reputation rather than empirical thresholds. Different definitions might yield different results. Similarly, the 30% housing burden threshold, while standard, may not capture regional variations in housing expectations or household strategies.
+
+## Conclusion
+
+The demographic hollowing hypothesis receives limited support from 2020 Census data. Tech hubs maintain higher workforce diversity than other metros and retain comparable shares of service and essential workers. The 7.7% tech worker share, while notable, represents a minority presence in these metro economies rather than overwhelming dominance.
+
+However, the 5.4 percentage point higher housing burden in tech hubs indicates meaningful affordability pressures affecting tens of thousands of households. The policy challenge is preserving the workforce diversity that makes these metros successful while addressing housing costs that threaten long-term sustainability.
+
+The findings suggest that tech concentration and workforce diversity can coexist, but require proactive attention to housing affordability. Rather than preventing tech development, policies should focus on ensuring housing supply keeps pace with employment growth across all income levels. The data challenges simple narratives about tech-driven displacement while validating concerns about housing affordability in successful metro areas.
+
+Future research should examine temporal patterns, neighborhood-level displacement, and specific policy interventions that enable diverse workforces to thrive in high-growth metros. The question is not whether tech hubs will hollow out, but how they can grow while maintaining the diversity that contributes to their success.
+
+## Technical Appendix
+
+**Data Sources**: American Community Survey 2020 5-year estimates
+- Occupations: Table C24010
+- Housing burden: Tables B25070 (rent) and B25091 (mortgage)
+- Income: Table B19013
+
+**Methodology**: Shannon entropy calculated as $H = -\sum_{i} p_i \log(p_i)$ across 23 occupation categories. Housing burden defined as households paying ≥30% of income for housing.
+
+**Geographic Definition**: Metropolitan Statistical Areas as defined by OMB. Tech hubs selected based on industry reputation and tech sector prominence.

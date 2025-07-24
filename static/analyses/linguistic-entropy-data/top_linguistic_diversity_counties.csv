@@ -1,0 +1,16 @@
+NAME,shannon_entropy,median_income,english_share,foreign_share,immigrant_share,state
+"Santa Clara County, California",1.74,"$130,890",46.6%,53.4%,39.7%,NA
+"Queens County, New York",1.66,"$72,028",44.8%,55.2%,46.9%,NA
+"Kings County, New York",1.559,"$63,973",55.5%,44.5%,35.6%,NA
+"Alameda County, California",1.556,"$104,888",54.3%,45.7%,32.8%,NA
+"San Mateo County, California",1.517,"$128,091",54.4%,45.6%,35.0%,NA
+"Hudson County, New Jersey",1.499,"$75,062",40.9%,59.1%,43.6%,NA
+"Aleutians West Census Area, Alaska",1.491,"$87,443",44.0%,56.0%,42.0%,NA
+"Fairfax County, Virginia",1.475,"$127,866",61.0%,39.0%,30.9%,NA
+"Montgomery County, Maryland",1.469,"$111,812",59.1%,40.9%,32.2%,NA
+"Middlesex County, New Jersey",1.468,"$91,731",55.1%,44.9%,32.9%,NA
+"San Francisco County, California",1.441,"$119,136",57.4%,42.6%,34.2%,NA
+"Bergen County, New Jersey",1.439,"$104,623",59.7%,40.3%,30.8%,NA
+"Orange County, California",1.417,"$94,441",54.8%,45.2%,29.6%,NA
+"Rockland County, New York",1.408,"$94,840",58.6%,41.4%,21.2%,NA
+"Los Angeles County, California",1.394,"$71,358",43.9%,56.1%,33.7%,NA
