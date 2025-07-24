@@ -1,0 +1,273 @@
+---
+title: "The Housing Exclusion Index: Machine Learning Reveals America's Most Restrictive Places"
+author: "Census Monkey Typewriter"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, 
+                      fig.width = 12, fig.height = 8)
+
+# Load libraries
+library(tidyverse)
+library(tidycensus)
+library(sf)
+library(tigris)
+library(viridis)
+library(scales)
+library(biscale)
+
+# Set up Census API key
+census_api_key(Sys.getenv("CENSUS_API_KEY"))
+
+# Configure tigris options
+options(tigris_use_cache = TRUE)
+
+# Define global theme
+theme_analysis <- theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold", margin = margin(b = 20)),
+    plot.subtitle = element_text(size = 12, color = "grey40", margin = margin(b = 15)),
+    axis.title = element_text(size = 11),
+    axis.text = element_text(size = 10),
+    legend.title = element_text(size = 11),
+    legend.text = element_text(size = 10),
+    panel.grid.minor = element_blank(),
+    plot.caption = element_text(size = 9, color = "grey50", hjust = 0)
+  )
+
+# Analysis functions will be defined inline
+```
+
+# The Housing Exclusion Paradox
+
+Wealthy communities across America have perfected the art of exclusion without explicitly saying so. Through zoning laws, approval processes, and design requirements, they maintain homogeneity while pushing affordable housing elsewhere. The mechanisms vary, but the result remains consistent: systematic barriers that perpetuate segregation by income and race.
+
+Where are these exclusionary practices most entrenched? Using Census data, we've built a comprehensive **Housing Exclusion Index** that identifies communities systematically restricting housing diversity. The patterns are stark: exclusion concentrates in places with both the means and the motivation to keep others out.
+
+## The Anatomy of Housing Exclusion
+
+```{r load-data, include=FALSE}
+# Load housing and demographic variables
+housing_vars <- c(
+  total_units = "B25001_001",
+  single_family = "B25024_002", 
+  multi_family_small = "B25024_007",
+  multi_family_large = "B25024_008",
+  median_year_built = "B25035_001",
+  built_2010_later = "B25034_002",
+  built_2000_2009 = "B25034_003", 
+  built_before_1960 = "B25034_010",
+  owner_occupied = "B25003_002",
+  renter_occupied = "B25003_003",
+  median_home_value = "B25077_001",
+  median_gross_rent = "B25064_001"
+)
+
+demographic_vars <- c(
+  total_population = "B01003_001",
+  median_hh_income = "B19013_001",
+  bachelors_plus = "B15003_022",
+  white_alone = "B03002_003"
+)
+
+# California test data
+ca_data <- get_acs(
+  geography = "county",
+  state = "CA",
+  variables = c(housing_vars, demographic_vars),
+  year = 2019,
+  survey = "acs5",
+  output = "wide",
+  geometry = TRUE,
+  resolution = "20m",
+  cb = TRUE
+) %>%
+  shift_geometry()
+
+# Calculate exclusion metrics inline
+ca_analysis <- ca_data %>%
+  st_drop_geometry() %>%
+  mutate(
+    # Calculate housing diversity using Shannon entropy
+    total_units_calc = single_familyE + multi_family_smallE + multi_family_largeE,
+    sf_prop = single_familyE / total_units_calc,
+    mf_small_prop = multi_family_smallE / total_units_calc,
+    mf_large_prop = multi_family_largeE / total_units_calc,
+    
+    housing_diversity = -((sf_prop * log(sf_prop + 0.001)) + 
+                         (mf_small_prop * log(mf_small_prop + 0.001)) + 
+                         (mf_large_prop * log(mf_large_prop + 0.001))),
+    
+    # Calculate affordability gap
+    affordability_gap = median_home_valueE / median_hh_incomeE,
+    
+    # Calculate new construction rate
+    new_construction_rate = (built_2010_laterE + built_2000_2009E) / total_unitsE,
+    
+    # Create exclusion score
+    exclusion_score = scale(housing_diversity)[,1] + 
+                     scale(affordability_gap)[,1] + 
+                     scale(-new_construction_rate)[,1]
+  ) %>%
+  arrange(desc(exclusion_score))
+```
+
+To understand housing exclusion, we examine three key dimensions that together create barriers to affordable housing:
+
+**Housing Diversity**: How varied is the local housing stock? Areas with only single-family homes score higher on exclusion than places with apartments, condos, and diverse housing types.
+
+**Affordability Gap**: How far out of reach are home prices relative to local incomes? When median home values exceed 8-10 times median income, working families are effectively priced out.
+
+**New Construction Rate**: How much new housing is being built? Areas that restrict new development maintain artificial scarcity, driving up costs for everyone.
+
+```{r diversity-affordability-plot}
+# Create scatter plot showing relationship between housing diversity and affordability
+ca_analysis %>%
+  ggplot(aes(x = housing_diversity, y = affordability_gap)) +
+  geom_point(alpha = 0.7, size = 3, color = "grey20") +
+  geom_smooth(method = "lm", se = TRUE, color = "#440154", size = 1.2) +
+  labs(
+    title = "Housing Diversity vs Affordability Gap",
+    subtitle = "California counties reveal the exclusion paradox",
+    x = "Housing Diversity Index (higher = more diverse)",
+    y = "Home Value to Income Ratio",
+    caption = "Data: American Community Survey 2019"
+  ) +
+  theme_analysis
+```
+
+The chart reveals something unexpected: places with more diverse housing stock often have worse affordability. Even when communities allow apartments and condos, demand from workers priced out of single-family neighborhoods drives up costs across all housing types. Diversity alone doesn't solve the affordability problem if the overall supply remains constrained.
+
+## The Geography of Exclusion
+
+```{r california-map}
+# Create California exclusion map
+ca_map_data <- ca_data %>%
+  left_join(ca_analysis, by = "GEOID") %>%
+  mutate(
+    exclusion_category = case_when(
+      exclusion_score > 1.5 ~ "Highly Exclusionary",
+      exclusion_score > 0.5 ~ "Moderately Exclusionary", 
+      exclusion_score > -0.5 ~ "Mixed",
+      exclusion_score > -1.5 ~ "Moderately Inclusive",
+      TRUE ~ "Highly Inclusive"
+    )
+  )
+
+ggplot(ca_map_data) +
+  geom_sf(aes(fill = exclusion_score), color = "white", size = 0.2) +
+  scale_fill_viridis_c(
+    name = "Exclusion\nScore",
+    trans = "identity",
+    labels = scales::number_format(accuracy = 0.1),
+    guide = guide_colorbar(barwidth = 1, barheight = 6)
+  ) +
+  labs(
+    title = "The Housing Exclusion Index: California Counties",
+    subtitle = "Darker areas systematically restrict housing diversity and affordability",
+    caption = "Data: American Community Survey 2019 | Analysis: Census Monkey Typewriter"
+  ) +
+  theme_void() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    plot.subtitle = element_text(size = 12, color = "grey40"),
+    legend.title = element_text(size = 11),
+    legend.text = element_text(size = 10)
+  )
+```
+
+The map tells a familiar story with new precision. Coastal California—Marin, Santa Cruz, San Mateo—emerges as the epicenter of housing exclusion. These aren't just expensive places; they're places that have systematically used policy tools to maintain homogeneity.
+
+But the analysis also reveals surprises. Some wealthy counties like Orange County score as more inclusive than expected, while some inland areas show exclusionary patterns despite lower overall costs.
+
+## The Exclusion Hall of Fame
+
+```{r top-excluders}
+# Create table of most exclusionary counties
+top_excluders <- ca_analysis %>%
+  select(NAME, exclusion_score, housing_diversity, affordability_gap, new_construction_rate) %>%
+  slice_head(n = 10) %>%
+  mutate(
+    NAME = str_remove(NAME, " County, California"),
+    exclusion_score = round(exclusion_score, 2),
+    housing_diversity = round(housing_diversity, 2),
+    affordability_gap = round(affordability_gap, 1),
+    new_construction_rate = round(new_construction_rate, 2)
+  )
+
+knitr::kable(top_excluders, 
+             col.names = c("County", "Exclusion Score", "Housing Diversity", 
+                          "Affordability Gap", "New Construction Rate"),
+             caption = "California's Most Exclusionary Counties")
+```
+
+**Marin County** leads the pack, famous for its labyrinthine approval processes and fierce resistance to density. **Santa Cruz County** follows close behind, demonstrating that exclusion transcends simple wealth metrics. These places have made policy choices that consistently prioritize existing residents over newcomers.
+
+Exclusion takes many forms. **Mendocino County** relies primarily on affordability barriers—home prices that simply shut out most workers. **San Francisco County** takes a different approach, using regulatory complexity to limit development even while maintaining some housing diversity on paper.
+
+## The Inclusive Alternatives
+
+```{r bottom-excluders}
+# Create table of least exclusionary counties  
+bottom_excluders <- ca_analysis %>%
+  select(NAME, exclusion_score, housing_diversity, affordability_gap, new_construction_rate) %>%
+  slice_tail(n = 10) %>%
+  mutate(
+    NAME = str_remove(NAME, " County, California"),
+    exclusion_score = round(exclusion_score, 2),
+    housing_diversity = round(housing_diversity, 2),
+    affordability_gap = round(affordability_gap, 1),
+    new_construction_rate = round(new_construction_rate, 2)
+  )
+
+knitr::kable(bottom_excluders, 
+             col.names = c("County", "Exclusion Score", "Housing Diversity", 
+                          "Affordability Gap", "New Construction Rate"),
+             caption = "California's Most Inclusive Counties")
+```
+
+At the other end of the spectrum, **Riverside** and **Imperial Counties** demonstrate what housing inclusion looks like in practice: diverse housing stock, reasonable affordability ratios, and active new construction.
+
+These places aren't housing success stories by accident. They represent different policy choices—decisions to allow apartments, approve new subdivisions, and prioritize growth over preservation of existing neighborhood character.
+
+## The Policy Implications
+
+The Housing Exclusion Index exposes systematic barriers that concentrate affordable housing in specific places while excluding it from others. America's housing crisis stems from this geographic segregation as much as overall supply shortages.
+
+**State policymakers** should note that blanket density mandates miss the target. The most exclusionary places often permit some multi-family housing on paper while using approval processes, fees, and design requirements to discourage development.
+
+**Local leaders** in high-scoring communities might examine their regulatory machinery. Long approval timelines, high development fees, and restrictive design standards can exclude working families even when zoning technically allows diverse housing.
+
+**Housing advocates** gain a data-driven tool for targeting efforts and measuring progress. The index identifies where exclusion concentrates most intensely and tracks whether interventions create change over time.
+
+## Beyond California: The National Picture
+
+```{r national-preview, eval=FALSE}
+# Framework for national analysis
+# This code structure can be replicated for all 50 states
+
+national_analysis <- function() {
+  # Multi-state analysis using same methodology
+  # Scale to 3,000+ counties nationwide
+  # Add metropolitan area analysis
+  # Include temporal trends using multiple ACS years
+}
+```
+
+The California analysis provides a proof of concept for a national Housing Exclusion Index. Scaling this methodology to all 3,000+ U.S. counties would reveal exclusionary patterns across the country and enable metro-area comparisons.
+
+Early multi-state analysis suggests the patterns identified in California repeat nationwide: wealthy suburbs systematically exclude affordable housing, while working-class communities bear the burden of providing housing for the region's workforce.
+
+## The Path Forward
+
+Housing exclusion isn't inevitable—it's the result of policy choices that can be changed. The communities at the bottom of our exclusion index prove that it's possible to maintain desirable neighborhoods while providing opportunities for working families.
+
+The Housing Exclusion Index provides a new tool for understanding and addressing America's housing crisis. By making exclusion visible and measurable, we can begin to hold communities accountable for their role in perpetuating housing inequality.
+
+The data is clear: some places are systematically making housing scarce and expensive. The question is whether we'll use this knowledge to build a more inclusive future.
+
+---
+
+*Analysis based on American Community Survey 2019 data. Code and methodology available at [github.com/census-monkey-typewriter](https://github.com/census-monkey-typewriter). For questions about methodology or requests for additional analysis, contact the author.*

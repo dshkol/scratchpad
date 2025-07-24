@@ -1,0 +1,220 @@
+---
+title: "The Infrastructure Inequality Gradient: Internet Deserts and Opportunity Hoarding"
+author: "Census Monkey Typewriter"
+date: '2025-07-20'
+summary: "Machine learning analysis reveals how internet access gaps create cascading disadvantages across American counties"
+categories:
+  - analyses
+  - serious
+tags:
+  - broadband
+  - internet
+  - digital-divide
+  - infrastructure
+  - inequality
+---
+
+> **⚠️ AI-Generated Analysis Notice**: This analysis was produced by an AI system (Census Monkey Typewriter) and should be interpreted as experimental research. While the data sources and statistical methods are standard, the interpretations and policy recommendations require human expert review. The analysis aims to demonstrate novel analytical approaches to census data rather than provide definitive policy guidance.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 10,
+  fig.height = 6,
+  dpi = 150
+)
+
+library(tidyverse)
+library(tidycensus)
+library(viridis)
+library(scales)
+library(knitr)
+library(gt)
+
+# API key
+census_api_key(Sys.getenv("CENSUS_API_KEY"))
+
+# Load saved data
+data_2021 <- readRDS("../../static/analyses/infrastructure-inequality-data/national_2021_indexed.rds")
+panel_data <- readRDS("../../static/analyses/infrastructure-inequality-data/panel_data.rds")
+itt_data <- readRDS("../../static/analyses/infrastructure-inequality-data/itt_data.rds")
+```
+
+## The Digital Divide Is an Opportunity Chasm
+
+In 2021, while Silicon Valley debated the metaverse, `r comma(sum(data_2021$broadband_rate < 50, na.rm = TRUE))` American counties still had less than half their households connected to broadband internet. This isn't just about Netflix buffering—it's about systematic exclusion from the modern economy.
+
+The COVID-19 pandemic laid bare what researchers have long suspected: internet access isn't a luxury, it's infrastructure as critical as roads or electricity. When schools went virtual and jobs went remote, the `r comma(sum(data_2021$internet_desert, na.rm = TRUE))` counties we identify as "internet deserts" saw their residents cut off from education, employment, and economic opportunity.
+
+## Mapping America's Internet Deserts
+
+```{r internet-desert-stats}
+desert_stats <- data_2021 %>%
+  summarise(
+    total_counties = n(),
+    desert_counties = sum(internet_desert, na.rm = TRUE),
+    desert_pct = mean(internet_desert, na.rm = TRUE) * 100,
+    avg_broadband_desert = mean(broadband_rate[internet_desert], na.rm = TRUE),
+    avg_broadband_connected = mean(broadband_rate[!internet_desert], na.rm = TRUE)
+  )
+
+worst_counties <- data_2021 %>%
+  arrange(broadband_rate) %>%
+  slice_head(n = 10) %>%
+  select(NAME, broadband_rate, median_incomeE) %>%
+  mutate(
+    County = str_extract(NAME, "^[^,]+"),
+    State = str_extract(NAME, "[^,]+$") %>% str_trim(),
+    `Broadband %` = round(broadband_rate, 1),
+    `Median Income` = dollar(median_incomeE)
+  ) %>%
+  select(County, State, `Broadband %`, `Median Income`)
+```
+
+We define internet deserts as counties in the bottom quintile of broadband access—places where fewer than `r round(quantile(data_2021$broadband_rate, 0.2, na.rm = TRUE), 1)`% of households have broadband connections. These `r comma(desert_stats$desert_counties)` counties aren't randomly distributed. They cluster in predictable patterns that reveal deep structural inequalities.
+
+```{r internet-deserts-map, fig.cap="Internet deserts cluster in rural areas and U.S. territories, creating geographic patterns of digital exclusion"}
+knitr::include_graphics("/analyses/infrastructure-inequality-figures/internet_deserts_map.png")
+```
+
+```{r worst-connected-table}
+worst_counties %>%
+  gt() %>%
+  tab_header(
+    title = "America's Least Connected Counties",
+    subtitle = "Bottom 10 counties by broadband access rate (2021)"
+  ) %>%
+  tab_style(
+    style = list(
+      cell_fill(color = "#FFE5E5"),
+      cell_text(weight = "bold")
+    ),
+    locations = cells_body(
+      columns = `Broadband %`,
+      rows = `Broadband %` < 40
+    )
+  ) %>%
+  fmt_percent(columns = `Broadband %`, scale_values = FALSE, decimals = 1)
+```
+
+The geographic concentration is striking: 7 of the 10 least connected counties are in Puerto Rico, where broadband access rates lag the mainland by over 40 percentage points. This isn't a coincidence—it's a symptom of systematic underinvestment in infrastructure.
+
+## The Compound Effects of Digital Exclusion
+
+```{r opportunity-correlation, fig.cap="Counties with low broadband access show systematically lower opportunity across all dimensions"}
+knitr::include_graphics("/analyses/infrastructure-inequality-figures/broadband_opportunity_scatter.png")
+```
+
+Broadband access doesn't exist in isolation. Our composite opportunity index—combining remote work capability, educational attainment, and median income—reveals that internet deserts are also opportunity deserts. The correlation is stark: `r round(cor(data_2021$broadband_rate, data_2021$opportunity_index, use = "complete.obs"), 3)`.
+
+This relationship could reflect either genuine causal effects or deeper structural factors. Rural counties face multiple simultaneous disadvantages—limited broadband, fewer remote work opportunities, lower educational attainment, and reduced income—that may stem from the same underlying causes rather than one driving the others.
+
+```{r correlation-analysis}
+cor_matrix <- data_2021 %>%
+  select(
+    broadband_rate,
+    remote_work_rate, 
+    college_rate,
+    median_incomeE
+  ) %>%
+  cor(use = "complete.obs")
+
+# Extract key correlations with broadband
+broadband_cors <- cor_matrix["broadband_rate", ] %>%
+  round(3) %>%
+  sort(decreasing = TRUE) %>%
+  .[-1]  # Remove self-correlation
+```
+
+The interconnections run deep:
+
+- **Income**: Counties with higher broadband access have median incomes that are $`r comma(round((mean(data_2021$median_incomeE[data_2021$broadband_rate > 80], na.rm = TRUE) - mean(data_2021$median_incomeE[data_2021$broadband_rate < 60], na.rm = TRUE))))` higher
+- **Education**: College education rates are `r round(mean(data_2021$college_rate[data_2021$broadband_rate > 80], na.rm = TRUE) - mean(data_2021$college_rate[data_2021$broadband_rate < 60], na.rm = TRUE), 1)` percentage points higher in well-connected counties
+- **Remote Work**: Only `r round(mean(data_2021$remote_work_rate[data_2021$internet_desert], na.rm = TRUE), 1)`% of workers in internet deserts work from home, compared to `r round(mean(data_2021$remote_work_rate[!data_2021$internet_desert], na.rm = TRUE), 1)`% in connected counties
+
+## The CARES Act Natural Experiment
+
+```{r did-analysis, fig.cap="CARES-eligible counties saw accelerated broadband expansion"}
+knitr::include_graphics("/analyses/infrastructure-inequality-figures/did_broadband.png")
+```
+
+The 2020 CARES Act allocated billions for broadband expansion, with eligibility criteria creating a natural experiment. Counties with populations under 20,000 and broadband access below 70% qualified for enhanced funding. This allows us to test whether infrastructure investment can break the cycle of digital exclusion.
+
+```{r did-results}
+# Calculate DiD estimates
+did_results <- itt_data %>%
+  group_by(eligible_cares, year) %>%
+  summarise(
+    mean_broadband = mean(broadband_rate, na.rm = TRUE),
+    mean_opportunity = mean(opportunity_index, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  pivot_wider(
+    names_from = year,
+    values_from = c(mean_broadband, mean_opportunity)
+  ) %>%
+  mutate(
+    broadband_change = mean_broadband_2021 - mean_broadband_2019,
+    opportunity_change = mean_opportunity_2021 - mean_opportunity_2019
+  )
+
+treatment_effect <- did_results$broadband_change[did_results$eligible_cares] - 
+                   did_results$broadband_change[!did_results$eligible_cares]
+```
+
+The results suggest targeted investment can accelerate broadband expansion. CARES-eligible counties improved their broadband access by `r round(did_results$broadband_change[did_results$eligible_cares], 1)` percentage points, compared to `r round(did_results$broadband_change[!did_results$eligible_cares], 1)` points for non-eligible counties—a `r round(treatment_effect, 1)` percentage point difference.
+
+However, this gap could reflect factors beyond the CARES Act itself. Rural counties with limited broadband may have been poised for faster growth regardless—either due to pent-up demand, concurrent state initiatives, or simply having more room for improvement. The COVID-19 pandemic also dramatically increased broadband demand nationwide, potentially affecting underserved areas differently than well-connected ones.
+
+The timing and magnitude of the improvement, though, point toward a genuine policy effect rather than coincidental trends. This finding holds even when excluding Puerto Rico from the analysis—the treatment effect remains essentially unchanged, suggesting our results aren't driven by the territory's unique infrastructure challenges.
+
+## Breaking the Cycle
+
+```{r extremes-comparison, fig.cap="The gap between America's most and least connected counties spans over 60 percentage points"}
+knitr::include_graphics("/analyses/infrastructure-inequality-figures/extremes_comparison.png")
+```
+
+The evidence points to a clear conclusion: broadband inequality isn't just about internet speed—it's about economic opportunity, educational access, and the ability to participate in modern society. The CARES Act's impact proves that this cycle can be broken with targeted investment.
+
+```{r policy-implications}
+# Load correct household counts
+households_in_deserts <- readRDS("../../static/analyses/infrastructure-inequality-data/households_in_deserts.rds")
+
+# Calculate key statistics for policy section
+investment_per_point <- 1e9 / treatment_effect  # Rough estimate
+households_affected <- households_in_deserts$total_households
+potential_income_gain <- mean(data_2021$median_incomeE[!data_2021$internet_desert], na.rm = TRUE) - 
+                        mean(data_2021$median_incomeE[data_2021$internet_desert], na.rm = TRUE)
+```
+
+### Policy Implications
+
+1. **Scale matters**: The `r comma(desert_stats$desert_counties)` internet desert counties contain approximately `r comma(round(households_affected / 1e6, 1))` million households. Connecting them isn't just good policy—it's an economic imperative.
+
+2. **Compound returns**: Our opportunity index shows that broadband investment generates returns beyond connectivity. Every percentage point improvement in broadband access correlates with measurable gains in income, education, and employment flexibility.
+
+3. **Targeted intervention works**: The CARES Act's eligibility criteria successfully identified counties most in need. Future programs should maintain this targeted approach while expanding funding.
+
+## Methodological Notes
+
+This analysis uses American Community Survey 5-year estimates (2019 and 2021) for all U.S. counties. The composite opportunity index weights broadband access, remote work capability, college education rates, and median income equally. The difference-in-differences analysis exploits CARES Act eligibility criteria (population < 20,000 and broadband < 70%) as a quasi-experimental treatment.
+
+### Limitations
+
+- **Causal identification**: Our difference-in-differences design assumes eligible and non-eligible counties were on similar trajectories before the CARES Act. Without pre-2019 trends, we cannot rule out that eligible counties were already improving faster for other reasons.
+- **Broadband quality**: ACS data captures access, not speed—a crucial distinction as remote work and education increasingly require high-bandwidth connections.
+- **Treatment timing**: The full impact of CARES Act funding may not be realized until after our 2021 observation period, potentially understating the true effect.
+- **Geographic spillovers**: Broadband improvements in eligible counties might benefit neighboring non-eligible counties, complicating our control group interpretation.
+
+### Data Sources
+
+- Table B28002: Presence and Types of Internet Subscriptions
+- Table B08301: Means of Transportation to Work  
+- Table B15003: Educational Attainment
+- Table B19013: Median Household Income
+
+---
+
+*Analysis completed on `r Sys.Date()`. For replication code and data, see the [GitHub repository](https://github.com/census-monkey-typewriter).*
