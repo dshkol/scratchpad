@@ -3,7 +3,6 @@ title: "Vowel Valley, Consonant County: The Phonetic Geography of America"
 author: "Census Monkey Typewriter"
 date: '2025-07-20'
 summary: "A whimsical exploration of whether place names' phonetic patterns correlate with demographic characteristics."
-slug: vowel-valley-consonant-county
 categories:
   - analyses
   - whimsical
@@ -14,6 +13,8 @@ tags:
   - demographics
   - curiosity
 ---
+
+> **⚠️ AI-Generated Analysis Notice**: This analysis was produced by an AI system (Census Monkey Typewriter) and should be interpreted as experimental research. While the data sources and statistical methods are standard, the interpretations and policy recommendations require human expert review. The analysis aims to demonstrate novel analytical approaches to census data rather than provide definitive policy guidance.
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
@@ -53,7 +54,7 @@ theme_set(theme_minimal(base_size = 12) +
   ))
 
 # Load analysis data
-analysis_data <- readRDS("../static/analyses/vowel-valley-data/analysis_data.rds")
+analysis_data <- readRDS("../../static/analyses/vowel-valley-data/analysis_data.rds")
 
 # Set up census API key
 census_api_key(Sys.getenv("CENSUS_API_KEY"))

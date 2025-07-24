@@ -55,7 +55,7 @@ test_build <- function() {
       # Check for R-generated figures
       figures_dir <- file.path(analyses_dir, paste0(basename, "_files"))
       if (dir.exists(figures_dir)) {
-        public_figures <- file.path("public/analyses", basename, paste0(basename, "_files"))
+        public_figures <- file.path("public/analyses", paste0(basename, "_files"))
         if (!dir.exists(public_figures)) {
           errors <- c(errors, paste("R-generated figures not copied for:", basename))
         }

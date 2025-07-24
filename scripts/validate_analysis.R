@@ -6,6 +6,7 @@
 library(yaml)
 library(rmarkdown)
 library(blogdown)
+library(knitr)
 
 validate_analysis <- function(rmd_file) {
   cat("🔍 Validating:", basename(rmd_file), "\n")
@@ -91,8 +92,19 @@ validate_analysis <- function(rmd_file) {
   # 4. R Code Validation
   cat("  ⚙️  Validating R code execution...\n")
   tryCatch({
-    # Check if the R code can be parsed
-    parsed <- parse(rmd_file)
+    # Extract R code from R Markdown and check if it can be parsed
+    temp_r_file <- tempfile(fileext = ".R")
+    knitr::purl(rmd_file, output = temp_r_file, quiet = TRUE)
+    
+    if (file.exists(temp_r_file)) {
+      r_code <- readLines(temp_r_file)
+      # Only parse if there's actual R code (more than just comments)
+      code_lines <- grep("^[^#]", r_code, value = TRUE)
+      if (length(code_lines) > 0) {
+        parsed <- parse(text = paste(r_code, collapse = "\n"))
+      }
+      unlink(temp_r_file)
+    }
   }, error = function(e) {
     errors <<- c(errors, paste("R code parsing error:", e$message))
   })
