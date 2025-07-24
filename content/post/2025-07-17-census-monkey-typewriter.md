@@ -316,10 +316,12 @@ As it stands now, the system needs fundamental improvements to be more than a cu
 
 Here's what came out of this experiment - analyses that made it through the full pipeline:
 
-### 1. [Tech Hub Hollowing: The Demographic Paradox of Innovation Centers](/census-monkey-typewriter/analyses/tech-hub-hollowing.html)
+**→ [Browse all analyses with full site integration](/analyses/)**
+
+### 1. [Tech Hub Hollowing: The Demographic Paradox of Innovation Centers](/analyses/tech-hub-hollowing/)
 Tracking how tech booms create their own demographic undermining.
 
-### 2. [Language Diversity Fuels Economic Innovation: Evidence from American Counties](/census-monkey-typewriter/analyses/linguistic-entropy.html)
+### 2. [Language Diversity Fuels Economic Innovation: Evidence from American Counties](/analyses/linguistic-entropy/)
 Testing whether linguistic diversity measured through Shannon entropy correlates with economic dynamism at the county level.
 
 ### 3. [The Linguistic Archipelago: When Language Isolation Drives Success](/census-monkey-typewriter/analyses/linguistic-archipelago.html)
@@ -361,7 +363,7 @@ Tracking where single ancestry groups achieve geographic dominance and the patte
 ### 15. [Vertical City: The Rise of High-Density Living](/census-monkey-typewriter/analyses/vertical-city.html)
 Mapping America's transition toward vertical living and its demographic implications.
 
-### 16. [Vowel Valley, Consonant County: The Phonetic Geography of America](/census-monkey-typewriter/analyses/vowel-valley-consonant-county.html)
+### 16. [Vowel Valley, Consonant County: The Phonetic Geography of America](/analyses/vowel-valley-consonant-county/)
 A whimsical exploration of whether place names' phonetic patterns correlate with demographic characteristics.
 
 ### 17. [Dead Language Archipelago: The Fading Linguistic Landscape](/census-monkey-typewriter/analyses/dead-language-archipelago.R)

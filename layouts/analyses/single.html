@@ -1,0 +1,71 @@
+{{ partial "header" . }}
+{{ partial "nav" . }}
+
+<section class="section">
+  <div class="container">
+    <!-- Breadcrumb navigation -->
+    <nav class="breadcrumb" style="margin-bottom: 1.5em;">
+      <ul style="list-style: none; display: flex; align-items: center; padding: 0; margin: 0;">
+        <li style="margin-right: 0.5em;"><a href="/" style="color: #4a817e; text-decoration: none;">Home</a></li>
+        <li style="margin-right: 0.5em; color: #999;">→</li>
+        <li style="margin-right: 0.5em;"><a href="/analyses/" style="color: #4a817e; text-decoration: none;">Analyses</a></li>
+        <li style="margin-right: 0.5em; color: #999;">→</li>
+        <li style="color: #666;">{{ .Title }}</li>
+      </ul>
+    </nav>
+
+    <!-- Analysis metadata -->
+    <div class="analysis-meta" style="margin-bottom: 2em;">
+      <h1 class="title">{{ .Title }}</h1>
+      {{ if .Summary }}
+      <p class="subtitle" style="font-size: 1.1em; color: #666; margin-bottom: 1em;">{{ .Summary }}</p>
+      {{ end }}
+      
+      <!-- Tags and metadata -->
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 1em; margin-bottom: 1em;">
+        {{ if .Date }}
+        <span style="color: #666; font-size: 0.9em;">{{ .Date.Format "January 2, 2006" }}</span>
+        {{ end }}
+        
+        {{ if .Params.tags }}
+        <div>
+          {{ range .Params.tags }}
+          <span style="background: #f0f0f0; padding: 0.2em 0.5em; border-radius: 3px; font-size: 0.8em; margin-right: 0.5em;">#{{ . }}</span>
+          {{ end }}
+        </div>
+        {{ end }}
+      </div>
+    </div>
+
+    <!-- Hugo content (description) -->
+    {{ if .Content }}
+    <div class="content" style="margin-bottom: 2em;">
+      {{ .Content }}
+    </div>
+    {{ end }}
+
+    <!-- Embedded analysis -->
+    <div class="analysis-embed" style="margin-bottom: 2em;">
+      <div style="border: 1px solid #ddd; border-radius: 4px; overflow: hidden;">
+        <iframe 
+          src="/census-monkey-typewriter/analyses/{{ .Params.analysis_file }}"
+          width="100%" 
+          height="800px"
+          frameborder="0"
+          style="display: block;">
+        </iframe>
+      </div>
+      <p style="text-align: center; margin-top: 0.5em; font-size: 0.9em; color: #666;">
+        <a href="/census-monkey-typewriter/analyses/{{ .Params.analysis_file }}" target="_blank" style="color: #4a817e;">Open in new window ↗</a>
+      </p>
+    </div>
+
+    <!-- Navigation -->
+    <div class="analysis-nav" style="text-align: center; margin-top: 2em;">
+      <a href="/analyses/" class="button" style="background: #4a817e; color: white; padding: 0.5em 1em; text-decoration: none; border-radius: 3px; margin-right: 1em;">← All Analyses</a>
+      <a href="/post/census-monkey-typewriter/" class="button" style="background: #f0f0f0; color: #333; padding: 0.5em 1em; text-decoration: none; border-radius: 3px;">About This Project</a>
+    </div>
+  </div>
+</section>
+
+{{ partial "footer" . }}
