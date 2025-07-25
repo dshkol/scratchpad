@@ -364,17 +364,5 @@ Mapping America's transition toward vertical living and its demographic implicat
 ### 16. [Vowel Valley, Consonant County: The Phonetic Geography of America](/census-monkey-typewriter/analyses/vowel-valley-consonant-county.html)
 A whimsical exploration of whether place names' phonetic patterns correlate with demographic characteristics.
 
-### 17. [The 3am Population: Night Shift Workers and Urban Vitality](/analyses/2025-07-20-3am-population/)
-Mapping America's night shift economy reveals hidden patterns of 24-hour work concentrations and their impact on community demographics.
-
-### 18. [The Bimodal Commute: Unmasking Super-Commuters and Local Workers](/analyses/2025-07-20-bimodal-commute/)
-Gaussian mixture models reveal counties with two distinct commuter populations: local workers and super-commuters traveling vast distances.
-
-### 19. [America's Seasonal Pulse: The Hidden Rhythms of Demographic Life](/analyses/2025-07-20-seasonal-demographic-pulse/)
-Counties with extreme seasonal population swings reveal America's hidden rhythms of vacation economies and seasonal work patterns.
-
-### 20. [The 'Nothing Ever Changes' Index: Discovering America's Most Static County](/analyses/2025-07-20-nothing-ever-changes/)
-Quantifying demographic stability across 2,865 counties reveals Poweshiek County, Iowa as America's most unchanging place.
-
-### 21. [Dead Language Archipelago: The Fading Linguistic Landscape](/census-monkey-typewriter/analyses/dead-language-archipelago.R)
+### 17. [Dead Language Archipelago: The Fading Linguistic Landscape](/census-monkey-typewriter/analyses/dead-language-archipelago.R)
 Failed attempt at mapping heritage language decline (kept as a methodological lesson).
