@@ -1,0 +1,21 @@
+County_Name,State_Name,n_commuters,peak1_mean,peak2_mean,peak_distance,local_commuter_pct,super_commuter_pct,valley_depth
+Yuba County,California,71586,26.9,133,106,94.4,5.6,212.09147633110874
+Madera County,California,55789,23.5,105.7,82.2,95.2,4.8,10.999794821385567
+El Dorado County,California,68226,23.8,98.2,74.3,89.7,10.3,9.717489078400604
+Tehama County,California,43870,19.7,83.9,64.1,90.3,9.7,10.2579289931355
+Stanislaus County,California,221013,18.3,79.5,61.2,80,20,11.58371825035458
+Placer County,California,153140,20.9,79.3,58.4,88.6,11.4,9.336621738596422
+San Joaquin County,California,309290,17.2,68.2,51,66.8,33.2,11.838780248862472
+Merced County,California,104601,14.8,64.6,49.8,73.4,26.6,11.137975413092944
+Sacramento County,California,601243,20.9,70.1,49.3,88.6,11.4,9.227312706601742
+Imperial County,California,58794,16.5,62.7,46.2,83.8,16.2,9.506664123510435
+Mendocino County,California,51404,12.8,58.3,45.4,68.6,31.4,11.593878305596665
+Kern County,California,342007,17.4,62.1,44.7,83.3,16.7,11.174408042827105
+Yolo County,California,89570,17.3,60.9,43.5,83.3,16.7,9.473979501855057
+Fresno County,California,386544,17.8,60.5,42.7,86.8,13.2,9.553233782999737
+San Bernardino County,California,872112,18.5,59.9,41.4,67.2,32.8,8.545768820290462
+Inyo County,California,70432,14.6,54.5,39.8,65,35,8.58375919784916
+San Diego County,California,1354114,21,60,39,88.8,11.2,7.370009775345628
+Riverside County,California,984015,20.5,59,38.5,66.7,33.3,7.287544740396705
+Nevada County,California,32622,12.1,49.3,37.2,74.8,25.2,10.99895657100607
+Sonoma County,California,207528,17,53.7,36.7,77.2,22.8,7.853042228133065
