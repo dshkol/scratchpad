@@ -322,22 +322,22 @@ Tracking how tech booms create their own demographic undermining.
 ### 2. [Language Diversity Fuels Economic Innovation: Evidence from American Counties](/analyses/2025-07-20-linguistic-entropy/)
 Testing whether linguistic diversity measured through Shannon entropy correlates with economic dynamism at the county level.
 
-### 3. [The Linguistic Archipelago: When Language Isolation Drives Success](/analyses/2025-07-20-linguistic-archipelago/)
+### 3. [The Linguistic Archipelago: When Language Isolation Drives Success](/census-monkey-typewriter/analyses/linguistic-archipelago.html)
 Border counties where Spanish dominance correlates with higher incomes, challenging integration assumptions.
 
 ### 4. [Temporal Demographic Momentum: The Mathematics of Population Change](/census-monkey-typewriter/analyses/temporal-demographic-momentum-v2.html)
 Exploring how demographic momentum creates predictable population trajectories despite changing fertility patterns.
 
-### 5. [Seasonal Demographic Pulse: The Rhythm of American Migration](/analyses/2025-07-20-seasonal-demographic-pulse/)
+### 5. [Seasonal Demographic Pulse: The Rhythm of American Migration](/census-monkey-typewriter/analyses/seasonal-demographic-pulse-v2.html)
 Mapping the dramatic population swings in seasonal migration hotspots with enhanced methodology.
 
-### 6. [Bimodal Commute: When Geography Creates Two Different Cities](/analyses/2025-07-20-bimodal-commute/)
+### 6. [Bimodal Commute: When Geography Creates Two Different Cities](/census-monkey-typewriter/analyses/bimodal-commute.html)
 Identifying metropolitan areas where commute patterns reveal fundamentally different urban experiences.
 
 ### 7. [Empty Nester Housing Inefficiency: When Big Houses Meet Small Households](/census-monkey-typewriter/analyses/empty-nester-housing-inefficiency.html)
 Geographic clustering of housing/household size mismatches and their economic implications.
 
-### 8. [The Fertility Frontier: Where Large Families Still Thrive](/analyses/2025-07-20-fertility-frontier/)
+### 8. [The Fertility Frontier: Where Large Families Still Thrive](/census-monkey-typewriter/analyses/fertility-frontier.html)
 Identifying modern high-fertility clusters beyond traditional religious communities.
 
 ### 9. [Geographic NIMBY Detection: The Spatial Signature of Housing Resistance](/analyses/2025-07-20-geographic-nimby-detection/)
@@ -346,10 +346,10 @@ Using demographic proxies to map development resistance patterns.
 ### 10. [The Grandparent Dividend: Multi-Generational Households and Economic Advantage](/census-monkey-typewriter/analyses/grandparent-dividend.html)
 How co-resident grandparents affect household economics across different geographies.
 
-### 11. [Infrastructure Inequality Gradient: The Digital Divide's Hidden Geography](/analyses/2025-07-20-infrastructure-inequality-gradient/)
+### 11. [Infrastructure Inequality Gradient: The Digital Divide's Hidden Geography](/census-monkey-typewriter/analyses/infrastructure-inequality-gradient.html)
 Broadband access patterns that cut across traditional geographic categories.
 
-### 12. [The 3 AM Population: Night Owls and Geographic Settlement Patterns](/analyses/2025-07-20-3am-population/)
+### 12. [The 3 AM Population: Night Owls and Geographic Settlement Patterns](/census-monkey-typewriter/analyses/3am-population.html)
 Mapping communities where late-night activity reveals unique demographic and economic patterns.
 
 ### 13. [Age Structure Archipelago: When Demographics Create Geographic Islands](/census-monkey-typewriter/analyses/age-structure-singularity-enhanced.html)
@@ -361,13 +361,13 @@ Tracking where single ancestry groups achieve geographic dominance and the patte
 ### 15. [Vertical City: The Rise of High-Density Living](/census-monkey-typewriter/analyses/vertical-city.html)
 Mapping America's transition toward vertical living and its demographic implications.
 
-### 16. [Vowel Valley, Consonant County: The Phonetic Geography of America](/analyses/2025-07-20-vowel-valley-consonant-county/)
+### 16. [Vowel Valley, Consonant County: The Phonetic Geography of America](/census-monkey-typewriter/analyses/vowel-valley-consonant-county.html)
 A whimsical exploration of whether place names' phonetic patterns correlate with demographic characteristics.
 
 ### 17. [The Loneliness Gradient: Social Isolation Across American Communities](/census-monkey-typewriter/analyses/loneliness-gradient.html)
 Mapping patterns of social isolation and community connection across U.S. counties.
 
-### 18. [The 'Nothing Ever Changes' Index: Discovering America's Most Static County](/analyses/2025-07-20-nothing-ever-changes/)
+### 18. [The 'Nothing Ever Changes' Index: Discovering America's Most Static County](/census-monkey-typewriter/analyses/nothing-ever-changes.html)
 Quantifying demographic stability across 2,865 counties reveals Poweshiek County, Iowa as America's most unchanging place.
 
 ### 19. [Dead Language Archipelago: The Fading Linguistic Landscape](/census-monkey-typewriter/analyses/dead-language-archipelago.R)
