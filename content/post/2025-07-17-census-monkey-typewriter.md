@@ -328,10 +328,10 @@ Border counties where Spanish dominance correlates with higher incomes, challeng
 ### 4. [Temporal Demographic Momentum: The Mathematics of Population Change](/census-monkey-typewriter/analyses/temporal-demographic-momentum-v2.html)
 Exploring how demographic momentum creates predictable population trajectories despite changing fertility patterns.
 
-### 5. [Seasonal Demographic Pulse: The Rhythm of American Migration](/census-monkey-typewriter/analyses/seasonal-demographic-pulse-v2.html)
+### 5. [Seasonal Demographic Pulse: The Rhythm of American Migration](/analyses/2025-07-20-seasonal-demographic-pulse/)
 Mapping the dramatic population swings in seasonal migration hotspots with enhanced methodology.
 
-### 6. [Bimodal Commute: When Geography Creates Two Different Cities](/census-monkey-typewriter/analyses/bimodal-commute.html)
+### 6. [Bimodal Commute: When Geography Creates Two Different Cities](/analyses/2025-07-20-bimodal-commute/)
 Identifying metropolitan areas where commute patterns reveal fundamentally different urban experiences.
 
 ### 7. [Empty Nester Housing Inefficiency: When Big Houses Meet Small Households](/census-monkey-typewriter/analyses/empty-nester-housing-inefficiency.html)
@@ -349,7 +349,7 @@ How co-resident grandparents affect household economics across different geograp
 ### 11. [Infrastructure Inequality Gradient: The Digital Divide's Hidden Geography](/census-monkey-typewriter/analyses/infrastructure-inequality-gradient.html)
 Broadband access patterns that cut across traditional geographic categories.
 
-### 12. [The 3 AM Population: Night Owls and Geographic Settlement Patterns](/census-monkey-typewriter/analyses/3am-population.html)
+### 12. [The 3 AM Population: Night Owls and Geographic Settlement Patterns](/analyses/2025-07-20-3am-population/)
 Mapping communities where late-night activity reveals unique demographic and economic patterns.
 
 ### 13. [Age Structure Archipelago: When Demographics Create Geographic Islands](/census-monkey-typewriter/analyses/age-structure-singularity-enhanced.html)
@@ -361,11 +361,14 @@ Tracking where single ancestry groups achieve geographic dominance and the patte
 ### 15. [Vertical City: The Rise of High-Density Living](/census-monkey-typewriter/analyses/vertical-city.html)
 Mapping America's transition toward vertical living and its demographic implications.
 
-### 16. [Vowel Valley, Consonant County: The Phonetic Geography of America](/census-monkey-typewriter/analyses/vowel-valley-consonant-county.html)
+### 16. [Vowel Valley, Consonant County: The Phonetic Geography of America](/analyses/2025-07-20-vowel-valley-consonant-county/)
 A whimsical exploration of whether place names' phonetic patterns correlate with demographic characteristics.
 
 ### 17. [The Loneliness Gradient: Social Isolation Across American Communities](/census-monkey-typewriter/analyses/loneliness-gradient.html)
 Mapping patterns of social isolation and community connection across U.S. counties.
 
-### 18. [Dead Language Archipelago: The Fading Linguistic Landscape](/census-monkey-typewriter/analyses/dead-language-archipelago.R)
+### 18. [The 'Nothing Ever Changes' Index: Discovering America's Most Static County](/analyses/2025-07-20-nothing-ever-changes/)
+Quantifying demographic stability across 2,865 counties reveals Poweshiek County, Iowa as America's most unchanging place.
+
+### 19. [Dead Language Archipelago: The Fading Linguistic Landscape](/census-monkey-typewriter/analyses/dead-language-archipelago.R)
 Failed attempt at mapping heritage language decline (kept as a methodological lesson).
