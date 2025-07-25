@@ -364,5 +364,8 @@ Mapping America's transition toward vertical living and its demographic implicat
 ### 16. [Vowel Valley, Consonant County: The Phonetic Geography of America](/census-monkey-typewriter/analyses/vowel-valley-consonant-county.html)
 A whimsical exploration of whether place names' phonetic patterns correlate with demographic characteristics.
 
-### 17. [Dead Language Archipelago: The Fading Linguistic Landscape](/census-monkey-typewriter/analyses/dead-language-archipelago.R)
+### 17. [The Loneliness Gradient: Social Isolation Across American Communities](/census-monkey-typewriter/analyses/loneliness-gradient.html)
+Mapping patterns of social isolation and community connection across U.S. counties.
+
+### 18. [Dead Language Archipelago: The Fading Linguistic Landscape](/census-monkey-typewriter/analyses/dead-language-archipelago.R)
 Failed attempt at mapping heritage language decline (kept as a methodological lesson).
