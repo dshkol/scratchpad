@@ -17,7 +17,7 @@ tags:
 
 _“Let us imagine a million monkeys typing ten hours a day at random. There is almost no doubt that one of them would write exactly the complete works of Bossuet; if not, at least a good psalm, and if not, at least a few lines.”_ - Émile Borel — Mécanique Statistique et Irréversibilité (1913)
 
-[Census Monkey Typewriter](https://github.com/dshkol/census-monkey-typewriter) is an experiment to see how easy it would be to set up some kind of semi-automated and semi-supervised social science research and writing in the style of blog posts and circa 2019-era 'data journalism'. The goal was to create a process for an agent or a series of agents to run an analysis workflow end-to-end, from hypothesis creation to analysis plan to execution with narrative building, critique, and effective visual communication. Admittedly, the project was also intended as a parody of data blogging with the non-sense hypothesis dial turned up but after a few weeks of iteration the results have been pretty interesting, and I've learned a lot about how to approach this kind of problem going forward, and there's a few ideas I want to keep exploring in the near future. 
+[Census Monkey Typewriter](https://dshkol.com/cmt) is an experiment to see how easy it would be to set up some kind of semi-automated and semi-supervised social science research and writing in the style of blog posts and circa 2019-era 'data journalism'. The goal was to create a process for an agent or a series of agents to run an analysis workflow end-to-end, from hypothesis creation to analysis plan to execution with narrative building, critique, and effective visual communication. Admittedly, the project was also intended as a parody of data blogging with the non-sense hypothesis dial turned up but after a few weeks of iteration the results have been pretty interesting, and I've learned a lot about how to approach this kind of problem going forward, and there's a few ideas I want to keep exploring in the near future. 
 
 ## System overview at a high-level
 
@@ -297,7 +297,7 @@ That's a substantial amount of learning from relatively few feedback prompts on 
        1467 +  
 ```
 
-The final result is [here](/analyses/2025-07-20-linguistic-entropy/) and the full session log is [here](https://gist.github.com/dshkol/09d4db4ed28c73026103246bdaf52656). 
+The final result is [here](https://dshkol.com/cmt/analyses/linguistic-entropy/) and the full session log is [here](https://gist.github.com/dshkol/09d4db4ed28c73026103246bdaf52656). 
 
 ## Iterative context refinement
 
@@ -316,63 +316,29 @@ As it stands now, the system needs fundamental improvements to be more than a cu
 
 Here's a few analyses that stood.
 
-### 1. [Tech Hub Hollowing: The Demographic Paradox of Innovation Centers](/analyses/2025-07-20-tech-hub-hollowing/)
+### 1. [Tech Hub Hollowing: The Demographic Paradox of Innovation Centers](https://dshkol.com/cmt/analyses/tech-hub-hollowing/)
 Tracking how tech booms create their own demographic undermining.
 
-### 2. [Language Diversity Fuels Economic Innovation: Evidence from American Counties](/analyses/2025-07-20-linguistic-entropy/)
-Testing whether linguistic diversity measured through Shannon entropy correlates with economic dynamism at the county level.
-
-You can see the whole thing in action at ...
-
-
-
-### 3. [The Linguistic Archipelago: When Language Isolation Drives Success](/census-monkey-typewriter/analyses/linguistic-archipelago.html)
-Border counties where Spanish dominance correlates with higher incomes, challenging integration assumptions.
-
-### 4. [Temporal Demographic Momentum: The Mathematics of Population Change](/census-monkey-typewriter/analyses/temporal-demographic-momentum-v2.html)
-Exploring how demographic momentum creates predictable population trajectories despite changing fertility patterns.
-
-### 5. [Seasonal Demographic Pulse: The Rhythm of American Migration](/census-monkey-typewriter/analyses/seasonal-demographic-pulse-v2.html)
-Mapping the dramatic population swings in seasonal migration hotspots with enhanced methodology.
-
-### 6. [Bimodal Commute: When Geography Creates Two Different Cities](/census-monkey-typewriter/analyses/bimodal-commute.html)
-Identifying metropolitan areas where commute patterns reveal fundamentally different urban experiences.
-
-### 7. [Empty Nester Housing Inefficiency: When Big Houses Meet Small Households](/census-monkey-typewriter/analyses/empty-nester-housing-inefficiency.html)
-Geographic clustering of housing/household size mismatches and their economic implications.
-
-### 8. [The Fertility Frontier: Where Large Families Still Thrive](/census-monkey-typewriter/analyses/fertility-frontier.html)
-Identifying modern high-fertility clusters beyond traditional religious communities.
-
-### 9. [Geographic NIMBY Detection: The Spatial Signature of Housing Resistance](/analyses/2025-07-20-geographic-nimby-detection/)
-Using demographic proxies to map development resistance patterns.
-
-### 10. [The Grandparent Dividend: Multi-Generational Households and Economic Advantage](/census-monkey-typewriter/analyses/grandparent-dividend.html)
-How co-resident grandparents affect household economics across different geographies.
-
-### 11. [Infrastructure Inequality Gradient: The Digital Divide's Hidden Geography](/census-monkey-typewriter/analyses/infrastructure-inequality-gradient.html)
-Broadband access patterns that cut across traditional geographic categories.
-
-### 12. [The 3 AM Population: Night Owls and Geographic Settlement Patterns](/census-monkey-typewriter/analyses/3am-population.html)
+### 2. [The 3 AM Population: Night Owls and Geographic Settlement Patterns](https://dshkol.com/cmt/analyses/threeam-population/)
 Mapping communities where late-night activity reveals unique demographic and economic patterns.
 
-### 13. [Age Structure Archipelago: When Demographics Create Geographic Islands](/census-monkey-typewriter/analyses/age-structure-singularity-enhanced.html)
-Identifying counties with extreme age concentrations that create distinct demographic islands.
+You can see the whole thing in action at [dshkol.com/cmt](https://dshkol.com/cmt).
 
-### 14. [Monoculture Coast: The Geography of Ethnic Concentration](/census-monkey-typewriter/analyses/monoculture-coast.html)
-Tracking where single ancestry groups achieve geographic dominance and the patterns this creates.
 
-### 15. [Vertical City: The Rise of High-Density Living](/census-monkey-typewriter/analyses/vertical-city.html)
-Mapping America's transition toward vertical living and its demographic implications.
 
-### 16. [Vowel Valley, Consonant County: The Phonetic Geography of America](/census-monkey-typewriter/analyses/vowel-valley-consonant-county.html)
-A whimsical exploration of whether place names' phonetic patterns correlate with demographic characteristics.
+### 3. [Seasonal Demographic Pulse: The Rhythm of American Migration](https://dshkol.com/cmt/analyses/seasonal-demographic-pulse-v2/)
+Mapping the dramatic population swings in seasonal migration hotspots with enhanced methodology.
 
-### 17. [The Loneliness Gradient: Social Isolation Across American Communities](/census-monkey-typewriter/analyses/loneliness-gradient.html)
-Mapping patterns of social isolation and community connection across U.S. counties.
+### 4. [The Fertility Frontier: Where Large Families Still Thrive](https://dshkol.com/cmt/analyses/fertility-frontier/)
+Identifying modern high-fertility clusters beyond traditional religious communities.
 
-### 18. [The 'Nothing Ever Changes' Index: Discovering America's Most Static County](/census-monkey-typewriter/analyses/nothing-ever-changes.html)
-Quantifying demographic stability across 2,865 counties reveals Poweshiek County, Iowa as America's most unchanging place.
+### 5. [The 'Nothing Ever Changes' Index: Discovering America's Most Static County](https://dshkol.com/cmt/analyses/nothing-ever-changes/)
+Quantifying demographic stability reveals America's most unchanging place.
 
-### 19. [Dead Language Archipelago: The Fading Linguistic Landscape](/census-monkey-typewriter/analyses/dead-language-archipelago.R)
-Failed attempt at mapping heritage language decline (kept as a methodological lesson).
+### 6. [Bimodal Commute: When Geography Creates Two Different Cities](https://dshkol.com/cmt/analyses/bimodal-commute/)
+Identifying metropolitan areas where commute patterns reveal fundamentally different urban experiences.
+
+### 7. [Temporal Demographic Momentum: The Mathematics of Population Change](https://dshkol.com/cmt/analyses/temporal-demographic-momentum-v2/)
+Exploring how demographic momentum creates predictable population trajectories despite changing fertility patterns.
+
+_View all analyses at [dshkol.com/cmt](https://dshkol.com/cmt)._

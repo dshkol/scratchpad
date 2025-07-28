@@ -23,3 +23,80 @@
   word-break: break-word; /* Break long words if necessary */
   overflow-wrap: break-word; /* Modern word wrapping */
 }
+
+/* Reduce paragraph spacing */
+.content p:not(:last-child) {
+  margin-bottom: 0.75em !important; /* Reduced from 1em/1.5em to 0.75em */
+}
+
+/* Reduce list spacing */
+.content ul:not(:last-child),
+.content ol:not(:last-child) {
+  margin-bottom: 0.75em !important; /* Reduced from 1em/1.5em to 0.75em */
+}
+
+/* Reduce spacing between list items */
+.content li+li {
+  margin-top: 0.1em !important; /* Reduced from 0.25em to 0.1em */
+}
+
+/* Reduce nested list spacing */
+.content ul ul,
+.content ol ol,
+.content ul ol,
+.content ol ul {
+  margin-top: 0.25em !important; /* Add some small spacing for nested lists */
+  margin-bottom: 0.25em !important;
+}
+
+/* Fix indentation - align body content with title */
+.content {
+  padding-left: 0 !important; /* Remove any default left padding */
+  margin-left: 0 !important; /* Remove any default left margin */
+}
+
+/* Ensure headers also align properly */
+.content h1,
+.content h2,
+.content h3,
+.content h4,
+.content h5,
+.content h6 {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+/* Make sure paragraphs and lists also align */
+.content p,
+.content ul,
+.content ol,
+.content blockquote,
+.content pre,
+.content table {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+/* But preserve list item indentation */
+.content ul,
+.content ol {
+  padding-left: 1.5em !important; /* Standard list indentation */
+}
+
+/* Nested lists should have additional indentation */
+.content ul ul,
+.content ol ol,
+.content ul ol,
+.content ol ul {
+  padding-left: 1.5em !important; /* Additional indentation for nested lists */
+}
+
+/* Fix disclaimer blockquote spacing */
+.content blockquote {
+  margin-left: 1.5rem !important; /* Add proper left margin for disclaimers */
+  margin-right: 1.5rem !important; /* Add proper right margin for disclaimers */
+  padding-left: 1rem !important; /* Add padding inside the blockquote */
+  padding-right: 1rem !important; /* Add padding inside the blockquote */
+  margin-top: 1rem !important; /* Add top margin */
+  margin-bottom: 1rem !important; /* Add bottom margin */
+}

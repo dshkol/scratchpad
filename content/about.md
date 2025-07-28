@@ -1,29 +1,14 @@
----
-date: "2014-04-09"
-menu: main
-title: About Hugo
----
++++
+title = "About me"
+author = "Dmitry Shkolnk"
++++
 
-Hugo is a static site engine written in Go.
+I am fascinated by cities, the data artifacts they produce, and the stories that those artifacts tell us. I live in San Francisco, grew up in Vancouver, and had stints in Singapore (longer) and Copenhagen (shorter) in between. I work in the data science team at Instacart where I lead a team that looks to better understand the nuances of balancing supply and demand. Previously I did roughly the same thing but in South East Asia, and before that I was doing something completely different building geospatial models of tourist activity for the federal government of Canada. 
 
-It makes use of a variety of open source projects including:
+I started this blog in 2017 with three goals in mind. First, I wanted to push and develop my skills with R and data visualization by answering questions that were actually interesting to me rather than rehashing the same tired datasets and problems I was seeing online. Second, I thought it would be a good way of tackling my insecurity about being self-taught and being outside of the mainstream tech industry (at the time). Third, I wanted to promote the open-source projects I was collaborating on with demos and tutorials. I think that this project was successful at addressing all three objectives; however, this also resulted in me having less time and less motivation to keep going at the same rate over time, which is probably obvious from the post dates.  
 
-* [Cobra](https://github.com/spf13/cobra)
-* [Viper](https://github.com/spf13/viper)
-* [J Walter Weatherman](https://github.com/spf13/jWalterWeatherman)
-* [Cast](https://github.com/spf13/cast)
+I try to support [open-source projects](https://github.com/dshkol) and open data where possible. I'm the co-creator of the [cancensus](https://mountainmath.github.io/cancensus/index.html) and [cansim](https://mountainmath.github.io/cansim/index.html) packages. Many of the posts on this page that relate to Canadian data use one or both of these packages, which I likely to shamelessly promote. I also made the [airportr package](https://github.com/dshkol/airportr). 
 
-Learn more and contribute on [GitHub](https://github.com/spf13).
+This entire website was constructed in Rmarkdown using [blogdown](https://bookdown.org/yihui/blogdown/) and Hugo. 
 
-## Setup
-
-Some fun facts about [Hugo](http://gohugo.io/):
-
-* Built in [Go](http://golang.org/)
-* Loosely inspired by [Jekyll](http://jekyllrb.com/)
-* Primarily developed by [spf13](http://spf13.com/) on the train while commuting to and from Manhattan.
-* Coded in [Vim](http://vim.org) using [spf13-vim](http://vim.spf13.com/)
-
-Have questions or suggestions? Feel free to [open an issue on GitHub](https://github.com/spf13/hugo/issues/new) or [ask me on Twitter](https://twitter.com/spf13).
-
-Thanks for reading!
+If you wish to get in touch with me or work with me, please use any of links at the top of this page to find me on social media or just to email me directly.
