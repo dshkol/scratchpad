@@ -15,3 +15,9 @@ command = 'hugo -F -b $DEPLOY_PRIME_URL'
 [context.production]
 [context.production.environment]
 HUGO_ENV = 'production'
+
+# Proxy Census Monkey Typewriter
+[[redirects]]
+  from = "/cmt/*"
+  to = "https://dshkolcmt.netlify.app/:splat"
+  status = 200

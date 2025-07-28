@@ -1,7 +1,7 @@
 ---
 title: "A million monkeys doing data blogging - agentic social science with Claude Code and friends"
 author: "Dmitry Shkolnik"
-date: '2025-07-21'
+date: '2025-07-28'
 summary: "An experiment in using LLMs to automate social science writing. Here's what I learned about LLM-assisted social science blogging."
 slug: census-monkey-typewriter
 categories:
@@ -314,13 +314,17 @@ As it stands now, the system needs fundamental improvements to be more than a cu
 
 ## The Analyses
 
-Here's what came out of this experiment - analyses that made it through the full pipeline:
+Here's a few analyses that stood.
 
 ### 1. [Tech Hub Hollowing: The Demographic Paradox of Innovation Centers](/analyses/2025-07-20-tech-hub-hollowing/)
 Tracking how tech booms create their own demographic undermining.
 
 ### 2. [Language Diversity Fuels Economic Innovation: Evidence from American Counties](/analyses/2025-07-20-linguistic-entropy/)
 Testing whether linguistic diversity measured through Shannon entropy correlates with economic dynamism at the county level.
+
+You can see the whole thing in action at ...
+
+
 
 ### 3. [The Linguistic Archipelago: When Language Isolation Drives Success](/census-monkey-typewriter/analyses/linguistic-archipelago.html)
 Border counties where Spanish dominance correlates with higher incomes, challenging integration assumptions.

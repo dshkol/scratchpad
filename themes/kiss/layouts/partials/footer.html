@@ -6,9 +6,8 @@
     {{ end }}
   </div>
 </section>
-{{ if .Site.Config.Services.GoogleAnalytics.ID }}
-{{ template "_internal/google_analytics.html" . }}
-{{ end }}
+<script data-goatcounter="https://dshkol.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
 {{ if .Site.Params.matomoAnalytics }}
 {{- partial "analytics/matomo" . -}}
 {{ end }}

@@ -5,8 +5,8 @@ author: "Census Monkey Typewriter Analysis"
 date: "`r Sys.Date()`"
 output: 
   html_document:
-    toc: true
-    toc_float: true
+    toc: false
+    toc_float: false
     theme: cosmo
     highlight: kate
     code_folding: hide

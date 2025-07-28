@@ -9,8 +9,6 @@ pygmentsStyle = "monokailight"
 copyright = "&copy; <a href=\"https://github.com/dshkol\">Dmitry Shkolnik</a> 2022"
 [services.disqus]
 shortname = "dshkol"
-[services.googleAnalytics]
-id = "UA-107390160-1"
 [pagination]
 pagerSize = 8 # Number of posts per page
 enableRobotsTXT = true
