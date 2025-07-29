@@ -1,6 +1,4 @@
 @import url('https://fonts.googleapis.com/css?family=Inconsolata');
-@import url('https://fonts.googleapis.com/css?family=Lato');
-@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&display=swap');
 
 .card,
@@ -350,7 +348,7 @@ pre {
 }
 /* this appears to be the main body copy text */
 body {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Merriweather', serif;
   color: #42464c;
   font-size: 1rem;
   line-height: 1.428571428571429;
@@ -2534,8 +2532,8 @@ a.box:active {
 /* title name and headlines */ 
 .title {
   color: #222324;
-  font-family: 'Source Sans Pro', sans-serif;
-  font-weight: 900;
+  font-family: 'Merriweather', serif;
+  font-weight: 700;
   border-bottom-color: ""
 }
 
@@ -6552,8 +6550,8 @@ article+article {
 
 .title a {
   color: #222324;
-  font-family: 'Source Sans Pro', sans-serif;
-  font-weight: 900;
+  font-family: 'Merriweather', serif;
+  font-weight: 700;
 }
 
 .title.notfound {
