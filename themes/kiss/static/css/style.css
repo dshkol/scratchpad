@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css?family=Inconsolata');
 @import url('https://fonts.googleapis.com/css?family=Lato');
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&display=swap');
 
 .card,
 .highlight,
@@ -1393,9 +1394,11 @@ a.box:active {
 .content h4,
 .content h5,
 .content h6 {
-  font-family: 'Source Sans Pro', sans-serif;
-  color: #4a817e;
-  font-weight: 900;
+  font-family: 'Merriweather', serif;
+  color: #222324;
+  font-weight: normal;
+  text-decoration: underline;
+  text-decoration-color: #4a817e;
   margin-bottom: 5px;
 }
 
@@ -6424,7 +6427,7 @@ a.panel-block:hover {
 }
 
 .section {
-  background-color: #fff;
+  background-color: #fcfbf4;
   padding: 40px 20px;
 }
 
@@ -6446,7 +6449,7 @@ a.panel-block:hover {
 /*links*/
 code,
 html {
-  background-color: #fff;
+  background-color: #fcfbf4;
 }
 
 .footer a,

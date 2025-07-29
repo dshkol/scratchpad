@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Off-White Color Swatch Matrix</title>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Merriweather', serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+        }
+        
+        .matrix {
+            display: grid;
+            grid-template-columns: repeat(4, 200px);
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .swatch {
+            width: 200px;
+            height: 150px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .hex-code {
+            font-family: 'Merriweather', serif;
+            color: #222324;
+            font-weight: normal;
+            text-decoration: underline;
+            text-decoration-color: #4a817e;
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        .category {
+            font-family: 'Merriweather', serif;
+            color: #222324;
+            font-weight: bold;
+            margin-top: 30px;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .current {
+            border: 3px solid #4a817e;
+            position: relative;
+        }
+        
+        .current::after {
+            content: "CURRENT";
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4a817e;
+            color: white;
+            padding: 2px 8px;
+            font-size: 12px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="font-family: 'Merriweather', serif; color: #222324; text-decoration: underline; text-decoration-color: #4a817e;">Off-White & Cream Color Swatches</h1>
+    
+    <div class="category">Current Color</div>
+    <div class="matrix">
+        <div class="swatch current" style="background-color: #ffffff;">
+            <div class="hex-code">#ffffff</div>
+        </div>
+    </div>
+    
+    <div class="category">Warm Creams</div>
+    <div class="matrix">
+        <div class="swatch" style="background-color: #fefdf8;">
+            <div class="hex-code">#fefdf8</div>
+        </div>
+        <div class="swatch" style="background-color: #fdfcf6;">
+            <div class="hex-code">#fdfcf6</div>
+        </div>
+        <div class="swatch" style="background-color: #fcfbf4;">
+            <div class="hex-code">#fcfbf4</div>
+        </div>
+        <div class="swatch" style="background-color: #faf9f2;">
+            <div class="hex-code">#faf9f2</div>
+        </div>
+    </div>
+    
+    <div class="category">Cool Off-Whites</div>
+    <div class="matrix">
+        <div class="swatch" style="background-color: #fdfdfc;">
+            <div class="hex-code">#fdfdfc</div>
+        </div>
+        <div class="swatch" style="background-color: #fafafa;">
+            <div class="hex-code">#fafafa</div>
+        </div>
+        <div class="swatch" style="background-color: #fbfbfa;">
+            <div class="hex-code">#fbfbfa</div>
+        </div>
+        <div class="swatch" style="background-color: #f9f9f8;">
+            <div class="hex-code">#f9f9f8</div>
+        </div>
+    </div>
+    
+    <div class="category">Neutral Creams</div>
+    <div class="matrix">
+        <div class="swatch" style="background-color: #fefefe;">
+            <div class="hex-code">#fefefe</div>
+        </div>
+        <div class="swatch" style="background-color: #fcfcfc;">
+            <div class="hex-code">#fcfcfc</div>
+        </div>
+        <div class="swatch" style="background-color: #fbfbfb;">
+            <div class="hex-code">#fbfbfb</div>
+        </div>
+        <div class="swatch" style="background-color: #f8f8f7;">
+            <div class="hex-code">#f8f8f7</div>
+        </div>
+    </div>
+    
+    <p style="margin-top: 40px; font-size: 14px; color: #666;">
+        Each swatch shows the background color with hex code styled using your site's header formatting:<br>
+        Merriweather font, normal weight, #222324 text color, with #4a817e teal underline.
+    </p>
+</body>
+</html>
