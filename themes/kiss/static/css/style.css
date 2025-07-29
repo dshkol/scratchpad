@@ -1388,6 +1388,7 @@ a.box:active {
   margin-bottom: 1em;
 }
 
+/* Base header styling */
 .content h1,
 .content h2,
 .content h3,
@@ -1397,8 +1398,29 @@ a.box:active {
   font-family: 'Merriweather', serif;
   color: #222324;
   font-weight: normal;
+  text-decoration: none;
+}
+
+/* H1 styling - normal weight, no underline */
+.content h1 {
+  font-weight: normal;
+  text-decoration: none;
+}
+
+/* H2 styling - bold with teal underline */
+.content h2 {
+  font-weight: bold;
   text-decoration: underline;
   text-decoration-color: #4a817e;
+}
+
+/* H3-H6 styling - bold without underline */
+.content h3,
+.content h4,
+.content h5,
+.content h6 {
+  font-weight: bold;
+  text-decoration: none;
   margin-bottom: 5px;
 }
 
@@ -6427,7 +6449,7 @@ a.panel-block:hover {
 }
 
 .section {
-  background-color: #fcfbf4;
+  background-color: #fff;
   padding: 40px 20px;
 }
 
@@ -6449,7 +6471,7 @@ a.panel-block:hover {
 /*links*/
 code,
 html {
-  background-color: #fcfbf4;
+  background-color: #fff;
 }
 
 .footer a,
