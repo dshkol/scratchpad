@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css?family=Inconsolata');
 @import url('https://fonts.googleapis.com/css?family=Lato');
-@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@900&display=swap');
 
 .card,
 .highlight,
@@ -1387,39 +1387,21 @@ a.box:active {
   margin-bottom: 1em;
 }
 
-/* Base header styling */
 .content h1,
 .content h2,
 .content h3,
 .content h4,
 .content h5,
 .content h6 {
-  font-family: 'Merriweather', serif;
+  font-family: 'Source Sans Pro', sans-serif;
   color: #222324;
-  font-weight: normal;
-  text-decoration: none;
+  font-weight: 900;
 }
 
-/* H1 styling - normal weight, no underline */
-.content h1 {
-  font-weight: normal;
-  text-decoration: none;
-}
-
-/* H2 styling - bold with teal underline */
+/* H2 gets teal underline */
 .content h2 {
-  font-weight: bold;
   text-decoration: underline;
   text-decoration-color: #4a817e;
-}
-
-/* H3-H6 styling - bold without underline */
-.content h3,
-.content h4,
-.content h5,
-.content h6 {
-  font-weight: bold;
-  text-decoration: none;
   margin-bottom: 5px;
 }
 
@@ -2533,8 +2515,8 @@ a.box:active {
 /* title name and headlines */ 
 .title {
   color: #222324;
-  font-family: 'Merriweather', serif;
-  font-weight: 700;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-weight: 900;
   border-bottom-color: ""
 }
 
@@ -6551,8 +6533,8 @@ article+article {
 
 .title a {
   color: #222324;
-  font-family: 'Merriweather', serif;
-  font-weight: 700;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-weight: 900;
 }
 
 .title.notfound {
