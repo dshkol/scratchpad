@@ -314,6 +314,8 @@ As it stands now, the system needs fundamental improvements to be more than a cu
 
 ## The Analyses
 
+You can see the whole thing in action at [dshkol.com/cmt](https://dshkol.com/cmt). But here's a few good examples:
+
 Here's a few analyses that stood.
 
 ### 1. [Tech Hub Hollowing: The Demographic Paradox of Innovation Centers](https://dshkol.com/cmt/analyses/tech-hub-hollowing/)
@@ -321,10 +323,6 @@ Tracking how tech booms create their own demographic undermining.
 
 ### 2. [The 3 AM Population: Night Owls and Geographic Settlement Patterns](https://dshkol.com/cmt/analyses/threeam-population/)
 Mapping communities where late-night activity reveals unique demographic and economic patterns.
-
-You can see the whole thing in action at [dshkol.com/cmt](https://dshkol.com/cmt).
-
-
 
 ### 3. [Seasonal Demographic Pulse: The Rhythm of American Migration](https://dshkol.com/cmt/analyses/seasonal-demographic-pulse-v2/)
 Mapping the dramatic population swings in seasonal migration hotspots with enhanced methodology.
