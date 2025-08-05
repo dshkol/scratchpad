@@ -24,7 +24,7 @@ Splitting up the original sequential workflow is, fortunately, a task well suite
 
 ### CMT multi-agent setup
 
-<img src="multi-agent-diagram.svg" alt="Multi-agent workflow diagram" style="max-width: 100%; height: auto;" />
+<img src="images/multi-agent-diagram.svg" alt="Multi-agent workflow diagram" style="max-width: 100%; height: auto;" />
 
 The table below describes at a high level each agent's responsibilities.
 
