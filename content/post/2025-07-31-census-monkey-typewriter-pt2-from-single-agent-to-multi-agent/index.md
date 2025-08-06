@@ -1,5 +1,5 @@
 ---
-title: 'Census Monkey Typewriter pt2: from single agent to multi-agent'
+title: 'Census Monkey Typewriter Part 2: from single agent to multi-agent'
 author: "Dmitry Shkolnik"
 date: "2025-08-03"
 output: pdf_document
