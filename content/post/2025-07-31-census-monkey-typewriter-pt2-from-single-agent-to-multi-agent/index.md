@@ -1,7 +1,7 @@
 ---
 title: 'Census Monkey Typewriter pt2: from single agent to multi-agent'
 author: "Dmitry Shkolnik"
-date: "2025-07-31"
+date: "2025-08-03"
 output: pdf_document
 slug: "census-monkey-typewriter-pt2-multiagent"
 categories:
@@ -13,7 +13,7 @@ tags:
 - demographics
 - llm
 - ai
-summary: "Quality and workflow improvements from moving to a multi-agent workflow"
+summary: "Assembling my own autonomous data blogging team: quality and workflow improvements from moving to a multi-agent workflow"
 ---
 
 A few days after I wrote the [first post about CMT](https://www.dshkol.com/post/census-monkey-typewriter/), Anthropic added dedicated agent management capabilities to Claude Code. While I was impressed with the results of my experiments progressively boostrapping, I started noticing more issues with the agent randomly making simple mistakes or outright ignoring precise instructions. Most of the analysis execution relies on Sonnet 4 which has a context window of about 200000 tokens. Between the system overhead that Claude Code itself uses, the detailed sequential workflow instructions, and the task-specific execution, I was probably starting to strain that context window -- an example of [context degradation](https://jameshoward.us/2024/11/26/context-degradation-syndrome-when-large-language-models-lose-the-plot) that occurs as the amount of tokens held in memory starts to grow long. The same constraint also reduced the utility of the self-critique and 'peer review' simulation instructions I expected the agent to perform. More often than not, critical feedback was tacked on to the end as an afterthought rather than woven back into the narrative, let alone into the underlying analysis and execution plan.
@@ -24,7 +24,7 @@ Splitting up the original sequential workflow is, fortunately, a task well suite
 
 ### CMT multi-agent setup
 
-![Multi-agent workflow diagram](images/multi-agent-diagram.svg){alt="Multi-agent workflow diagram" height="auto" style="max-"}
+![Multi-agent workflow diagram](images/multi-agent-diagram-wide.png)
 
 The table below describes at a high level each agent's responsibilities.
 
