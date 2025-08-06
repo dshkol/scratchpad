@@ -24,12 +24,12 @@ Splitting up the original sequential workflow is, fortunately, a task well suite
 
 ### CMT multi-agent setup
 
-![Multi-agent workflow diagram](images/multi-agent-diagram-wide.png)
+![](images/multi-agent-diagram-wide.jpg)
 
 The table below describes at a high level each agent's responsibilities.
 
 | Agent Role | Task |
-|-----------------------------------------------|------------------------|
+|-----------------------------------------------|-------------------------|
 | **00 - Workflow Orchestrator** | Overall system architecture, workflow coordination, and integration protocols. |
 | **01 - Fake Data Termination** | Enforces protocol throughout multi-agent workflow to severely penalize use of fake, simulated, and hallucinated data. |
 | **02 - Analysis Tracker** | Track completed analyses themes and provide diversity guidance for hypothesis generation to avoid over-indexing on particular topics or themes. |
