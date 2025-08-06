@@ -21,6 +21,8 @@ _“Let us imagine a million monkeys typing ten hours a day at random. There is 
 
 ## System overview at a high-level
 
+_Edit: This post is part 1 of what became a 2 part series. Part 1 focuses on the initial learnings of setting up the initial agentic workflow while [Part 2](https://www.dshkol.com/post/census-monkey-typewriter-pt2-multiagent/) covers the transition and improvement from moving to a multi-agent orchestration._ 
+
 The overall setup is pretty simple. Everything more or less functions through agentic CLI systems -- primarily Claude Code with some Gemini CLI sprinkled on the side -- and a host of instructional markdown contents to use for context and prompting. The system uses a mix of Opus 4, Sonnet 4, and Gemini Pro 2.5 depending on instructions and availability. I use the Claude Max plan and the free tier of Gemini CLI. 
 
 There is a stateful workflow that maintains context across sessions through version-controlled instruction files. Context is refined through a combination of agent-derived meta learnings ('reflect on what worked well and what did not') and feedback from the user (me). Additional context is built up over time through failure and success, with more details, refinements, and learnings about edge-cases. You can make the case that this is a lofi RLHF system where the agent reads accumulated learnings before each task.
