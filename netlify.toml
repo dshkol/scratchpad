@@ -25,6 +25,6 @@ HUGO_ENV = 'production'
 # Proxy The D-AI-LY
 [[redirects]]
   from = "/thedaily/*"
-  to = "https://[your-daily-site].netlify.app/:splat"
+  to = "https://dshkol-thedaily.netlify.app/:splat"
   status = 200
   force = true
