@@ -21,3 +21,10 @@ HUGO_ENV = 'production'
   from = "/cmt/*"
   to = "https://dshkolcmt.netlify.app/:splat"
   status = 200
+
+# Proxy The D-AI-LY
+[[redirects]]
+  from = "/thedaily/*"
+  to = "https://[your-daily-site].netlify.app/:splat"
+  status = 200
+  force = true
