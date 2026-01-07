@@ -108,3 +108,5 @@ Additionally, every article must include a reproducibility section with working 
 Am I ready to trust this to run fully autonomously as a a National Statistical Agency? No, not yet, but this is a toy example built over a few days of iterative back and forth. I don't think the work required to bring it to that level, or at least to the point where a human's only role is in review/approval, is significant. 
 
 In any case, you should assume the models get better and so does the ecosystem of harnesses and tooling around them and extrapolate accordingly. 
+
+Check it out at [dshkol.com/thedaily/](https://www.dshkol.com/thedaily/) or in the [GH repo](https://github.com/dshkol/thedaily/tree/main).
